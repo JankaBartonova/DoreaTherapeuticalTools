@@ -1,5 +1,5 @@
-//const navCategory = document.querySelector("#btn-check-miminka");
-//const navSubCategory = document.querySelector(".miminka");
+const navCategory = document.querySelector("#btn-check-miminka");
+const navSubCategory = document.querySelector(".miminka");
 const searchNavigation = document.querySelector(".form-search");
 const userInfo = document.querySelector(".user-info");
 const navBarCategories = document.querySelector(".navBarCategories"); 
@@ -23,7 +23,7 @@ db.collection("categories")
     console.log(err);
   });
 
-/*
+
 // when navigation button clicked, show subnavigation
 navCategory.addEventListener("click", () => {
   navCategory.classList.toggle("active");
@@ -35,7 +35,6 @@ navCategory.addEventListener("click", () => {
     navSubCategory.classList.add("d-none");
   }
 });
-*/
 
 // search navigation user input
 searchNavigation.addEventListener("submit", (e) => {
