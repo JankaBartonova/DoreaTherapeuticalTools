@@ -1,0 +1,16 @@
+{
+  "name": "dorea-therapeutical-tools",
+  "version": "1.0.0",
+  "description": "Application managing therapeutical tools for children with disabilities",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "disabilities",
+    "therapy",
+    "tools"
+  ],
+  "author": "JankaBartonova",
+  "license": "ISC"
+}

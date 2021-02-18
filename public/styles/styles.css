@@ -1,0 +1,16 @@
+.card-header {
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.jumbotron .col-4 {
+  max-width: 100%;
+}
+.btn-container {
+  display: flex;
+  justify-content: space-evenly;
+}
+.hide {
+  display: none;
+}

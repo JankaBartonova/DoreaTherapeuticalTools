@@ -1,0 +1,146 @@
+{
+  "1": {
+    "title": "Miminka",
+    "subcategories": [
+      {
+        "title": "Hračky pro miminka, podložky, hrazdy"
+      },
+      {
+        "title": "Zraková stimulace pro nejmenší"
+      }
+    ]
+  },
+  "2": {
+    "title" : "Batolata",
+    "subcateegories" : [
+      {
+        "title" : "Zvukové pultíky, cílený dotek"
+      }
+    ]
+  },
+  "3": {
+    "title" : "Jemná motorika",
+    "subcategories" : [
+      {  
+        "title" : "Stavebnice"
+      },
+      {
+        "title" : "Manipulační hračky"
+      },
+      {
+        "title" : "Provlékání"
+      },
+      {
+        "title" : "Labyrinty"
+      },
+      {
+        "title" : "Sebeobsluha"
+      },
+      {
+        "title" : "Grafomotorika"
+      }
+    ]
+  },
+  "4" : {
+    "title" : "Myšlění",
+    "subcategories" : [
+      {
+        "title" : "Vkládačky"
+      },
+      {
+        "title" : "Strukturované úkoly"
+      },
+      {
+        "title" : "Puzzle"
+      },
+      {
+        "title" : "Barvy"
+      },
+      {
+        "title" : "Počítání"       
+      },
+      {
+        "title" : "Obrázkové hry"
+      },
+      {
+        "title" : "Pracovní listy"
+      }
+    ]
+  },
+  "5" : {
+    "title" : "Zrakové vnímání",
+    "subcategories" : [
+    ]
+  },
+  "6" : {
+    "title" : "Sluchové vnímání a hudební nástroje",
+    "subcategories" : [
+    ]
+  },
+  "7" : {
+    "title" : "Komunikace",
+    "subcategories" : [
+      {
+        "title" : "Logopedie úkoly"
+      },
+      {
+        "title" : "Logopedické pomůcky"
+      },
+      {
+        "title" : "Pomůcky pro komunikaci"
+      } 
+    ]
+  },
+  "8" : {
+    "title" : "Hrubá motorika",
+    "subcategories" : [
+      {
+        "title" : "Rehabilitační pomůcky"
+      },
+      {
+        "title" : "Polohovací pomůcky"
+      },
+      {
+        "title" : "Hry na koordinaci a podporu hrubé motoriky"
+      }
+    ]
+  },
+  "9" : {
+    "title" : "Vibrační pomůcky",
+    "subcategories" : [
+
+    ]
+  }, 
+  "10" : {
+    "title" : "Literatura",
+    "subcategories" : [
+      {
+        "title" : "Tvoření s dětmi"
+      },
+      {
+        "title" : "Hry a cvičení"
+      },
+      {
+        "title" : "Dětská literatura"
+      },
+      {
+        "title" : "Odborná literatura"
+      },
+      {
+        "title" : "Pro rodiče"
+      },
+      {
+        "title" : "Sociální tématika, jiné"
+      },
+      {
+        "title" : "Pro nejmenší"
+      },
+      {
+        "title" : "Pracovní listy"
+      },
+      {
+        "title" : "Duchovní"
+      }
+    ]
+  } 
+}
