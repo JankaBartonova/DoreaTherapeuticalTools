@@ -14,3 +14,9 @@
 .hide {
   display: none;
 }
+label.btn-outline-primary:hover {
+  background-color: #30AAF1;
+}
+label.btn-outline-primary:not(:disabled):not(.disabled).active:hover {
+  background-color: #2584BB;
+}

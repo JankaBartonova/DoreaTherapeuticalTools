@@ -1,13 +1,10 @@
-const navCategory = document.querySelector("#btn-check-miminka");
-const navSubCategory = document.querySelector(".miminka");
 const searchNavigation = document.querySelector(".form-search");
 const userInfo = document.querySelector(".user-info");
 const navBarCategories = document.querySelector(".navBarCategories"); 
 
 const addNavBar = (category) => {
   let html = `
-    <input type="checkbox" class="btn-check hide" id="btn-check-${category.title}" autocomplete="off">
-    <label class="btn btn-outline-primary" for="btn-check-${category.title}">${category.title}</label>
+    <label class="btn btnNavBar btn-outline-primary" for="btn-radio-${category.title}">${category.title}</label>
   `
   navBarCategories.innerHTML += html;
 }
@@ -19,21 +16,40 @@ db.collection("categories")
     snapshot.docs.forEach(doc => {
       addNavBar(doc.data());
     });
-  }).catch((err) => {
+  })
+  .catch((err) => {
     console.log(err);
   });
 
-
 // when navigation button clicked, show subnavigation
-navCategory.addEventListener("click", () => {
-  navCategory.classList.toggle("active");
-  navSubCategory.classList.toggle("active");
-
-  if (navSubCategory.classList.contains("active")) {
-    navSubCategory.classList.remove("d-none");
-  } else {
-    navSubCategory.classList.add("d-none");
+navBarCategories.addEventListener("click", (e) => {
+  
+  // avoid event listener on container
+  if (e.target == navBarCategories) {
+    return false;
   }
+
+  const buttonNavBar = document.querySelectorAll(".btnNavBar");
+  buttonNavBar.forEach((button) => {
+    if (e.target != button) {
+      button.classList.remove("active");
+    }
+  });
+
+  e.target.classList.toggle("active");
+
+  db.collection("categories")
+    .get()
+    .then((snapshot) => {
+      const subcategories = snapshot.docs[0].data().subcategories;
+      subcategories.forEach((subcategory) => {
+        console.log(subcategory.title)
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
 });
 
 // search navigation user input
@@ -54,5 +70,3 @@ searchNavigation.addEventListener("submit", (e) => {
     userInfo.style.fontWeight = "bold";
   }
 });
-
-
