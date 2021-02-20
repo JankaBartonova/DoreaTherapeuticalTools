@@ -1,56 +1,62 @@
 const searchNavigation = document.querySelector(".form-search");
 const userInfo = document.querySelector(".user-info");
-const navBarCategories = document.querySelector(".navBarCategories"); 
+const navBarCategories = document.querySelector(".navBarCategories");
+const navBarSubcategories = document.querySelector(".navBarSubcategories")
 
-const addNavBar = (category) => {
+const addNavBar = (category, index) => {
   let html = `
-    <label class="btn btnNavBar btn-outline-primary" for="btn-radio-${category.title}">${category.title}</label>
+    <label class="btn btn-outline-primary" data-index="${index}">${category.title}</label>
   `
   navBarCategories.innerHTML += html;
+}
+
+const addSubNavBar = (category, index) => {
+  console.log(category);
+  let html = `
+    <label class="btn btn-outline-info" data-index="${index}">${category.title}</label>
+  `
+  navBarSubcategories.innerHTML += html;
+  console.log(html);
 }
 
 // Read navbar categories from Firebase, display it under jumbletron
 db.collection("categories")
   .get()
   .then((snapshot) => {
-    snapshot.docs.forEach(doc => {
-      addNavBar(doc.data());
+    snapshot.docs.forEach((doc, index) => {
+      addNavBar(doc.data(), index);
+    });
+
+    // when navigation button clicked, show subnavigation
+    navBarCategories.addEventListener("click", (e) => {
+
+      // avoid event listener on container
+      if (e.target == navBarCategories) {
+        return false;
+      }
+
+      const buttonNavBar = document.querySelectorAll(".btnNavBar");
+      buttonNavBar.forEach((button) => {
+        if (e.target != button) {
+          button.classList.remove("active");
+        }
+      });
+
+      e.target.classList.toggle("active");
+
+      const index = e.target.dataset.index;
+      const subcategories = snapshot.docs[index].data().subcategories;
+      
+      subcategories.forEach((subcategory) => {
+        addSubNavBar(subcategory, index);
+      });
     });
   })
   .catch((err) => {
     console.log(err);
   });
 
-// when navigation button clicked, show subnavigation
-navBarCategories.addEventListener("click", (e) => {
-  
-  // avoid event listener on container
-  if (e.target == navBarCategories) {
-    return false;
-  }
 
-  const buttonNavBar = document.querySelectorAll(".btnNavBar");
-  buttonNavBar.forEach((button) => {
-    if (e.target != button) {
-      button.classList.remove("active");
-    }
-  });
-
-  e.target.classList.toggle("active");
-
-  db.collection("categories")
-    .get()
-    .then((snapshot) => {
-      const subcategories = snapshot.docs[0].data().subcategories;
-      subcategories.forEach((subcategory) => {
-        console.log(subcategory.title)
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
-});
 
 // search navigation user input
 searchNavigation.addEventListener("submit", (e) => {
