@@ -24,7 +24,9 @@ db.collection("categories")
     snapshot.docs.forEach((doc, index) => {
       addNavBar(doc.data(), index);
     });
-
+    return snapshot;
+  })
+  .then((snapshot) => {
     // when navigation button clicked, show subnavigation
     navBarCategories.addEventListener("click", (e) => {
 
@@ -63,14 +65,12 @@ db.collection("categories")
         });
       }
     });
-  })
-  .catch((err) => {
-    console.log(err);
+  }) 
+  .catch((error) => {
+    console.log(error);
   });
 
-
-
-// search navigation user input
+  // search navigation user input
 searchNavigation.addEventListener("submit", (e) => {
   e.preventDefault();
   const toolNumberUser = searchNavigation.search.value;
