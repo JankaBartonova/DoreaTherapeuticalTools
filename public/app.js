@@ -1,43 +1,71 @@
-//const navCategory = document.querySelector("#btn-check-miminka");
-//const navSubCategory = document.querySelector(".miminka");
 const searchNavigation = document.querySelector(".form-search");
 const userInfo = document.querySelector(".user-info");
-const navBarCategories = document.querySelector(".navBarCategories"); 
+const navBarCategories = document.querySelector(".navBarCategories");
+const navBarSubcategories = document.querySelector(".navBarSubcategories")
 
-const addNavBar = (category) => {
+const addNavBar = (category, index) => {
   let html = `
-    <input type="checkbox" class="btn-check hide" id="btn-check-${category.title}" autocomplete="off">
-    <label class="btn btn-outline-primary" for="btn-check-${category.title}">${category.title}</label>
+    <label class="btn btnNavBar btn-outline-primary" data-index="${index}">${category.title}</label>
   `
   navBarCategories.innerHTML += html;
+}
+
+const addSubNavBar = (category, index) => {
+  let html = `
+    <label class="btn btnSubNavBar btn-outline-info" data-index="${index}">${category.title}</label>
+  `
+  navBarSubcategories.innerHTML += html;
 }
 
 // Read navbar categories from Firebase, display it under jumbletron
 db.collection("categories")
   .get()
   .then((snapshot) => {
-    snapshot.docs.forEach(doc => {
-      addNavBar(doc.data());
+    snapshot.docs.forEach((doc, index) => {
+      addNavBar(doc.data(), index);
     });
-  }).catch((err) => {
-    console.log(err);
+    return snapshot;
+  })
+  .then((snapshot) => {
+    // when navigation button clicked, show subnavigation
+    navBarCategories.addEventListener("click", (e) => {
+
+      // avoid event listener on container
+      if (e.target == navBarCategories) {
+        return false;
+      }
+
+      // navigation button toggling
+      const buttonNavBar = document.querySelectorAll(".btnNavBar");
+      buttonNavBar.forEach((button) => {
+        if (e.target != button) {
+          button.classList.remove("active");
+        } else {
+          button.classList.toggle("active");
+        }
+      });
+
+      // get subcategories and create html template
+      const index = e.target.dataset.index;
+      const subcategories = snapshot.docs[index].data().subcategories;
+      
+      // display and hide subnavbar (on click)
+      const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
+      buttonsSubNavBar.forEach((button) => {
+        navBarSubcategories.removeChild(button);
+      });
+      if (e.target.classList.contains("active")) {
+        subcategories.forEach((subcategory) => {
+          addSubNavBar(subcategory, index);
+        });
+      }
+    });
+  }) 
+  .catch((error) => {
+    console.log(error);
   });
 
-/*
-// when navigation button clicked, show subnavigation
-navCategory.addEventListener("click", () => {
-  navCategory.classList.toggle("active");
-  navSubCategory.classList.toggle("active");
-
-  if (navSubCategory.classList.contains("active")) {
-    navSubCategory.classList.remove("d-none");
-  } else {
-    navSubCategory.classList.add("d-none");
-  }
-});
-*/
-
-// search navigation user input
+  // search navigation user input
 searchNavigation.addEventListener("submit", (e) => {
   e.preventDefault();
   const toolNumberUser = searchNavigation.search.value;
@@ -55,5 +83,3 @@ searchNavigation.addEventListener("submit", (e) => {
     userInfo.style.fontWeight = "bold";
   }
 });
-
-
