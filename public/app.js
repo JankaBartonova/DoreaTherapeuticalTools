@@ -12,7 +12,7 @@ const addNavBar = (category, index) => {
 
 const addSubNavBar = (category, index) => {
   let html = `
-    <label class="btn btnSubNavBar btn-outline-info d-none" data-index="${index}">${category.title}</label>
+    <label class="btn btnSubNavBar btn-outline-info" data-index="${index}">${category.title}</label>
   `
   navBarSubcategories.innerHTML += html;
 }
@@ -40,29 +40,32 @@ db.collection("categories")
       buttonNavBar.forEach((button) => {
         if (e.target != button) {
           button.classList.remove("active");
+        } else {
+          button.classList.toggle("active");
         }
       });
-      e.target.classList.toggle("active");
 
       // get subcategories and create html template
       const index = e.target.dataset.index;
       const subcategories = snapshot.docs[index].data().subcategories;
       
-      subcategories.forEach((subcategory) => {
-        addSubNavBar(subcategory, index);
-      });
-      
       // display and hide subnavbar (on click)
       const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
+      buttonsSubNavBar.forEach((button) => {
+        navBarSubcategories.removeChild(button);
+      });
       if (e.target.classList.contains("active")) {
-        buttonsSubNavBar.forEach((button) => {
-          button.classList.remove("d-none");
+        subcategories.forEach((subcategory) => {
+          addSubNavBar(subcategory, index);
         });
-      } else {
-        buttonsSubNavBar.forEach((button) => {
-          button.classList.remove("btnSubNavBar")
-          button.classList.add("d-none");
-        });
+      }
+
+      displySubcategories(e.target, subcategories);
+
+      const buttonsNavBar = findButtonNavBar();
+      clearElement(buttonsNavBar);
+      if (isElementActive(e.target)) {
+        createSubCategories(subcategories);
       }
     });
   }) 
