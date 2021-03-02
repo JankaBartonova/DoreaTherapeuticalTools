@@ -60,6 +60,7 @@ db.collection("categories")
         });
       }
 
+      /*
       displySubcategories(e.target, subcategories);
 
       const buttonsNavBar = findButtonNavBar();
@@ -67,6 +68,7 @@ db.collection("categories")
       if (isElementActive(e.target)) {
         createSubCategories(subcategories);
       }
+      */
     });
   }) 
   .catch((error) => {
