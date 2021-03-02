@@ -59,16 +59,6 @@ db.collection("categories")
           addSubNavBar(subcategory, index);
         });
       }
-
-      /*
-      displySubcategories(e.target, subcategories);
-
-      const buttonsNavBar = findButtonNavBar();
-      clearElement(buttonsNavBar);
-      if (isElementActive(e.target)) {
-        createSubCategories(subcategories);
-      }
-      */
     });
   }) 
   .catch((error) => {
