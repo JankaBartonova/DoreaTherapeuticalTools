@@ -3,20 +3,6 @@ const userInfo = document.querySelector(".user-info");
 const navBarCategories = document.querySelector(".navBarCategories");
 const navBarSubcategories = document.querySelector(".navBarSubcategories")
 
-const addNavBar = (category, index) => {
-  let html = `
-    <label class="btn btnNavBar btn-outline-primary" data-index="${index}">${category.title}</label>
-  `
-  navBarCategories.innerHTML += html;
-}
-
-const addSubNavBar = (category, index) => {
-  let html = `
-    <label class="btn btnSubNavBar btn-outline-info" data-index="${index}">${category.title}</label>
-  `
-  navBarSubcategories.innerHTML += html;
-}
-
 // Read navbar categories from Firebase, display it under jumbletron
 db.collection("categories")
   .get()
@@ -34,31 +20,9 @@ db.collection("categories")
       if (e.target == navBarCategories) {
         return false;
       }
-
-      // navigation button toggling
-      const buttonNavBar = document.querySelectorAll(".btnNavBar");
-      buttonNavBar.forEach((button) => {
-        if (e.target != button) {
-          button.classList.remove("active");
-        } else {
-          button.classList.toggle("active");
-        }
-      });
-
-      // get subcategories and create html template
-      const index = e.target.dataset.index;
-      const subcategories = snapshot.docs[index].data().subcategories;
       
-      // display and hide subnavbar (on click)
-      const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
-      buttonsSubNavBar.forEach((button) => {
-        navBarSubcategories.removeChild(button);
-      });
-      if (e.target.classList.contains("active")) {
-        subcategories.forEach((subcategory) => {
-          addSubNavBar(subcategory, index);
-        });
-      }
+      toggleNavigationButton(e);
+      displayAndHideSubnavigation(e, snapshot);      
     });
   }) 
   .catch((error) => {
@@ -83,3 +47,49 @@ searchNavigation.addEventListener("submit", (e) => {
     userInfo.style.fontWeight = "bold";
   }
 });
+
+const addNavBar = (category, index) => {
+  let html = `
+    <label class="btn btnNavBar btn-outline-primary" data-index="${index}">${category.title}</label>
+  `
+  navBarCategories.innerHTML += html;
+}
+
+const addSubNavBar = (category, index) => {
+  let html = `
+    <label class="btn btnSubNavBar btn-outline-info" data-index="${index}">${category.title}</label>
+  `
+  navBarSubcategories.innerHTML += html;
+}
+
+const toggleNavigationButton = (e) => {
+  const buttonsNavBar = document.querySelectorAll(".btnNavBar");
+  buttonsNavBar.forEach((button) => {
+    if (e.target != button) {
+      button.classList.remove("active");
+    } else {
+      button.classList.toggle("active");
+    }
+  });
+}
+
+const displayAndHideSubnavigation = (e, snapshot) => {
+  const index = e.target.dataset.index;
+  const subcategories = snapshot.docs[index].data().subcategories;
+  
+  const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
+  
+  removeDomElements(buttonsSubNavBar, navBarSubcategories);
+   
+  if (e.target.classList.contains("active")) {
+    subcategories.forEach((subcategory) => {
+      addSubNavBar(subcategory, index);
+    });
+  }
+}
+
+const removeDomElements = (elements, container) => {
+  elements.forEach((element) => {
+    container.removeChild(element);
+  });    
+}
