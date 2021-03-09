@@ -74,6 +74,28 @@ searchNavigation.addEventListener("submit", (e) => {
   }
 });
 
+//uploading the file to firebase
+const fileInput = document.querySelector(".myfiles");
+const uploader = document.querySelector(".uploader");
+
+fileInput.addEventListener("change", e => {
+  const file = e.target.files[0];
+  const storageRef = firebase.storage().ref("images/" + file.name);
+
+  var uploadTask = storageRef
+    .put(file)
+  
+  uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, 
+    (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      uploader.value = progress;
+    },
+    (error) => {
+      console.log("error", {error});
+    }
+  )
+})
+
 const addNavBar = (category, index) => {
   let html = `
     <label class="btn btnNavBar btn-outline-primary" data-index="${index}">${category.title}</label>
