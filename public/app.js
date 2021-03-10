@@ -22,8 +22,9 @@ db.collection("categories")
         return false;
       }
       
-      toggleNavigationButton(e);
-      displayAndHideSubnavigation(e, snapshot);      
+      const buttonsNavBar = document.querySelectorAll(".btnNavBar");
+      toggleElement(e.target, buttonsNavBar);
+      displayAndHideSubnavigation(e.target, snapshot);      
     });
     return snapshot;
   })
@@ -40,31 +41,13 @@ db.collection("categories")
       const subcategoryIndex = e.target.dataset.subcategoryIndex;
       const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
 
-      // toggle subnavigation buttons
       const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
-      buttonsSubNavBar.forEach((button) => {
-        if (e.target != button) {
-          button.classList.remove("active");
-        } else {
-          button.classList.toggle("active");
-        }
-      });
+      toggleElement(e.target, buttonsSubNavBar);
 
       removeAllElements(cardContainer);
-
+      
       if (toolIds) {
-        toolIds.forEach((tool) => {
-          db.collection("tools").where("id", "==", tool)
-          .get()
-          .then((snapshot) => {
-            snapshot.docs.forEach((doc) => {
-              addCard(doc.data());
-            })
-          })
-          .catch((error) => {
-            console.log(error);
-          })
-        })
+        displaySelectedCards(toolIds);
       }
     });
   }) 
@@ -105,27 +88,23 @@ const addSubNavBar = (subcategory, categoryIndex, subcategoryIndex) => {
   navBarSubcategories.innerHTML += html;
 }
 
-const toggleNavigationButton = (e) => {
-  const buttonsNavBar = document.querySelectorAll(".btnNavBar");
-  buttonsNavBar.forEach((button) => {
-    if (e.target != button) {
-      button.classList.remove("active");
+const toggleElement = (target, elements) => {
+  elements.forEach((element) => {
+    if (target != element) {
+      element.classList.remove("active");
     } else {
-      button.classList.toggle("active");
+      element.classList.toggle("active");
     }
   });
 }
 
-const displayAndHideSubnavigation = (e, snapshot) => {
-  const categoryIndex = e.target.dataset.index;
+const displayAndHideSubnavigation = (target, snapshot) => {
+  const categoryIndex = target.dataset.index;
   const subcategories = snapshot.docs[categoryIndex].data().subcategories;
   
-  //const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
-  
-  //removeDomElements(buttonsSubNavBar, navBarSubcategories);
   removeAllElements(navBarSubcategories);
    
-  if (e.target.classList.contains("active")) {
+  if (target.classList.contains("active")) {
     subcategories.forEach((subcategory, subcategoryIndex) => {
       addSubNavBar(subcategory, categoryIndex, subcategoryIndex);
     });
@@ -136,6 +115,21 @@ const removeAllElements = (container) => {
   container.querySelectorAll(":scope > *").forEach((element) => {
     container.removeChild(element);
   });    
+}
+
+const displaySelectedCards = (ids) => {
+  ids.forEach((tool) => {
+    db.collection("tools").where("id", "==", tool)
+    .get()
+    .then((snapshot) => {
+      snapshot.docs.forEach((doc) => {
+        addCard(doc.data());
+      })
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+  })
 }
 
 const addCard = (card) => {
