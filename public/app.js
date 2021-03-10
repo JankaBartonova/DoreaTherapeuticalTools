@@ -88,9 +88,9 @@ const addSubNavBar = (subcategory, categoryIndex, subcategoryIndex) => {
   navBarSubcategories.innerHTML += html;
 }
 
-const toggleElement = (target, elements) => {
+const toggleElement = (category, elements) => {
   elements.forEach((element) => {
-    if (target != element) {
+    if (category != element) {
       element.classList.remove("active");
     } else {
       element.classList.toggle("active");
@@ -98,13 +98,13 @@ const toggleElement = (target, elements) => {
   });
 }
 
-const displayAndHideSubnavigation = (target, snapshot) => {
-  const categoryIndex = target.dataset.index;
+const displayAndHideSubnavigation = (category, snapshot) => {
+  const categoryIndex = category.dataset.index;
   const subcategories = snapshot.docs[categoryIndex].data().subcategories;
   
   removeAllElements(navBarSubcategories);
    
-  if (target.classList.contains("active")) {
+  if (category.classList.contains("active")) {
     subcategories.forEach((subcategory, subcategoryIndex) => {
       addSubNavBar(subcategory, categoryIndex, subcategoryIndex);
     });
@@ -144,7 +144,7 @@ const addCard = (card) => {
   let html = `
   <div class="col-md-6 col-lg-4 my-3">
     <div class="card text-center">
-      <img src="https://via.placeholder.com/350x200.png/999/fff" alt="card-img-top">
+      <img src="${card.image || 'https://via.placeholder.com/350x200.png/999/fff'}" alt="card-img-top">
       <div class="card-header bg-primary text-white border-primary">
         <span class="px-3">${cardId}</span>${card.name}
       </div>
