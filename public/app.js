@@ -40,18 +40,32 @@ db.collection("categories")
       const subcategoryIndex = e.target.dataset.subcategoryIndex;
       const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
 
-      toolIds.forEach((tool) => {
-        db.collection("tools").where("id", "==", tool)
-        .get()
-        .then((snapshot) => {
-          snapshot.docs.forEach((doc) => {
-            addCard(doc.data());
+      // toggle subnavigation buttons
+      const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
+      buttonsSubNavBar.forEach((button) => {
+        if (e.target != button) {
+          button.classList.remove("active");
+        } else {
+          button.classList.toggle("active");
+        }
+      });
+
+      removeAllElements(cardContainer);
+
+      if (toolIds) {
+        toolIds.forEach((tool) => {
+          db.collection("tools").where("id", "==", tool)
+          .get()
+          .then((snapshot) => {
+            snapshot.docs.forEach((doc) => {
+              addCard(doc.data());
+            })
+          })
+          .catch((error) => {
+            console.log(error);
           })
         })
-        .catch((error) => {
-          console.log(error);
-        })
-      })
+      }
     });
   }) 
   .catch((error) => {
@@ -106,9 +120,10 @@ const displayAndHideSubnavigation = (e, snapshot) => {
   const categoryIndex = e.target.dataset.index;
   const subcategories = snapshot.docs[categoryIndex].data().subcategories;
   
-  const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
+  //const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
   
-  removeDomElements(buttonsSubNavBar, navBarSubcategories);
+  //removeDomElements(buttonsSubNavBar, navBarSubcategories);
+  removeAllElements(navBarSubcategories);
    
   if (e.target.classList.contains("active")) {
     subcategories.forEach((subcategory, subcategoryIndex) => {
@@ -117,11 +132,11 @@ const displayAndHideSubnavigation = (e, snapshot) => {
   }
 }
 
-const removeDomElements = (elements, container) => {
-  elements.forEach((element) => {
+const removeAllElements = (container) => {
+  container.querySelectorAll(":scope > *").forEach((element) => {
     container.removeChild(element);
   });    
-}     
+}
 
 const addCard = (card) => {
   
