@@ -94,6 +94,21 @@ fileInput.addEventListener("change", e => {
       console.log("error", {error});
     }
   )
+
+  // upload image URL to firebase firestore
+  // TODO reference document (for now hardcoded .doc(1))
+  storageRef
+    .getDownloadURL()
+    .then((url) => {
+      const tools = db.collection("tools").doc("1")
+      
+      tools.set({
+        image: url
+      }, {merge: true});
+      
+      console.log("Image URL was added to firestore");
+    })
+
 })
 
 const addNavBar = (category, index) => {
@@ -166,7 +181,7 @@ const addCard = (card) => {
   let html = `
   <div class="col-md-6 col-lg-4 my-3">
     <div class="card text-center">
-      <img src="${card.image || 'https://via.placeholder.com/350x200.png/999/fff'}" alt="card-img-top">
+      <img class="my-image" src="${card.image || 'https://via.placeholder.com/350x200.png/999/fff'}" alt="card-img-top">
       <div class="card-header bg-primary text-white border-primary">
         <span class="px-3">${cardId}</span>${card.name}
       </div>
