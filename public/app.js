@@ -85,31 +85,9 @@ fileInput.addEventListener("change", e => {
   var uploadTask = storageRef
     .put(file)
   
-  uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, 
-    (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      uploader.value = progress;
-    },
-    (error) => {
-      console.log("error", {error});
-    }
-  )
-
-  // upload image URL to firebase firestore
-  // TODO reference document (for now hardcoded .doc(1))
-  storageRef
-    .getDownloadURL()
-    .then((url) => {
-      const tools = db.collection("tools").doc("1")
-      
-      tools.set({
-        image: url
-      }, {merge: true});
-      
-      console.log("Image URL was added to firestore");
-    })
-
-})
+  monitorUploadProgress(uploadTask);
+  uploadImageUrlToFirestore(storageRef);  
+});
 
 const addNavBar = (category, index) => {
   let html = `
@@ -148,8 +126,41 @@ const displayAndHideSubnavigation = (category, snapshot) => {
   }
 }
 
+const monitorUploadProgress = (uploadTask) => {
+  uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, 
+    (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      uploader.value = progress;
+    },
+    (error) => {
+      console.log("error", {error});
+    }
+  )
+}
+
+const uploadImageUrlToFirestore = (storageRef) => {
+  storageRef
+    .getDownloadURL()
+    .then((url) => {
+      // TODO reference document (for now hardcoded .doc(1))
+      const tools = db.collection("tools").doc("1")
+      
+      tools.set({
+        image: url
+      }, {merge: true});
+      
+      console.log("Image URL was added to firestore");
+    })
+}
+
 const removeAllElements = (container) => {
   container.querySelectorAll(":scope > *").forEach((element) => {
+    container.removeChild(element);
+  });    
+}
+
+const removeDomElements = (elements, container) => {
+  elements.forEach((element) => {
     container.removeChild(element);
   });    
 }
