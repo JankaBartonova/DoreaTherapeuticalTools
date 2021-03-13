@@ -12,5 +12,8 @@
     "tools"
   ],
   "author": "JankaBartonova",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "select-pure": "^0.6.1"
+  }
 }
