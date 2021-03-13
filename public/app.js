@@ -11,7 +11,41 @@ fetch("./docs/categories.json")
     return response.json();
   })
   .then((data) => {
-    console.log(data)
+    const categories = Object.values(data);
+    const items = categories.map((category) => {
+      const label = category.title;
+      const value = label.slice(0,2).toUpperCase();
+
+      return {
+        label: label,
+        value: value
+      }
+    });
+
+    var instance = new SelectPure(".example", {
+      options: items,
+      multiple: true, 
+      placeholder: "Vyberte kategorii",
+      autocomplete: true,
+      icon: "fa fa-times", 
+      inlineIcon: false, 
+      classNames: {
+        select: "select-pure__select",
+        dropdownShown: "select-pure__select--opened",
+        multiselect: "select-pure__select--multiple",
+        label: "select-pure__label",
+        placeholder: "select-pure__placeholder",
+        dropdown: "select-pure__options",
+        option: "select-pure__option",
+        autocompleteInput: "select-pure__autocomplete",
+        selectedLabel: "select-pure__selected-label",
+        selectedOption: "select-pure__option--selected",
+        placeholderHidden: "select-pure__placeholder--hidden",
+        optionHidden: "select-pure__option--hidden",
+      }
+    });
+    
+    instance.value();   
   })
   .catch((error) => {
     console.log("rejected", error);
@@ -40,30 +74,7 @@ const myOptions = [
   },
 ]
 
-var instance = new SelectPure(".example", {
-  options: myOptions,
-  multiple: true, 
-  placeholder: "Vyberte kategorii",
-  autocomplete: true,
-  icon: "fa fa-times", 
-  inlineIcon: false, 
-  classNames: {
-    select: "select-pure__select",
-    dropdownShown: "select-pure__select--opened",
-    multiselect: "select-pure__select--multiple",
-    label: "select-pure__label",
-    placeholder: "select-pure__placeholder",
-    dropdown: "select-pure__options",
-    option: "select-pure__option",
-    autocompleteInput: "select-pure__autocomplete",
-    selectedLabel: "select-pure__selected-label",
-    selectedOption: "select-pure__option--selected",
-    placeholderHidden: "select-pure__placeholder--hidden",
-    optionHidden: "select-pure__option--hidden",
-  }
-});
 
-instance.value();
 
 
 // Read navbar categories from Firebase, display it under jumbletron
