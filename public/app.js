@@ -4,79 +4,6 @@ const navBarCategories = document.querySelector(".navBarCategories");
 const navBarSubcategories = document.querySelector(".navBarSubcategories");
 const cardContainer = document.querySelector(".cardContainer");
 
-// Select pure multiselect
-fetch("./docs/categories.json")
-  .then((response) => {
-    console.log("resolved", response);
-    return response.json();
-  })
-  .then((data) => {
-    const categories = Object.values(data);
-    const items = categories.map((category) => {
-      const label = category.title;
-      const value = label.slice(0,2).toUpperCase();
-
-      return {
-        label: label,
-        value: value
-      }
-    });
-
-    var instance = new SelectPure(".example", {
-      options: items,
-      multiple: true, 
-      placeholder: "Vyberte kategorii",
-      autocomplete: true,
-      icon: "fa fa-times", 
-      inlineIcon: false, 
-      classNames: {
-        select: "select-pure__select",
-        dropdownShown: "select-pure__select--opened",
-        multiselect: "select-pure__select--multiple",
-        label: "select-pure__label",
-        placeholder: "select-pure__placeholder",
-        dropdown: "select-pure__options",
-        option: "select-pure__option",
-        autocompleteInput: "select-pure__autocomplete",
-        selectedLabel: "select-pure__selected-label",
-        selectedOption: "select-pure__option--selected",
-        placeholderHidden: "select-pure__placeholder--hidden",
-        optionHidden: "select-pure__option--hidden",
-      }
-    });
-    
-    instance.value();   
-  })
-  .catch((error) => {
-    console.log("rejected", error);
-  })
-
-const myOptions = [
-  {
-    label: "Minimka",
-    value: "Mi",
-  },
-  {
-    label: "Washington",
-    value: "WA",
-  },
-  {
-    label: "California",
-    value: "CA",
-  },
-  {
-    label: "New Jersey",
-    value: "NJ",
-  },
-  {
-    label: "North Carolina",
-    value: "NC",
-  },
-]
-
-
-
-
 // Read navbar categories from Firebase, display it under jumbletron
 db.collection("categories")
   .get()
@@ -146,6 +73,54 @@ searchNavigation.addEventListener("submit", (e) => {
     userInfo.style.fontWeight = "bold";
   }
 });
+
+// Select pure multiselect
+fetch("./docs/categories.json")
+  .then((response) => {
+    console.log("resolved", response);
+    return response.json();
+  })
+  .then((data) => {
+    const categories = Object.values(data);
+    const items = categories.map((category) => {
+      const label = category.title;
+      const value = label.slice(0,2).toUpperCase();
+
+      return {
+        label: label,
+        value: value
+      }
+    });
+
+    var instance = new SelectPure(".example", {
+      options: items,
+      multiple: true, 
+      placeholder: "Vyberte kategorii",
+      autocomplete: true,
+      icon: "fa fa-times", 
+      inlineIcon: false, 
+      classNames: {
+        select: "select-pure__select",
+        dropdownShown: "select-pure__select--opened",
+        multiselect: "select-pure__select--multiple",
+        label: "select-pure__label",
+        placeholder: "select-pure__placeholder",
+        dropdown: "select-pure__options",
+        option: "select-pure__option",
+        autocompleteInput: "select-pure__autocomplete",
+        selectedLabel: "select-pure__selected-label",
+        selectedOption: "select-pure__option--selected",
+        placeholderHidden: "select-pure__placeholder--hidden",
+        optionHidden: "select-pure__option--hidden",
+      }
+    });
+    
+    instance.value();   
+  })
+  .catch((error) => {
+    console.log("rejected", error);
+  })
+
 
 //uploading the file to firebase
 const fileInput = document.querySelector(".myfiles");
@@ -261,17 +236,19 @@ const addCard = (card) => {
   } else if (cardId.length == 2) {
     cardId = `0${cardId}`
   }
+  console.log(cardId);
 
   let html = `
   <div class="col-md-6 col-lg-4 my-3">
     <div class="card text-center">
       <img class="my-image" src="${card.image || 'https://via.placeholder.com/350x200.png/999/fff'}" alt="card-img-top">
       <div class="card-header bg-primary text-white border-primary">
-        <span class="px-3">${cardId}</span>${card.name}
+        ${card.name}
       </div>
       <ul class="list-group list-group-flush text-primary">
+        <li class="list-group-item">Číslo pomůcky: ${cardId}</li>
         <li class="list-group-item">Orientační cena: <span>${card.price}</span>Kč</li>
-        <div class="container">
+        <div class="container d-none">
           <div class="row py-2 px-2 d-flex justify-content-center">
             <a href="#" class="btn col-sm-5 mx-2 btn-primary">Upravit</a>
             <a href="#" class="btn col-sm-5 mx-2 btn-danger">Smazat</a>

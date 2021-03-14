@@ -20,12 +20,16 @@ label.btn-outline-primary:hover {
 label.btn-outline-primary:not(:disabled):not(.disabled).active:hover {
   background-color: #2584BB;
 }
-<<<<<<< HEAD
+
 label.btn-outline-info:hover {
   background-color: #07539a;
 }
 label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   background-color: #032a4f;
+}
+
+.field-required {
+  color: red;
 }
 
 .select-wrapper {
