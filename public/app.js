@@ -77,18 +77,18 @@ searchNavigation.addEventListener("submit", (e) => {
 // Select pure multiselect
 fetch("./docs/categories.json")
   .then((response) => {
-    console.log("resolved", response);
     return response.json();
   })
   .then((data) => {
     const categories = Object.values(data);
+    console.log(categories);
     const items = categories.map((category) => {
       const label = category.title;
       const value = label.slice(0,2).toUpperCase();
 
       return {
         label: label,
-        value: value
+        value: value,
       }
     });
 
@@ -99,6 +99,41 @@ fetch("./docs/categories.json")
       autocomplete: true,
       icon: "fa fa-times", 
       inlineIcon: false, 
+      autocomplete: true,
+      onChange: value => { 
+        console.log(value, typeof(value));  
+          
+        // get subcategories (array of arrays)
+        const items = categories.map((category) => {
+          subcategories = category.subcategories
+          return subcategories;
+        })
+        console.log(items);
+        
+        // TODO! For each value map corresponding element in array 
+        if (value[0] == "MI"){
+          console.log("test");
+          const subItems = items[0].map((subcategory) => {
+            const sublabel = subcategory.title;
+            const subvalue = sublabel.slice(0,2).toUpperCase()
+            return {
+              label: sublabel,
+              value: subvalue
+            };
+          })
+
+          var instance = new SelectPure(".example", {
+            options: subItems,
+            multiple: true, 
+            placeholder: "Vyberte kategorii",
+            autocomplete: true,
+            icon: "fa fa-times", 
+            inlineIcon: false, 
+            autocomplete: true 
+          });
+          instance.value();
+        }
+      },
       classNames: {
         select: "select-pure__select",
         dropdownShown: "select-pure__select--opened",
@@ -111,11 +146,11 @@ fetch("./docs/categories.json")
         selectedLabel: "select-pure__selected-label",
         selectedOption: "select-pure__option--selected",
         placeholderHidden: "select-pure__placeholder--hidden",
-        optionHidden: "select-pure__option--hidden",
+        optionHidden: "select-pure__option--hidden"
       }
-    });
-    
-    instance.value();   
+    }); 
+
+    instance.value();  
   })
   .catch((error) => {
     console.log("rejected", error);
