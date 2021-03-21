@@ -1,144 +1,196 @@
 {
   "1": {
+    "id": 1,
     "title": "Miminka",
     "subcategories": [
       {
+        "id": 1,
         "title": "Hračky pro miminka, podložky, hrazdy"
       },
       {
+        "id": 2,
         "title": "Zraková stimulace pro nejmenší"
       }
     ]
   },
   "2": {
+    "id": 2,
     "title" : "Batolata",
     "subcategories" : [
       {
+        "id": 1,
         "title" : "Zvukové pultíky, cílený dotek"
       }
     ]
   },
   "3": {
+    "id": 3,
     "title" : "Jemná motorika",
     "subcategories" : [
       {  
+        "id": 1,
         "title" : "Stavebnice"
       },
       {
+        "id": 2,
         "title" : "Manipulační hračky"
       },
       {
+        "id": 3,
         "title" : "Provlékání"
       },
       {
+        "id": 4,
         "title" : "Labyrinty"
       },
       {
+        "id": 5,
         "title" : "Sebeobsluha"
       },
       {
+        "id": 6,
         "title" : "Grafomotorika"
       }
     ]
   },
   "4" : {
-    "title" : "Myšlění",
+    "id": 4,
+    "title" : "Myšlení",
     "subcategories" : [
       {
+        "id": 1,
         "title" : "Vkládačky"
       },
       {
+        "id": 2,
         "title" : "Strukturované úkoly"
       },
       {
+        "id": 3,
         "title" : "Puzzle"
       },
       {
+        "id": 4,
         "title" : "Barvy"
       },
       {
+        "id": 5,
         "title" : "Počítání"       
       },
       {
+        "id": 6,
         "title" : "Obrázkové hry"
       },
       {
+        "id": 7,
         "title" : "Pracovní listy"
       }
     ]
   },
   "5" : {
+    "id": 5,
     "title" : "Zrakové vnímání",
     "subcategories" : [
+      {
+        "id": 1,
+        "title" : "Zrakové vnímání"
+      }
     ]
   },
   "6" : {
+    "id": 6,
     "title" : "Sluchové vnímání a hudební nástroje",
     "subcategories" : [
+      {
+        "id": 1,
+        "title" : "Sluchové vnímání a hudební nástroje"
+      }
     ]
   },
   "7" : {
+    "id": 7,
     "title" : "Komunikace",
     "subcategories" : [
       {
+        "id": 1,
         "title" : "Logopedie úkoly"
       },
       {
+        "id": 2,
         "title" : "Logopedické pomůcky"
       },
       {
+        "id": 3,
         "title" : "Pomůcky pro komunikaci"
       } 
     ]
   },
   "8" : {
+    "id": 8,
     "title" : "Hrubá motorika",
     "subcategories" : [
       {
+        "id": 1,
         "title" : "Rehabilitační pomůcky"
       },
       {
+        "id": 2,
         "title" : "Polohovací pomůcky"
       },
       {
+        "id": 3,
         "title" : "Hry na koordinaci a podporu hrubé motoriky"
       }
     ]
   },
   "9" : {
+    "id": 9,
     "title" : "Vibrační pomůcky",
     "subcategories" : [
-
+      {
+        "id": 1,
+        "title": "Vibrační pomůcky"
+      }
     ]
   }, 
   "10" : {
+    "id": 10,
     "title" : "Literatura",
     "subcategories" : [
       {
+        "id": 1,
         "title" : "Tvoření s dětmi"
       },
       {
+        "id": 2,
         "title" : "Hry a cvičení"
       },
       {
+        "id": 3,
         "title" : "Dětská literatura"
       },
       {
+        "id": 4,
         "title" : "Odborná literatura"
       },
       {
+        "id": 5,
         "title" : "Pro rodiče"
       },
       {
+        "id": 6,
         "title" : "Sociální tématika, jiné"
       },
       {
+        "id": 7,
         "title" : "Pro nejmenší"
       },
       {
+        "id": 8,
         "title" : "Pracovní listy"
       },
       {
+        "id": 9,
         "title" : "Duchovní"
       }
     ]

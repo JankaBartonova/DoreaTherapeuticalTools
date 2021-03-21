@@ -82,14 +82,12 @@ fetch("./docs/categories.json")
   })
   .then((data) => {
     const categories = Object.values(data);
-    console.log(categories);
     const items = categories.map((category) => {
       const label = category.title;
-      const value = label.slice(0,2).toUpperCase();
 
       return {
         label: label,
-        value: value,
+        value: category.id.toString(),
       }
     });
 
@@ -102,12 +100,9 @@ fetch("./docs/categories.json")
       inlineIcon: false, 
       autocomplete: true,
       onChange: value => { 
-        console.log(value, typeof(value));  
         
         // remove subcategories
         const subcategoriesTags = document.querySelectorAll(".subcategoriesTags");
-        console.log(subcategoriesTags)
-        console.log(subcategoriesSelect);
         if (subcategoriesTags) {
           removeDomElements(subcategoriesTags, subcategoriesSelect);
         }
@@ -117,20 +112,16 @@ fetch("./docs/categories.json")
           subcategories = category.subcategories
           return subcategories;
         })
-        console.log(items);
         
-        // TODO! For each value map CORRECT corresponding element in array 
+        // display corresponding subcategories 
         const categoryValues = value;
         categoryValues.forEach((categoryValue, index) => {
-          console.log(categoryValue);
           if (value[index]) {
-            console.log("index: ", index);
-            const subItems = items[index].map((subcategory) => {
+            const subItems = items[parseInt(categoryValue)-1].map((subcategory) => {
               const sublabel = subcategory.title;
-              const subvalue = sublabel.slice(0,2).toUpperCase()
               return {
                 label: sublabel,
-                value: subvalue
+                value: subcategory.id.toString()
               };
             })
             var instance = new SelectPure(".subcategories", {
