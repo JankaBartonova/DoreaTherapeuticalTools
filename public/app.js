@@ -4,7 +4,7 @@ const navBarCategories = document.querySelector(".navBarCategories");
 const navBarSubcategories = document.querySelector(".navBarSubcategories");
 const cardContainer = document.querySelector(".cardContainer");
 const subcategoriesSelect = document.querySelector(".subcategories");
-const categoriesSelect = document.querySelector(".categories"); 
+const toolSubcategories = document.querySelector(".toolSubcategories");
 
 // Read navbar categories from Firebase, display it under jumbletron
 db.collection("categories")
@@ -23,10 +23,16 @@ db.collection("categories")
       if (e.target == navBarCategories) {
         return false;
       }
+<<<<<<< HEAD
       
       const buttonsNavBar = document.querySelectorAll(".btnNavBar");
       toggleElement(e.target, buttonsNavBar);
       displayAndHideSubnavigation(e.target, snapshot);      
+=======
+
+      toggleNavigationButton(e);
+      displayAndHideSubnavigation(e, snapshot);
+>>>>>>> 4aecdbd... Remove subcategories multiselect if category empty
     });
     return snapshot;
   })
@@ -38,11 +44,12 @@ db.collection("categories")
       if (e.target == navBarSubcategories) {
         return false;
       }
- 
+
       const categoryIndex = e.target.dataset.categoryIndex;
       const subcategoryIndex = e.target.dataset.subcategoryIndex;
       const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
 
+<<<<<<< HEAD
       const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
       toggleElement(e.target, buttonsSubNavBar);
 
@@ -51,13 +58,27 @@ db.collection("categories")
       if (toolIds) {
         displaySelectedCards(toolIds);
       }
+=======
+      toolIds.forEach((tool) => {
+        db.collection("tools").where("id", "==", tool)
+          .get()
+          .then((snapshot) => {
+            snapshot.docs.forEach((doc) => {
+              addCard(doc.data());
+            })
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+      })
+>>>>>>> 4aecdbd... Remove subcategories multiselect if category empty
     });
-  }) 
+  })
   .catch((error) => {
     console.log(error);
   });
 
-  // search navigation user input
+// search navigation user input
 searchNavigation.addEventListener("submit", (e) => {
   e.preventDefault();
   const toolNumberUser = searchNavigation.search.value;
@@ -92,101 +113,46 @@ fetch("./docs/categories.json")
       }
     });
 
-    var instance = new SelectPure(".categories", {
-      options: items,
-      multiple: true, 
-      placeholder: false,
-      autocomplete: false,
-      icon: "fa fa-times", 
-      inlineIcon: false, 
-      autocomplete: true,
-      onChange: value => { 
-        
-        // remove subcategories
-        // const categoriesTags = document.querySelectorAll(".categoriesTags");
-        // const subcategoriesTags = document.querySelectorAll(".subcategoriesTags");
+    addMultiSelect(".categories", "categoriesTags", items, (value) => {
+      // remove subcategories
+      const categoriesTags = document.querySelectorAll(".categoriesTags");
+      const subcategoriesTags = document.querySelectorAll(".subcategoriesTags");
+      console.log(categoriesTags);
+      removeDomElements(subcategoriesTags, subcategoriesSelect);
 
-        // console.log(categoriesTags);
-        // console.log(subcategoriesTags);
-        // console.log(subcategoriesSelect);
-        // if (categoriesTags) {
-        //   removeDomElements(subcategoriesTags, subcategoriesSelect);
-        // }
-        
-        // remove subcategories
-        const subcategoriesTags = document.querySelectorAll(".subcategoriesTags");
-        console.log(subcategoriesTags);
-        console.log(subcategoriesSelect);
-        // if (subcategoriesTags) {
-          removeDomElements(subcategoriesTags, subcategoriesSelect);
-        // }
-          
-        // get subcategories (array of arrays)
-        const items = categories.map((category) => {
-          subcategories = category.subcategories
-          return subcategories;
-        })
-       
-        // display corresponding subcategories 
-        const categoryValues = value;
-        let subItems = [];
-        categoryValues.forEach((categoryValue) => {
-          const array = items[parseInt(categoryValue)-1].map((subcategory) => {
-            const sublabel = subcategory.title;
-            return {
-              label: sublabel,
-              value: subcategory.id.toString()
-            };
-          })
-          subItems = subItems.concat(array);
-          return subItems;
-        })
-        var instance = new SelectPure(".subcategories", {
-          options: subItems,
-          multiple: true, 
-          autocomplete: true,
-          icon: "fa fa-times", 
-          inlineIcon: false, 
-          autocomplete: true,
-          classNames: {
-            select: "subcategoriesTags select-pure__select",
-            dropdownShown: "select-pure__select--opened",
-            multiselect: "select-pure__select--multiple",
-            label: "select-pure__label",
-            placeholder: "select-pure__placeholder",
-            dropdown: "select-pure__options",
-            option: "select-pure__option",
-            autocompleteInput: "select-pure__autocomplete",
-            selectedLabel: "select-pure__selected-label",
-            selectedOption: "select-pure__option--selected",
-            placeholderHidden: "select-pure__placeholder--hidden",
-            optionHidden: "select-pure__option--hidden"
-          }
-        });
-        instance.value();
-      },
-      classNames: {
-        select: "categoriesTags select-pure__select",
-        dropdownShown: "select-pure__select--opened",
-        multiselect: "select-pure__select--multiple",
-        label: "select-pure__label",
-        placeholder: "select-pure__placeholder",
-        dropdown: "select-pure__options",
-        option: "select-pure__option",
-        autocompleteInput: "select-pure__autocomplete",
-        selectedLabel: "select-pure__selected-label",
-        selectedOption: "select-pure__option--selected",
-        placeholderHidden: "select-pure__placeholder--hidden",
-        optionHidden: "select-pure__option--hidden"
+      if (value.length == 0) {
+        return;
       }
-    }); 
 
-    instance.value();  
+      // get subcategories (array of arrays)
+      const items = categories.map((category) => {
+        subcategories = category.subcategories
+        return subcategories;
+      })
+
+      // display corresponding subcategories 
+      const categoryValues = value;
+      let subItems = [];
+      categoryValues.forEach((categoryValue) => {
+        const array = items[parseInt(categoryValue) - 1].map((subcategory) => {
+          const sublabel = subcategory.title;
+          return {
+            label: sublabel,
+            value: subcategory.id.toString()
+          };
+        })
+        subItems = subItems.concat(array);
+        return subItems;
+      })
+
+      addMultiSelect(".subcategories", "subcategoriesTags", subItems, (value) => {
+        console.log("subitem change", value)
+      })
+    });
   })
   .catch((error) => {
     console.log("rejected", error);
   })
-
 
 //uploading the file to firebase
 const fileInput = document.querySelector(".myfiles");
@@ -198,10 +164,36 @@ fileInput.addEventListener("change", e => {
 
   var uploadTask = storageRef
     .put(file)
-  
+
   monitorUploadProgress(uploadTask);
-  uploadImageUrlToFirestore(storageRef);  
+  uploadImageUrlToFirestore(storageRef);
 });
+
+const addMultiSelect = (parent, _class, options, onChange) => {
+  return new SelectPure(parent, {
+    options: options,
+    multiple: true,
+    autocomplete: true,
+    icon: "fa fa-times",
+    inlineIcon: false,
+    autocomplete: true,
+    onChange: onChange,
+    classNames: {
+      select: _class + " select-pure__select",
+      dropdownShown: "select-pure__select--opened",
+      multiselect: "select-pure__select--multiple",
+      label: "select-pure__label",
+      placeholder: "select-pure__placeholder",
+      dropdown: "select-pure__options",
+      option: "select-pure__option",
+      autocompleteInput: "select-pure__autocomplete",
+      selectedLabel: "select-pure__selected-label",
+      selectedOption: "select-pure__option--selected",
+      placeholderHidden: "select-pure__placeholder--hidden",
+      optionHidden: "select-pure__option--hidden"
+    }
+  });
+}
 
 const addNavBar = (category, index) => {
   let html = `
@@ -230,10 +222,19 @@ const toggleElement = (category, elements) => {
 const displayAndHideSubnavigation = (category, snapshot) => {
   const categoryIndex = category.dataset.index;
   const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+<<<<<<< HEAD
   
   removeAllElements(navBarSubcategories);
    
   if (category.classList.contains("active")) {
+=======
+
+  const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
+
+  removeDomElements(buttonsSubNavBar, navBarSubcategories);
+
+  if (e.target.classList.contains("active")) {
+>>>>>>> 4aecdbd... Remove subcategories multiselect if category empty
     subcategories.forEach((subcategory, subcategoryIndex) => {
       addSubNavBar(subcategory, categoryIndex, subcategoryIndex);
     });
@@ -241,13 +242,13 @@ const displayAndHideSubnavigation = (category, snapshot) => {
 }
 
 const monitorUploadProgress = (uploadTask) => {
-  uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, 
+  uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED,
     (snapshot) => {
       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
       uploader.value = progress;
     },
     (error) => {
-      console.log("error", {error});
+      console.log("error", { error });
     }
   )
 }
@@ -258,11 +259,11 @@ const uploadImageUrlToFirestore = (storageRef) => {
     .then((url) => {
       // TODO reference document (for now hardcoded .doc(1))
       const tools = db.collection("tools").doc("1")
-      
+
       tools.set({
         image: url
-      }, {merge: true});
-      
+      }, { merge: true });
+
       console.log("Image URL was added to firestore");
     })
 }
@@ -276,6 +277,7 @@ const removeAllElements = (container) => {
 const removeDomElements = (elements, container) => {
   elements.forEach((element) => {
     container.removeChild(element);
+<<<<<<< HEAD
   });    
 }
 
@@ -292,10 +294,13 @@ const displaySelectedCards = (ids) => {
       console.log(error);
     })
   })
+=======
+  });
+>>>>>>> 4aecdbd... Remove subcategories multiselect if category empty
 }
 
 const addCard = (card) => {
-  
+
   let cardId = card.id.toString();
   if (cardId.length == 1) {
     cardId = `00${cardId}`
