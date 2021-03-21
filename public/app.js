@@ -3,7 +3,8 @@ const userInfo = document.querySelector(".user-info");
 const navBarCategories = document.querySelector(".navBarCategories");
 const navBarSubcategories = document.querySelector(".navBarSubcategories");
 const cardContainer = document.querySelector(".cardContainer");
-const subcategoriesSelect = document.querySelector(".subcategories"); 
+const subcategoriesSelect = document.querySelector(".subcategories");
+const categoriesSelect = document.querySelector(".categories"); 
 
 // Read navbar categories from Firebase, display it under jumbletron
 db.collection("categories")
@@ -91,7 +92,7 @@ fetch("./docs/categories.json")
       }
     });
 
-    var instance = new SelectPure(".example", {
+    var instance = new SelectPure(".categories", {
       options: items,
       multiple: true, 
       placeholder: false,
@@ -102,56 +103,106 @@ fetch("./docs/categories.json")
       onChange: value => { 
         
         // remove subcategories
+        const categoriesTags = document.querySelectorAll(".categoriesTags");
         const subcategoriesTags = document.querySelectorAll(".subcategoriesTags");
-        if (subcategoriesTags) {
+
+        console.log(categoriesTags);
+        console.log(subcategoriesTags);
+        console.log(subcategoriesSelect);
+        if (categoriesTags) {
           removeDomElements(subcategoriesTags, subcategoriesSelect);
         }
+        
+        // remove subcategories
+        // const subcategoriesTags = document.querySelectorAll(".subcategoriesTags");
+        // if (subcategoriesTags) {
+        //   removeDomElements(subcategoriesTags, subcategoriesSelect);
+        // }
           
         // get subcategories (array of arrays)
         const items = categories.map((category) => {
           subcategories = category.subcategories
           return subcategories;
         })
-        
+       
         // display corresponding subcategories 
         const categoryValues = value;
-        categoryValues.forEach((categoryValue, index) => {
-          if (value[index]) {
-            const subItems = items[parseInt(categoryValue)-1].map((subcategory) => {
-              const sublabel = subcategory.title;
-              return {
-                label: sublabel,
-                value: subcategory.id.toString()
-              };
-            })
-            var instance = new SelectPure(".subcategories", {
-              options: subItems,
-              multiple: true, 
-              autocomplete: true,
-              icon: "fa fa-times", 
-              inlineIcon: false, 
-              autocomplete: true,
-              classNames: {
-                select: "subcategoriesTags select-pure__select",
-                dropdownShown: "select-pure__select--opened",
-                multiselect: "select-pure__select--multiple",
-                label: "select-pure__label",
-                placeholder: "select-pure__placeholder",
-                dropdown: "select-pure__options",
-                option: "select-pure__option",
-                autocompleteInput: "select-pure__autocomplete",
-                selectedLabel: "select-pure__selected-label",
-                selectedOption: "select-pure__option--selected",
-                placeholderHidden: "select-pure__placeholder--hidden",
-                optionHidden: "select-pure__option--hidden"
-              }
-            });
-            instance.value();
+        let subItems = [];
+        categoryValues.forEach((categoryValue) => {
+          const array = items[parseInt(categoryValue)-1].map((subcategory) => {
+            const sublabel = subcategory.title;
+            return {
+              label: sublabel,
+              value: subcategory.id.toString()
+            };
+          })
+          subItems = subItems.concat(array);
+          return subItems;
+        })
+        var instance = new SelectPure(".subcategories", {
+          options: subItems,
+          multiple: true, 
+          autocomplete: true,
+          icon: "fa fa-times", 
+          inlineIcon: false, 
+          autocomplete: true,
+          classNames: {
+            select: "subcategoriesTags select-pure__select",
+            dropdownShown: "select-pure__select--opened",
+            multiselect: "select-pure__select--multiple",
+            label: "select-pure__label",
+            placeholder: "select-pure__placeholder",
+            dropdown: "select-pure__options",
+            option: "select-pure__option",
+            autocompleteInput: "select-pure__autocomplete",
+            selectedLabel: "select-pure__selected-label",
+            selectedOption: "select-pure__option--selected",
+            placeholderHidden: "select-pure__placeholder--hidden",
+            optionHidden: "select-pure__option--hidden"
           }
         });
+        instance.value();
+
+        // display corresponding subcategories 
+        // const categoryValues = value;
+        // categoryValues.forEach((categoryValue, index) => {
+        //   if (value) {
+        //     const subItems = items[parseInt(categoryValue)-1].map((subcategory) => {
+        //       const sublabel = subcategory.title;
+        //       return {
+        //         label: sublabel,
+        //         value: subcategory.id.toString()
+        //       };
+        //     })
+        //     console.log(subItems)
+        //     var instance = new SelectPure(".subcategories", {
+        //       options: subItems,
+        //       multiple: true, 
+        //       autocomplete: true,
+        //       icon: "fa fa-times", 
+        //       inlineIcon: false, 
+        //       autocomplete: true,
+        //       classNames: {
+        //         select: "subcategoriesTags select-pure__select",
+        //         dropdownShown: "select-pure__select--opened",
+        //         multiselect: "select-pure__select--multiple",
+        //         label: "select-pure__label",
+        //         placeholder: "select-pure__placeholder",
+        //         dropdown: "select-pure__options",
+        //         option: "select-pure__option",
+        //         autocompleteInput: "select-pure__autocomplete",
+        //         selectedLabel: "select-pure__selected-label",
+        //         selectedOption: "select-pure__option--selected",
+        //         placeholderHidden: "select-pure__placeholder--hidden",
+        //         optionHidden: "select-pure__option--hidden"
+        //       }
+        //     });
+        //     instance.value();
+        //   }
+        // });
       },
       classNames: {
-        select: "select-pure__select",
+        select: "categoriesTags select-pure__select",
         dropdownShown: "select-pure__select--opened",
         multiselect: "select-pure__select--multiple",
         label: "select-pure__label",

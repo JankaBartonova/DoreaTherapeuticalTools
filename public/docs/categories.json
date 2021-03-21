@@ -18,7 +18,7 @@
     "title" : "Batolata",
     "subcategories" : [
       {
-        "id": 1,
+        "id": 21,
         "title" : "Zvukové pultíky, cílený dotek"
       }
     ]
@@ -28,27 +28,27 @@
     "title" : "Jemná motorika",
     "subcategories" : [
       {  
-        "id": 1,
+        "id": 31,
         "title" : "Stavebnice"
       },
       {
-        "id": 2,
+        "id": 32,
         "title" : "Manipulační hračky"
       },
       {
-        "id": 3,
+        "id": 33,
         "title" : "Provlékání"
       },
       {
-        "id": 4,
+        "id": 34,
         "title" : "Labyrinty"
       },
       {
-        "id": 5,
+        "id": 35,
         "title" : "Sebeobsluha"
       },
       {
-        "id": 6,
+        "id": 36,
         "title" : "Grafomotorika"
       }
     ]
@@ -58,31 +58,31 @@
     "title" : "Myšlení",
     "subcategories" : [
       {
-        "id": 1,
+        "id": 41,
         "title" : "Vkládačky"
       },
       {
-        "id": 2,
+        "id": 42,
         "title" : "Strukturované úkoly"
       },
       {
-        "id": 3,
+        "id": 43,
         "title" : "Puzzle"
       },
       {
-        "id": 4,
+        "id": 44,
         "title" : "Barvy"
       },
       {
-        "id": 5,
+        "id": 45,
         "title" : "Počítání"       
       },
       {
-        "id": 6,
+        "id": 46,
         "title" : "Obrázkové hry"
       },
       {
-        "id": 7,
+        "id": 47,
         "title" : "Pracovní listy"
       }
     ]
@@ -92,7 +92,7 @@
     "title" : "Zrakové vnímání",
     "subcategories" : [
       {
-        "id": 1,
+        "id": 51,
         "title" : "Zrakové vnímání"
       }
     ]
@@ -102,7 +102,7 @@
     "title" : "Sluchové vnímání a hudební nástroje",
     "subcategories" : [
       {
-        "id": 1,
+        "id": 61,
         "title" : "Sluchové vnímání a hudební nástroje"
       }
     ]
@@ -112,15 +112,15 @@
     "title" : "Komunikace",
     "subcategories" : [
       {
-        "id": 1,
+        "id": 71,
         "title" : "Logopedie úkoly"
       },
       {
-        "id": 2,
+        "id": 72,
         "title" : "Logopedické pomůcky"
       },
       {
-        "id": 3,
+        "id": 73,
         "title" : "Pomůcky pro komunikaci"
       } 
     ]
@@ -130,15 +130,15 @@
     "title" : "Hrubá motorika",
     "subcategories" : [
       {
-        "id": 1,
+        "id": 81,
         "title" : "Rehabilitační pomůcky"
       },
       {
-        "id": 2,
+        "id": 82,
         "title" : "Polohovací pomůcky"
       },
       {
-        "id": 3,
+        "id": 83,
         "title" : "Hry na koordinaci a podporu hrubé motoriky"
       }
     ]
@@ -148,7 +148,7 @@
     "title" : "Vibrační pomůcky",
     "subcategories" : [
       {
-        "id": 1,
+        "id": 91,
         "title": "Vibrační pomůcky"
       }
     ]
@@ -158,39 +158,39 @@
     "title" : "Literatura",
     "subcategories" : [
       {
-        "id": 1,
+        "id": 101,
         "title" : "Tvoření s dětmi"
       },
       {
-        "id": 2,
+        "id": 102,
         "title" : "Hry a cvičení"
       },
       {
-        "id": 3,
+        "id": 103,
         "title" : "Dětská literatura"
       },
       {
-        "id": 4,
+        "id": 104,
         "title" : "Odborná literatura"
       },
       {
-        "id": 5,
+        "id": 105,
         "title" : "Pro rodiče"
       },
       {
-        "id": 6,
+        "id": 106,
         "title" : "Sociální tématika, jiné"
       },
       {
-        "id": 7,
+        "id": 107,
         "title" : "Pro nejmenší"
       },
       {
-        "id": 8,
+        "id": 108,
         "title" : "Pracovní listy"
       },
       {
-        "id": 9,
+        "id": 109,
         "title" : "Duchovní"
       }
     ]
