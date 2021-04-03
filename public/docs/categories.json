@@ -1,19 +1,19 @@
 {
-  "1": {
+  "01": {
     "id": 1,
     "title": "Miminka",
     "subcategories": [
       {
-        "id": 1,
+        "id": 11,
         "title": "Hračky pro miminka, podložky, hrazdy"
       },
       {
-        "id": 2,
+        "id": 12,
         "title": "Zraková stimulace pro nejmenší"
       }
     ]
   },
-  "2": {
+  "02": {
     "id": 2,
     "title" : "Batolata",
     "subcategories" : [
@@ -23,7 +23,7 @@
       }
     ]
   },
-  "3": {
+  "03": {
     "id": 3,
     "title" : "Jemná motorika",
     "subcategories" : [
@@ -53,7 +53,7 @@
       }
     ]
   },
-  "4" : {
+  "04" : {
     "id": 4,
     "title" : "Myšlení",
     "subcategories" : [
@@ -87,7 +87,7 @@
       }
     ]
   },
-  "5" : {
+  "05" : {
     "id": 5,
     "title" : "Zrakové vnímání",
     "subcategories" : [
@@ -97,7 +97,7 @@
       }
     ]
   },
-  "6" : {
+  "06" : {
     "id": 6,
     "title" : "Sluchové vnímání a hudební nástroje",
     "subcategories" : [
@@ -107,7 +107,7 @@
       }
     ]
   },
-  "7" : {
+  "07" : {
     "id": 7,
     "title" : "Komunikace",
     "subcategories" : [
@@ -125,7 +125,7 @@
       } 
     ]
   },
-  "8" : {
+  "08" : {
     "id": 8,
     "title" : "Hrubá motorika",
     "subcategories" : [
@@ -143,7 +143,7 @@
       }
     ]
   },
-  "9" : {
+  "09" : {
     "id": 9,
     "title" : "Vibrační pomůcky",
     "subcategories" : [

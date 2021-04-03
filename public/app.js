@@ -18,7 +18,7 @@ db.collection("categories")
   .then((snapshot) => {
     // display sub navigation
     navBarCategories.addEventListener("click", (e) => {
-
+  
       // avoid event listener on container
       if (e.target == navBarCategories) {
         return false;
@@ -45,6 +45,7 @@ db.collection("categories")
         return false;
       }
 
+      //TODO function displayAndHideTools
       const categoryIndex = e.target.dataset.categoryIndex;
       const subcategoryIndex = e.target.dataset.subcategoryIndex;
       const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
@@ -73,6 +74,61 @@ db.collection("categories")
       })
 >>>>>>> 4aecdbd... Remove subcategories multiselect if category empty
     });
+    return snapshot;
+  })
+  .then((snapshot) => {
+
+    // get current values 
+    var categories = new Array();
+    snapshot.docs.forEach((doc) => {
+      categories.push(doc.data());
+    });
+
+    //new object values
+    const items = categories.map((category) => {
+      const label = category.title;
+
+      return {
+        label: label,
+        value: category.id.toString(),
+      }
+    });
+
+    // add SelectPure multiselect
+    addMultiSelect(".categories", "categoriesTags", items, (value) => {
+      // remove subcategories
+      const subcategoriesTags = document.querySelectorAll(".subcategoriesTags");
+      removeDomElements(subcategoriesTags, subcategoriesSelect);
+
+      if (value.length == 0) {
+        return;
+      }
+     
+      // get subcategories (array of arrays)
+      const items = categories.map((category) => {
+        subcategories = category.subcategories
+        return subcategories;
+      })
+
+      // display corresponding subcategories 
+      const categoryValues = value;
+      let subItems = [];
+      categoryValues.forEach((categoryValue) => {
+        const array = items[parseInt(categoryValue) - 1].map((subcategory) => {
+          const sublabel = subcategory.title;
+          return {
+            label: sublabel,
+            value: subcategory.id.toString()
+          };
+        })
+        subItems = subItems.concat(array);
+        return subItems;
+      });
+
+      addMultiSelect(".subcategories", "subcategoriesTags", subItems, (value) => {
+        console.log("subitem change", value)
+      });
+    });
   })
   .catch((error) => {
     console.log(error);
@@ -96,63 +152,6 @@ searchNavigation.addEventListener("submit", (e) => {
     userInfo.style.fontWeight = "bold";
   }
 });
-
-// Select pure multiselect
-fetch("./docs/categories.json")
-  .then((response) => {
-    return response.json();
-  })
-  .then((data) => {
-    const categories = Object.values(data);
-    const items = categories.map((category) => {
-      const label = category.title;
-
-      return {
-        label: label,
-        value: category.id.toString(),
-      }
-    });
-
-    addMultiSelect(".categories", "categoriesTags", items, (value) => {
-      // remove subcategories
-      const categoriesTags = document.querySelectorAll(".categoriesTags");
-      const subcategoriesTags = document.querySelectorAll(".subcategoriesTags");
-      console.log(categoriesTags);
-      removeDomElements(subcategoriesTags, subcategoriesSelect);
-
-      if (value.length == 0) {
-        return;
-      }
-
-      // get subcategories (array of arrays)
-      const items = categories.map((category) => {
-        subcategories = category.subcategories
-        return subcategories;
-      })
-
-      // display corresponding subcategories 
-      const categoryValues = value;
-      let subItems = [];
-      categoryValues.forEach((categoryValue) => {
-        const array = items[parseInt(categoryValue) - 1].map((subcategory) => {
-          const sublabel = subcategory.title;
-          return {
-            label: sublabel,
-            value: subcategory.id.toString()
-          };
-        })
-        subItems = subItems.concat(array);
-        return subItems;
-      })
-
-      addMultiSelect(".subcategories", "subcategoriesTags", subItems, (value) => {
-        console.log("subitem change", value)
-      })
-    });
-  })
-  .catch((error) => {
-    console.log("rejected", error);
-  })
 
 //uploading the file to firebase
 const fileInput = document.querySelector(".myfiles");
