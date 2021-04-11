@@ -23,16 +23,10 @@ db.collection("categories")
       if (e.target == navBarCategories) {
         return false;
       }
-<<<<<<< HEAD
       
       const buttonsNavBar = document.querySelectorAll(".btnNavBar");
       toggleElement(e.target, buttonsNavBar);
       displayAndHideSubnavigation(e.target, snapshot);      
-=======
-
-      toggleNavigationButton(e);
-      displayAndHideSubnavigation(e, snapshot);
->>>>>>> 4aecdbd... Remove subcategories multiselect if category empty
     });
     return snapshot;
   })
@@ -50,7 +44,6 @@ db.collection("categories")
       const subcategoryIndex = e.target.dataset.subcategoryIndex;
       const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
 
-<<<<<<< HEAD
       const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
       toggleElement(e.target, buttonsSubNavBar);
 
@@ -59,20 +52,6 @@ db.collection("categories")
       if (toolIds) {
         displaySelectedCards(toolIds);
       }
-=======
-      toolIds.forEach((tool) => {
-        db.collection("tools").where("id", "==", tool)
-          .get()
-          .then((snapshot) => {
-            snapshot.docs.forEach((doc) => {
-              addCard(doc.data());
-            })
-          })
-          .catch((error) => {
-            console.log(error);
-          })
-      })
->>>>>>> 4aecdbd... Remove subcategories multiselect if category empty
     });
     return snapshot;
   })
@@ -221,19 +200,10 @@ const toggleElement = (category, elements) => {
 const displayAndHideSubnavigation = (category, snapshot) => {
   const categoryIndex = category.dataset.index;
   const subcategories = snapshot.docs[categoryIndex].data().subcategories;
-<<<<<<< HEAD
   
   removeAllElements(navBarSubcategories);
    
   if (category.classList.contains("active")) {
-=======
-
-  const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
-
-  removeDomElements(buttonsSubNavBar, navBarSubcategories);
-
-  if (e.target.classList.contains("active")) {
->>>>>>> 4aecdbd... Remove subcategories multiselect if category empty
     subcategories.forEach((subcategory, subcategoryIndex) => {
       addSubNavBar(subcategory, categoryIndex, subcategoryIndex);
     });
@@ -276,7 +246,6 @@ const removeAllElements = (container) => {
 const removeDomElements = (elements, container) => {
   elements.forEach((element) => {
     container.removeChild(element);
-<<<<<<< HEAD
   });    
 }
 
@@ -293,9 +262,6 @@ const displaySelectedCards = (ids) => {
       console.log(error);
     })
   })
-=======
-  });
->>>>>>> 4aecdbd... Remove subcategories multiselect if category empty
 }
 
 const addCard = (card) => {
