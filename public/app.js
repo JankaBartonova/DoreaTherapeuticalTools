@@ -134,17 +134,19 @@ searchNavigation.addEventListener("submit", (e) => {
 
 //uploading the file to firebase
 const fileInput = document.querySelector(".myfiles");
-const uploader = document.querySelector(".uploader");
 
 fileInput.addEventListener("change", e => {
   const file = e.target.files[0];
   const storageRef = firebase.storage().ref("images/" + file.name);
 
-  var uploadTask = storageRef
+  storageRef
     .put(file)
-
-  monitorUploadProgress(uploadTask);
-  uploadImageUrlToFirestore(storageRef);
+    .then(() => {
+      console.log('Uploaded file to Firebase Storage!');
+    })
+    .then(() => {
+      uploadImageUrlToFirestore(storageRef);
+    });
 });
 
 const addMultiSelect = (parent, _class, options, onChange) => {
@@ -210,30 +212,18 @@ const displayAndHideSubnavigation = (category, snapshot) => {
   }
 }
 
-const monitorUploadProgress = (uploadTask) => {
-  uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED,
-    (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      uploader.value = progress;
-    },
-    (error) => {
-      console.log("error", { error });
-    }
-  )
-}
-
 const uploadImageUrlToFirestore = (storageRef) => {
   storageRef
     .getDownloadURL()
     .then((url) => {
       // TODO reference document (for now hardcoded .doc(1))
-      const tools = db.collection("tools").doc("1")
+      const tools = db.collection("tools").doc("3");
 
       tools.set({
         image: url
       }, { merge: true });
 
-      console.log("Image URL was added to firestore");
+      console.log("Image URL was added to Firebase Firestore!");
     })
 }
 
