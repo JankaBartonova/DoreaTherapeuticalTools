@@ -21,20 +21,4 @@ const toolSubcategories = document.querySelector(".toolSubcategories");
 })();
 
 findToolByNumber(searchNavigation)
-
-//uploading the file to firebase
-const fileInput = document.querySelector(".myfiles");
-
-fileInput.addEventListener("change", e => {
-  const file = e.target.files[0];
-  const storageRef = firebase.storage().ref("images/" + file.name);
-
-  storageRef
-    .put(file)
-    .then(() => {
-      console.log('Uploaded file to Firebase Storage!');
-    })
-    .then(() => {
-      uploadImageUrlToFirestore(storageRef);
-    });
-});
+uploadingFileToDatabase();

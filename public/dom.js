@@ -42,6 +42,7 @@ const toggleElement = (category, elements) => {
 }
 
 const addCard = (card) => {
+  // let cardId = card.id;
   let cardId = card.id.toString();
   if (cardId.length == 1) {
     cardId = `00${cardId}`
