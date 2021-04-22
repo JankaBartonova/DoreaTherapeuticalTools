@@ -110,6 +110,7 @@ const displayAndHideTools = (target, snapshot) => {
   const categoryIndex = target.dataset.categoryIndex;
   const subcategoryIndex = target.dataset.subcategoryIndex;
   const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
+  console.log(toolIds)
 
   removeAllElements(cardContainer);
   

@@ -23,21 +23,36 @@ const getSelectedCards = async (tools) => {
   }
 }
 
-const uploadImageUrlToDatabase = async (storageRef, imgName, imgPrice) => {
-  await storageRef
+const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice) => {
+  storageRef
     .getDownloadURL()
     .then((url) => {
-      // Create new document within a collection
-      const tools = db.collection("tools");
-
-      tools.add({
-        name: imgName,
-        image: url,
-        price: imgPrice
-      }, { merge: true })
-
-      console.log("New document was added Firebase Firestore! (without readeable ID!)");
-    })
+      const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
+          
+        numberOfToolsRef
+          .get()
+          .then((doc) => {
+            const counter = doc.data().count;
+            return counter;
+          })
+          .then((counter)=>{
+            counter++;
+            const increment = firebase.firestore.FieldValue.increment(1);
+            const toolsRef = db.collection("tools").doc(`${counter}`);
+            const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
+            const batch = db.batch()
+            
+            batch.set(toolsRef, {
+                id: counter,
+                name: imgName,
+                image: url,
+                price: imgPrice
+              }, { merge: true })
+            
+            batch.update(numberOfToolsRef, { count: increment }, { merge: true })
+            batch.commit();
+          })
+    })   
 }
 
 const uploadingFileToDatabase = () => {
@@ -56,8 +71,18 @@ const uploadingFileToDatabase = () => {
     // upload file
     const toolName = document.getElementById("tool-name");
     const toolPrice = document.getElementById("tool-price");
-    const imgName = toolName.value
-    const imgPrice = toolPrice.value
+    const imgName = toolName.value;
+    const imgPrice = toolPrice.value;
+    // const toolCategoriesAndSubcategories = document.querySelectorAll(".select-pure__option--selected");
+    
+    // toolCategoriesAndSubcategories.forEach((categoryAndSubcategory) => {
+    //   const values = categoryAndSubcategory.dataset.value;
+    //   console.log(values);
+    // }
+    // const imgCategory = toolCategory.dataset.value;
+    // console.log(imgCategory)
+    // const imgSubcategory = toolSubcategory.value;
+
     console.log(imgName, imgPrice)
     const storageRef = firebase.storage().ref("images/" + imgName + ".jpg");
     storageRef
