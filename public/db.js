@@ -56,83 +56,39 @@ const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice) => {
 }
 
 const uploadingFileToDatabase = () => {
-  const fileInput = document.querySelector(".myfiles");
-  
-  fileInput.addEventListener("change", e => {
+
+  const form = document.getElementById("upload-form");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const fileInput = document.getElementById("tool-image");
+    const selectedFile = fileInput.files[0];
+    console.log(selectedFile);
+
     // get image from PC and show it in dom
-    const files = e.target.files;
-    console.log(files);
     const reader = new FileReader();
     reader.onload = () => {
       document.querySelector(".myimage").src = reader.result;
     }
-    reader.readAsDataURL(files[0]);
+    reader.readAsDataURL(selectedFile);
 
     // upload file
     const toolName = document.getElementById("tool-name");
     const toolPrice = document.getElementById("tool-price");
     const imgName = toolName.value;
     const imgPrice = toolPrice.value;
-    // const toolCategoriesAndSubcategories = document.querySelectorAll(".select-pure__option--selected");
-    
-    // toolCategoriesAndSubcategories.forEach((categoryAndSubcategory) => {
-    //   const values = categoryAndSubcategory.dataset.value;
-    //   console.log(values);
-    // }
-    // const imgCategory = toolCategory.dataset.value;
-    // console.log(imgCategory)
-    // const imgSubcategory = toolSubcategory.value;
 
     console.log(imgName, imgPrice)
     const storageRef = firebase.storage().ref("images/" + imgName + ".jpg");
+    
     storageRef
-      .put(files[0])
+      .put(selectedFile)
       .then(() => {
           console.log('Uploaded file to Firebase Storage!');
           uploadImageUrlToDatabase(storageRef, imgName, parseInt(imgPrice));
         });
-      });
-    // const storageRef = firebase.storage().ref("images/" + file.name);
 
-    // storageRef
-    //   .put(file)
-    //   .then(() => {
-    //     console.log('Uploaded file to Firebase Storage!');
-    //     uploadImageUrlToDatabase(storageRef);
-    //   });
-  //});
+    form.reset();
+  })
 }
-
-
-
-// const uploadImageUrlToDatabase = (storageRef) => {
-//   storageRef
-//     .getDownloadURL()
-//     .then((url) => {
-//       // TODO reference document (for now hardcoded .doc(1))
-//       const tools = db.collection("tools").doc("3");
-
-//       tools.set({
-//         image: url
-//       }, { merge: true });
-
-//       console.log("Image URL was added to Firebase Firestore!");
-//     })
-// }
-
-
-// const uploadingFileToDatabase = () => {
-//   const fileInput = document.querySelector(".myfiles");
-  
-//   fileInput.addEventListener("change", e => {
-//     const file = e.target.files[0];
-//     const storageRef = firebase.storage().ref("images/" + file.name);
-
-//     storageRef
-//       .put(file)
-//       .then(() => {
-//         console.log('Uploaded file to Firebase Storage!');
-//         uploadImageUrlToDatabase(storageRef);
-//       });
-//   });
-// }
