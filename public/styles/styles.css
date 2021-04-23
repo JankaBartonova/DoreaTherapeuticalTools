@@ -133,3 +133,8 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   padding: 10px;
   width: 100%;
 }
+
+.myimage {
+  width: 350px;
+  border: 1px solid #ddd;
+}

@@ -23,7 +23,7 @@ const getSelectedCards = async (tools) => {
   }
 }
 
-const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice) => {
+const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice, imgCategories, imgSubcategories) => {
   storageRef
     .getDownloadURL()
     .then((url) => {
@@ -35,7 +35,7 @@ const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice) => {
             const counter = doc.data().count;
             return counter;
           })
-          .then((counter)=>{
+          .then((counter) => {
             counter++;
             const increment = firebase.firestore.FieldValue.increment(1);
             const toolsRef = db.collection("tools").doc(`${counter}`);
@@ -43,13 +43,25 @@ const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice) => {
             const batch = db.batch()
             
             batch.set(toolsRef, {
-                id: counter,
-                name: imgName,
-                image: url,
-                price: imgPrice
-              }, { merge: true })
-            
+              id: counter,
+              name: imgName,
+              image: url,
+              price: imgPrice
+            }, { merge: true })
+             
             batch.update(numberOfToolsRef, { count: increment }, { merge: true })
+            
+            //imgCategories = "01";
+            const categoriesRef = db.collection("categories").doc(`${imgCategories}`)
+            
+            batch.set(categoriesRef, {
+             subcategories: [
+                {
+                  tools: imgSubcategories
+                }
+              ]  
+            }, { merge: true })
+
             batch.commit();
           })
     })   
@@ -58,37 +70,95 @@ const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice) => {
 const uploadingFileToDatabase = () => {
 
   const form = document.getElementById("upload-form");
-
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+    
+    const toolCategoriesAndSubcategories = document.querySelectorAll(".select-pure__option--selected");
+    console.log(Array.from(toolCategoriesAndSubcategories));
+    
+    const imgCategoriesAndSubcategories = Array.from(toolCategoriesAndSubcategories).map((imgCategory) => {
+      return imgCategory.dataset.value;
+    });
+    console.log(imgCategoriesAndSubcategories)
 
-    const fileInput = document.getElementById("tool-image");
-    const selectedFile = fileInput.files[0];
-    console.log(selectedFile);
+    const imgCategories = new Set();
+    const imgSubcategories = new Set();
 
-    // get image from PC and show it in dom
-    const reader = new FileReader();
-    reader.onload = () => {
-      document.querySelector(".myimage").src = reader.result;
-    }
-    reader.readAsDataURL(selectedFile);
-
-    // upload file
+    imgCategoriesAndSubcategories.forEach((value) => { 
+      if (value.includes(":")) {
+        imgSubcategories.add(value);
+      } else {
+        imgCategories.add(value);
+      }
+    })
+    
     const toolName = document.getElementById("tool-name");
     const toolPrice = document.getElementById("tool-price");
+    
     const imgName = toolName.value;
     const imgPrice = toolPrice.value;
 
-    console.log(imgName, imgPrice)
+    console.log(imgName, imgPrice, imgCategories, imgSubcategories);
+
     const storageRef = firebase.storage().ref("images/" + imgName + ".jpg");
     
     storageRef
       .put(selectedFile)
       .then(() => {
           console.log('Uploaded file to Firebase Storage!');
-          uploadImageUrlToDatabase(storageRef, imgName, parseInt(imgPrice));
+          uploadImageUrlToDatabase(storageRef, imgName, parseInt(imgPrice), imgCategories, imgSubcategories);
         });
 
     form.reset();
+    document.querySelector(".myimage").src = "";
+  });
+  
+  const select = document.getElementById("select");
+  
+  select.addEventListener("click", (e) => {
+    e.preventDefault()
+    const input = document.createElement("input");
+    input.type = "file";
+
+    //TODO! fce pickfile (make promise from callback)
+
+    input.addEventListener("change", (e) => {
+      const selectedFile = input.files[0];
+      
+      // get image from PC and show it in dom
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.querySelector(".myimage").src = reader.result;
+        console.log(reader.result)
+        console.log("inside reader.onload")
+      }
+      console.log("před readAsDataUrl")
+      reader.readAsDataURL(selectedFile)
+      console.log("tady")
+    });
+    input.click();
+    console.log("input clicked");
   })
+  console.log("Toto se spustí jako první")
 }
+    
+    // // upload file
+    // const toolName = document.getElementById("tool-name");
+    // const toolPrice = document.getElementById("tool-price");
+    // const imgName = toolName.value;
+    // const imgPrice = toolPrice.value;
+
+    // console.log(imgName, imgPrice)
+    // const storageRef = firebase.storage().ref("images/" + imgName + ".jpg");
+    
+    // storageRef
+    //   .put(selectedFile)
+    //   .then(() => {
+    //       console.log('Uploaded file to Firebase Storage!');
+    //       uploadImageUrlToDatabase(storageRef, imgName, parseInt(imgPrice));
+    //     });
+
+  //   form.reset();
+  // })
+  
+//}
