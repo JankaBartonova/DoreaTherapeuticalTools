@@ -136,5 +136,5 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
 
 .myimage {
   width: 350px;
-  border: 1px solid #ddd;
+  border: 1px #ddd;
 }

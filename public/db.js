@@ -52,15 +52,16 @@ const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice, imgCategories, 
             batch.update(numberOfToolsRef, { count: increment }, { merge: true })
             
             //imgCategories = "01";
-            const categoriesRef = db.collection("categories").doc(`${imgCategories}`)
+            // imgCategories in a SET!!!!
+            // const categoriesRef = db.collection("categories").doc(`${imgCategories}`)
             
-            batch.set(categoriesRef, {
-             subcategories: [
-                {
-                  tools: imgSubcategories
-                }
-              ]  
-            }, { merge: true })
+            // batch.set(categoriesRef, {
+            //  subcategories: [
+            //     {
+            //       tools: imgSubcategories
+            //     }
+            //   ]  
+            // }, { merge: true })
 
             batch.commit();
           })
@@ -120,24 +121,79 @@ const uploadingFileToDatabase = () => {
     const input = document.createElement("input");
     input.type = "file";
 
-    //TODO! fce pickfile (make promise from callback)
-
-    input.addEventListener("change", (e) => {
-      const selectedFile = input.files[0];
-      
-      // get image from PC and show it in dom
+    // přesunout do utils.js
+    const loadFile = (file) => new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => {
-        document.querySelector(".myimage").src = reader.result;
-        console.log(reader.result)
-        console.log("inside reader.onload")
-      }
+      reader.addEventListener("load", (e) => {
+        console.log("loadend", e, { result: reader.result });
+        if (reader.result == "data:") {
+          reject("Empty image");
+        } else {
+          resolve(reader.result);
+        }
+      });
+
+      reader.addEventListener("error", (e) => {
+        console.log("error: ", e)
+        reject(reader.error);
+      })
+
       console.log("před readAsDataUrl")
-      reader.readAsDataURL(selectedFile)
-      console.log("tady")
+
+      reader.readAsDataURL(file);
     });
-    input.click();
+
+    //TODO! fce pickfile (make promise from callback)
+    const pickFile = (input) => 
+      new Promise((resolve, reject) => {
+        input.addEventListener("change", async (e) => {
+          const selectedFile = input.files[0];
+          try {
+            const loadedImg = await loadFile(selectedFile);
+            if (loadedImg) {
+              resolve(loadedImg);
+            } else {
+              reject("Can not load image!")
+            }
+          } catch (e) {
+            reject("Can not load image!")
+          }
+
+          input.removeEventListener("change", this);
+        });
+        input.click(); 
+      });
+
     console.log("input clicked");
+
+
+    pickFile(input)
+      .then((loadedImg) => {
+        console.log("Image picked");
+        console.log(loadedImg)
+
+        document.querySelector(".myimage").src = loadedImg;
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+
+    
+
+    // input.addEventListener("change", (e) => {
+    //   const selectedFile = input.files[0];
+      
+    //   // get image from PC and show it in dom
+    //   const reader = new FileReader();
+    //   reader.onload = () => {
+    //     document.querySelector(".myimage").src = reader.result;
+    //     console.log("inside reader.onload")
+    //   }
+    //   console.log("před readAsDataUrl")
+    //   reader.readAsDataURL(selectedFile)
+    //   console.log("tady")
+    // });
+
   })
   console.log("Toto se spustí jako první")
 }
