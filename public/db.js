@@ -101,6 +101,7 @@ const uploadingFileToDatabase = () => {
 
     console.log(imgName, imgPrice, imgCategories, imgSubcategories);
 
+    // Create function called storeImageToDatabase from the following code.
     const storageRef = firebase.storage().ref("images/" + imgName + ".jpg");
     
     storageRef
@@ -148,15 +149,10 @@ const uploadingFileToDatabase = () => {
       new Promise((resolve, reject) => {
         input.addEventListener("change", async (e) => {
           const selectedFile = input.files[0];
-          try {
-            const loadedImg = await loadFile(selectedFile);
-            if (loadedImg) {
-              resolve(loadedImg);
-            } else {
-              reject("Can not load image!")
-            }
-          } catch (e) {
-            reject("Can not load image!")
+          if(selectedFile) {
+            resolve(selectedFile);
+          } else {
+            reject("No file selected");
           }
 
           input.removeEventListener("change", this);
@@ -166,34 +162,29 @@ const uploadingFileToDatabase = () => {
 
     console.log("input clicked");
 
-
-    pickFile(input)
-      .then((loadedImg) => {
-        console.log("Image picked");
-        console.log(loadedImg)
-
-        document.querySelector(".myimage").src = loadedImg;
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-
     
+      const loadedImg = await loadFile(selectedFile);
 
-    // input.addEventListener("change", (e) => {
-    //   const selectedFile = input.files[0];
-      
-    //   // get image from PC and show it in dom
-    //   const reader = new FileReader();
-    //   reader.onload = () => {
-    //     document.querySelector(".myimage").src = reader.result;
-    //     console.log("inside reader.onload")
-    //   }
-    //   console.log("před readAsDataUrl")
-    //   reader.readAsDataURL(selectedFile)
-    //   console.log("tady")
-    // });
+      if (loadedImg) {
+        resolve(loadedImg);
+      } else {
+        reject("Can not load image!")
+      }
 
+
+    try {
+      const selectedFile = await pickFile(input);
+      const loadedImg = await loadFile(selectedFile);
+
+      document.querySelector(".myimage").src = loadedImg;
+
+      // resolve(selectedFiles)
+    } catch (e) {
+      console.log(e);
+      // reject("error")
+    }
+    
+    // TODO: Bubble selectedFile up.
   })
   console.log("Toto se spustí jako první")
 }
