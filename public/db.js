@@ -29,48 +29,47 @@ const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategorie
     .then((url) => {
       const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
           
-        numberOfToolsRef
-          .get()
-          .then((doc) => {
-            const counter = doc.data().count;
-            return counter;
-          })
-          .then((counter) => {
-            counter++;
-            const increment = firebase.firestore.FieldValue.increment(1);
-            const toolsRef = db.collection("tools").doc(`${counter}`);
-            const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
-            const batch = db.batch()
+      numberOfToolsRef
+        .get()
+        .then((doc) => {
+          const counter = doc.data().count;
+          return counter;
+        })
+        .then((counter) => {
+          counter++;
+          const increment = firebase.firestore.FieldValue.increment(1);
+          const toolsRef = db.collection("tools").doc(`${counter}`);
+          const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
+          const batch = db.batch()
+          
+          batch.set(toolsRef, {
+            id: counter,
+            name: toolName,
+            image: url,
+            price: toolPrice
+          }, { merge: true })
             
-            batch.set(toolsRef, {
-              id: counter,
-              name: toolName,
-              image: url,
-              price: toolPrice
-            }, { merge: true })
-             
-            batch.update(numberOfToolsRef, { count: increment }, { merge: true })
-            
-            //imgCategories = "01";
-            // imgCategories in a SET!!!!
-            // const categoriesRef = db.collection("categories").doc(`${imgCategories}`)
-            
-            // batch.set(categoriesRef, {
-            //  subcategories: [
-            //     {
-            //       tools: imgSubcategories
-            //     }
-            //   ]  
-            // }, { merge: true })
+          batch.update(numberOfToolsRef, { count: increment }, { merge: true })
+          
+          //imgCategories = "01";
+          // imgCategories in a SET!!!!
+          // const categoriesRef = db.collection("categories").doc(`${imgCategories}`)
+          
+          // batch.set(categoriesRef, {
+          //  subcategories: [
+          //     {
+          //       tools: imgSubcategories
+          //     }
+          //   ]  
+          // }, { merge: true })
 
-            batch.commit();
-          })
+          batch.commit();
+        })
     })   
 }
 
 const pickFile = (input) => {
   return new Promise((resolve, reject) => {
-    console.log(input)
     input.addEventListener("change", async (e) => {
       const selectedFile = input.files[0];
       if (selectedFile) {
@@ -86,41 +85,48 @@ const pickFile = (input) => {
   });
 }
 
+const getFileTypeFrom64Url = (url) => {
+  const firstPosition = url.indexOf("/");
+  const lastPosition = url.indexOf(";");
+  const type = url.slice(firstPosition + 1,lastPosition);
+  console.log(type);
+  return type;
+}
+
 const getImageAndShowAtDom = (select) => {
   return new Promise((resolve, reject) => {
     //dom
     select.addEventListener("click", async (e) => {
       //dom
       e.preventDefault()
-        const input = document.createElement("input");
-        input.type = "file";
-        console.log("input", input)
-      
-        try {
-          //app
-          const selectedFile = await pickFile(input);
-          const loadedImg = await loadFile(selectedFile);
-          
-          //dom
-          document.querySelector(".myimage").src = loadedImg;
-  
-          if (loadedImg) {
-            resolve(loadedImg);
-          } 
-  
-        } catch (e) {
-          console.log(e);
-          reject("Can not load image!")
-          // tady můžu dát zástupný obrázek
-        }
+      const input = document.createElement("input");
+      input.type = "file";
+      console.log("input", input)
+    
+      try {
+        //app
+        const selectedFile = await pickFile(input);
+        const loadedImg = await loadFile(selectedFile);
+        
+        //dom
+        document.querySelector(".myimage").src = loadedImg;
+
+        if (loadedImg) {
+          resolve(loadedImg);
+        } 
+
+      } catch (e) {
+        console.log(e);
+        reject("Can not load image!")
+        // tady můžu dát zástupný obrázek
+      }
     })
   })
 }
 
 const storeImageToDatabase = ({ tool }) => {
   console.log(tool)
-  //TODO! change .jpg to other image formats
-  const storageRef = firebase.storage().ref("images/" + tool.name + ".jpg");
+  const storageRef = firebase.storage().ref("images/" + tool.name + `.${tool.type}`);
 
   storageRef
     .putString(tool.image, 'data_url')
@@ -157,7 +163,7 @@ const getMultiselectValues = () => {
   }
 }
 
-const getTool = (nameElement, priceElement, toolImage) => {
+const getTool = (nameElement, priceElement, toolImage, imgType) => {
   const name = getToolValue(nameElement);
   const price = getToolValue(priceElement);
 
@@ -170,25 +176,27 @@ const getTool = (nameElement, priceElement, toolImage) => {
     price: price,
     categories: categories,
     subcategories: subcategories,
-    image: toolImage
+    image: toolImage,
+    type: imgType
   }
 }
 
 const uploadingToolToDatabase = async () => {
   const toolNameElement = document.getElementById("tool-name");
   const toolPriceElement = document.getElementById("tool-price");
+  const select = document.getElementById("select");
 
   const form = document.getElementById("upload-form");
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-        
-    const tool = getTool(toolNameElement, toolPriceElement, toolImage);
+
+    const tool = getTool(toolNameElement, toolPriceElement, toolImage, imgType);
 
     storeImageToDatabase({ tool });
     form.reset();
     document.querySelector(".myimage").src = "";
   });
   
-  const select = document.getElementById("select");
   const toolImage = await getImageAndShowAtDom(select);
+  const imgType = getFileTypeFrom64Url(toolImage);
 }
