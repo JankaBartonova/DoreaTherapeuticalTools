@@ -21,4 +21,4 @@ const toolSubcategories = document.querySelector(".toolSubcategories");
 })();
 
 findToolByNumber(searchNavigation)
-uploadingFileToDatabase();
+uploadingToolToDatabase();

@@ -23,7 +23,7 @@ const getSelectedCards = async (tools) => {
   }
 }
 
-const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice, imgCategories, imgSubcategories) => {
+const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, toolSubcategories) => {
   storageRef
     .getDownloadURL()
     .then((url) => {
@@ -44,9 +44,9 @@ const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice, imgCategories, 
             
             batch.set(toolsRef, {
               id: counter,
-              name: imgName,
+              name: toolName,
               image: url,
-              price: imgPrice
+              price: toolPrice
             }, { merge: true })
              
             batch.update(numberOfToolsRef, { count: increment }, { merge: true })
@@ -86,18 +86,22 @@ const pickFile = (input) => {
   });
 }
 
-const getFileAndShowAtDom = (select) => {
+const getImageAndShowAtDom = (select) => {
   return new Promise((resolve, reject) => {
+    //dom
     select.addEventListener("click", async (e) => {
+      //dom
       e.preventDefault()
         const input = document.createElement("input");
         input.type = "file";
         console.log("input", input)
       
         try {
+          //app
           const selectedFile = await pickFile(input);
           const loadedImg = await loadFile(selectedFile);
-  
+          
+          //dom
           document.querySelector(".myimage").src = loadedImg;
   
           if (loadedImg) {
@@ -109,80 +113,82 @@ const getFileAndShowAtDom = (select) => {
           reject("Can not load image!")
           // tady můžu dát zástupný obrázek
         }
-      // TODO: Bubble selectedFile up.
     })
   })
 }
 
-const uploadingFileToDatabase = async () => {
+const storeImageToDatabase = ({ tool }) => {
+  console.log(tool)
+  //TODO! change .jpg to other image formats
+  const storageRef = firebase.storage().ref("images/" + tool.name + ".jpg");
+
+  storageRef
+    .putString(tool.image, 'data_url')
+    .then(() => {
+        console.log('Uploaded file to Firebase Storage!');
+        uploadImageUrlToDatabase(storageRef, tool.name, parseInt(tool.price), tool.categories, tool.subcategories);
+      });
+}  
+
+const getToolValue = (element) => {
+  return element.value;
+}
+
+const getMultiselectValues = () => {
+  const toolMultiselectElements = document.querySelectorAll(".select-pure__option--selected");   
+  const toolCategoriesAndSubcategories = Array.from(toolMultiselectElements).map((toolCategory) => {
+    return toolCategory.dataset.value;
+  });
+
+  const categories = new Set();
+  const subcategories = new Set();
+
+  toolCategoriesAndSubcategories.forEach((value) => { 
+    if (value.includes(":")) {
+      subcategories.add(value);
+      console.log(categories)
+    } else {
+      categories.add(value);
+    }
+  })
+  return {
+    categories: categories,
+    subcategories: subcategories
+  }
+}
+
+const getTool = (nameElement, priceElement, toolImage) => {
+  const name = getToolValue(nameElement);
+  const price = getToolValue(priceElement);
+
+  const categoriesAndSubcategories = getMultiselectValues();
+  const categories = categoriesAndSubcategories.categories;
+  const subcategories = categoriesAndSubcategories.subcategories
+
+  return {
+    name: name,
+    price: price,
+    categories: categories,
+    subcategories: subcategories,
+    image: toolImage
+  }
+}
+
+const uploadingToolToDatabase = async () => {
+  const toolNameElement = document.getElementById("tool-name");
+  const toolPriceElement = document.getElementById("tool-price");
 
   const form = document.getElementById("upload-form");
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    
-    const toolCategoriesAndSubcategories = document.querySelectorAll(".select-pure__option--selected");
-    console.log(Array.from(toolCategoriesAndSubcategories));
-    
-    const imgCategoriesAndSubcategories = Array.from(toolCategoriesAndSubcategories).map((imgCategory) => {
-      return imgCategory.dataset.value;
-    });
-    console.log(imgCategoriesAndSubcategories)
+        
+    const tool = getTool(toolNameElement, toolPriceElement, toolImage);
 
-    const imgCategories = new Set();
-    const imgSubcategories = new Set();
-
-    imgCategoriesAndSubcategories.forEach((value) => { 
-      if (value.includes(":")) {
-        imgSubcategories.add(value);
-      } else {
-        imgCategories.add(value);
-      }
-    })
-    
-    const toolName = document.getElementById("tool-name");
-    const toolPrice = document.getElementById("tool-price");
-    
-    const imgName = toolName.value;
-    const imgPrice = toolPrice.value;
-
-    console.log(imgName, imgPrice, imgCategories, imgSubcategories);
-
-    // Create function called storeImageToDatabase from the following code.
-    const storageRef = firebase.storage().ref("images/" + imgName + ".jpg");
-    
-    storageRef
-      .putString(selectedFile, 'data_url')
-      .then(() => {
-          console.log('Uploaded file to Firebase Storage!');
-          uploadImageUrlToDatabase(storageRef, imgName, parseInt(imgPrice), imgCategories, imgSubcategories);
-        });
-
+    storeImageToDatabase({ tool });
     form.reset();
     document.querySelector(".myimage").src = "";
   });
   
   const select = document.getElementById("select");
-  const selectedFile = await getFileAndShowAtDom(select);
-  console.log(selectedFile)
+  const toolImage = await getImageAndShowAtDom(select);
 }
-    
-    // // upload file
-    // const toolName = document.getElementById("tool-name");
-    // const toolPrice = document.getElementById("tool-price");
-    // const imgName = toolName.value;
-    // const imgPrice = toolPrice.value;
-
-    // console.log(imgName, imgPrice)
-    // const storageRef = firebase.storage().ref("images/" + imgName + ".jpg");
-    
-    // storageRef
-    //   .put(selectedFile)
-    //   .then(() => {
-    //       console.log('Uploaded file to Firebase Storage!');
-    //       uploadImageUrlToDatabase(storageRef, imgName, parseInt(imgPrice));
-    //     });
-
-  //   form.reset();
-  // })
-  
-//}
