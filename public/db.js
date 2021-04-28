@@ -151,7 +151,7 @@ const uploadingFileToDatabase = async () => {
     const storageRef = firebase.storage().ref("images/" + imgName + ".jpg");
     
     storageRef
-      .put(selectedFile)
+      .putString(selectedFile, 'data_url')
       .then(() => {
           console.log('Uploaded file to Firebase Storage!');
           uploadImageUrlToDatabase(storageRef, imgName, parseInt(imgPrice), imgCategories, imgSubcategories);
