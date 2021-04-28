@@ -111,13 +111,6 @@
                 <label for="tool-name" class="">Název pomůcky<span class="field-required">*</span></label>
                 <input type="text" id="tool-name" name="tool-name" placeholder="Zadejte název pomůcky" class="form-control" required>
               </div>
-             <!--
-              <div class="form-group my-3">
-                <label for="tool-number" class="">Pořadové číslo pomůcky<span class="field-required">*</span></label>
-                <input type="text" id="tool-number" name="tool-number" placeholder="Zadejte pořadové číslo pomůcky" class="form-control" required>
-              </div>
-              -->
-              
               <div class="form-group my-3">
                 <label for="tool-price" class="">Orientační cena pomůcky<span class="field-required">*</span></label>
                 <input type="text" id="tool-price" name="tool-price" placeholder="Zadejte orientační cenu pomůcky" class="form-control" required>
@@ -133,8 +126,6 @@
                 <span class="subcategories"></span>
               </div>
               <div class="form-group my-3">
-                <!-- <label for="tool-image">Vyberte obrázek pomůcky</label>
-                <input type="file" class="form-control-file myfiles" value="upload" id="tool-image" aria-describedby="fileHelp"> -->
                 <button type="" id="select" class="btn btn-primary">Vyberte obrázek</button>
                 <small id="fileHelp" class="form-text text-muted">Obrázek pomůcky může být max XYMB</small>
               </div>
@@ -182,6 +173,7 @@
     const db = firebase.firestore();
   </script>
 
+  <script src="utils.js"></script>
   <script src="app.js"></script>
   <script src="db.js"></script>
   <script src="dom.js"></script>

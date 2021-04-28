@@ -68,7 +68,53 @@ const uploadImageUrlToDatabase = (storageRef, imgName, imgPrice, imgCategories, 
     })   
 }
 
-const uploadingFileToDatabase = () => {
+const pickFile = (input) => {
+  return new Promise((resolve, reject) => {
+    console.log(input)
+    input.addEventListener("change", async (e) => {
+      const selectedFile = input.files[0];
+      if (selectedFile) {
+        resolve(selectedFile);
+      } else {
+        reject("No file selected");
+      }
+
+      input.removeEventListener("change", this);
+    });
+    input.click(); 
+    console.log("input clicked");
+  });
+}
+
+const getFileAndShowAtDom = (select) => {
+  return new Promise((resolve, reject) => {
+    select.addEventListener("click", async (e) => {
+      e.preventDefault()
+        const input = document.createElement("input");
+        input.type = "file";
+        console.log("input", input)
+      
+        try {
+          const selectedFile = await pickFile(input);
+          const loadedImg = await loadFile(selectedFile);
+  
+          document.querySelector(".myimage").src = loadedImg;
+  
+          if (loadedImg) {
+            resolve(loadedImg);
+          } 
+  
+        } catch (e) {
+          console.log(e);
+          reject("Can not load image!")
+          // tady můžu dát zástupný obrázek
+        }
+      // TODO: Bubble selectedFile up.
+    })
+  })
+}
+
+const uploadingFileToDatabase = async () => {
 
   const form = document.getElementById("upload-form");
   form.addEventListener("submit", (e) => {
@@ -116,77 +162,8 @@ const uploadingFileToDatabase = () => {
   });
   
   const select = document.getElementById("select");
-  
-  select.addEventListener("click", (e) => {
-    e.preventDefault()
-    const input = document.createElement("input");
-    input.type = "file";
-
-    // přesunout do utils.js
-    const loadFile = (file) => new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.addEventListener("load", (e) => {
-        console.log("loadend", e, { result: reader.result });
-        if (reader.result == "data:") {
-          reject("Empty image");
-        } else {
-          resolve(reader.result);
-        }
-      });
-
-      reader.addEventListener("error", (e) => {
-        console.log("error: ", e)
-        reject(reader.error);
-      })
-
-      console.log("před readAsDataUrl")
-
-      reader.readAsDataURL(file);
-    });
-
-    //TODO! fce pickfile (make promise from callback)
-    const pickFile = (input) => 
-      new Promise((resolve, reject) => {
-        input.addEventListener("change", async (e) => {
-          const selectedFile = input.files[0];
-          if(selectedFile) {
-            resolve(selectedFile);
-          } else {
-            reject("No file selected");
-          }
-
-          input.removeEventListener("change", this);
-        });
-        input.click(); 
-      });
-
-    console.log("input clicked");
-
-    
-      const loadedImg = await loadFile(selectedFile);
-
-      if (loadedImg) {
-        resolve(loadedImg);
-      } else {
-        reject("Can not load image!")
-      }
-
-
-    try {
-      const selectedFile = await pickFile(input);
-      const loadedImg = await loadFile(selectedFile);
-
-      document.querySelector(".myimage").src = loadedImg;
-
-      // resolve(selectedFiles)
-    } catch (e) {
-      console.log(e);
-      // reject("error")
-    }
-    
-    // TODO: Bubble selectedFile up.
-  })
-  console.log("Toto se spustí jako první")
+  const selectedFile = await getFileAndShowAtDom(select);
+  console.log(selectedFile)
 }
     
     // // upload file
