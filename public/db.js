@@ -39,7 +39,6 @@ const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategorie
           counter++;
           const increment = firebase.firestore.FieldValue.increment(1);
           const toolsRef = db.collection("tools").doc(`${counter}`);
-          const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
           const batch = db.batch()
           
           batch.set(toolsRef, {
@@ -50,18 +49,20 @@ const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategorie
           }, { merge: true })
             
           batch.update(numberOfToolsRef, { count: increment }, { merge: true })
+          console.log("New tool saved to Firebase Firestore tool collection.")
           
-          //imgCategories = "01";
-          // imgCategories in a SET!!!!
-          // const categoriesRef = db.collection("categories").doc(`${imgCategories}`)
-          
-          // batch.set(categoriesRef, {
-          //  subcategories: [
+          // console.log(toolCategories, toolSubcategories);
+          // toolCategory = "5";
+          // toolSubcategory = "5";
+          // // toolCategories is a SET!!!!
+          // const categoriesRef = db.collection("categories").doc(`0${toolCategory}`)
+
+          // batch.update(categoriesRef, {
+          //  subcategories:
           //     {
-          //       tools: imgSubcategories
+          //       "tools": [`${counter}`]
           //     }
-          //   ]  
-          // }, { merge: true })
+          // })
 
           batch.commit();
         })
@@ -81,7 +82,6 @@ const pickFile = (input) => {
       input.removeEventListener("change", this);
     });
     input.click(); 
-    console.log("input clicked");
   });
 }
 
@@ -89,7 +89,6 @@ const getFileTypeFrom64Url = (url) => {
   const firstPosition = url.indexOf("/");
   const lastPosition = url.indexOf(";");
   const type = url.slice(firstPosition + 1,lastPosition);
-  console.log(type);
   return type;
 }
 
@@ -101,7 +100,6 @@ const getImageAndShowAtDom = (select) => {
       e.preventDefault()
       const input = document.createElement("input");
       input.type = "file";
-      console.log("input", input)
     
       try {
         //app
@@ -127,7 +125,6 @@ const getImageAndShowAtDom = (select) => {
 const storeImageToDatabase = ({ tool }) => {
   console.log(tool)
   const storageRef = firebase.storage().ref("images/" + tool.name + `.${tool.type}`);
-
   storageRef
     .putString(tool.image, 'data_url')
     .then(() => {
@@ -147,19 +144,19 @@ const getMultiselectValues = () => {
   });
 
   const categories = new Set();
-  const subcategories = new Set();
+  const subCategories = new Set();
 
   toolCategoriesAndSubcategories.forEach((value) => { 
     if (value.includes(":")) {
-      subcategories.add(value);
-      console.log(categories)
+      subCategories.add(value);
     } else {
       categories.add(value);
     }
   })
+
   return {
     categories: categories,
-    subcategories: subcategories
+    subcategories: subCategories
   }
 }
 
