@@ -23,49 +23,58 @@ const getSelectedCards = async (tools) => {
   }
 }
 
+const setNewTool = (count, name, price, url) => {
+  const toolsRef = db.collection("tools").doc(`${count}`);
+  toolsRef.set({
+    id: count,
+    name: name,
+    image: url,
+    price: price
+  }, { merge: true });
+  console.log("New tool saved to Firebase Firestore tool collection.");
+}
+
 const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, toolSubcategories) => {
   storageRef
     .getDownloadURL()
     .then((url) => {
+
+      toolCategory = "05";
+
       const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
-          
-      numberOfToolsRef
-        .get()
-        .then((doc) => {
-          const counter = doc.data().count;
-          return counter;
-        })
-        .then((counter) => {
-          counter++;
-          const increment = firebase.firestore.FieldValue.increment(1);
-          const toolsRef = db.collection("tools").doc(`${counter}`);
-          const batch = db.batch()
-          
-          batch.set(toolsRef, {
-            id: counter,
-            name: toolName,
-            image: url,
-            price: toolPrice
-          }, { merge: true })
+      const categoryRef = db.collection("categories").doc(`${toolCategory}`);
+      
+      return db.runTransaction((transaction) => {
+        return transaction
+          .get(numberOfToolsRef)
+          .then((numberOfTools) => {
+            if (!numberOfTools) {
+              throw "Counter does not exist!";
+            }
             
-          batch.update(numberOfToolsRef, { count: increment }, { merge: true })
-          console.log("New tool saved to Firebase Firestore tool collection.")
-          
-          // console.log(toolCategories, toolSubcategories);
-          // toolCategory = "5";
-          // toolSubcategory = "5";
-          // // toolCategories is a SET!!!!
-          // const categoriesRef = db.collection("categories").doc(`0${toolCategory}`)
+            const newCount = numberOfTools.data().count + 1;
+            setNewTool(newCount, toolName, toolPrice, url);
 
-          // batch.update(categoriesRef, {
-          //  subcategories:
-          //     {
-          //       "tools": [`${counter}`]
-          //     }
-          // })
+            transaction.update(numberOfToolsRef, { count: newCount });
+          })
+      }).then(() => {
+        console.log("Transaction successfully commited!");
+      }).catch((error) => {
+        console.log("Transaction failed! ", error);
+      });
 
-          batch.commit();
-        })
+      //     // console.log(toolCategories, toolSubcategories);
+      //     // toolCategory = "5";
+      //     // toolSubcategory = "5";
+      //     // // toolCategories is a SET!!!!
+      //     // const categoriesRef = db.collection("categories").doc(`0${toolCategory}`)
+
+      //     // batch.update(categoriesRef, {
+      //     //  subcategories:
+      //     //     {
+      //     //       "tools": [`${counter}`]
+      //     //     }
+      //     // })
     })   
 }
 
