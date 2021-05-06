@@ -23,18 +23,22 @@ const getSelectedCards = async (tools) => {
   }
 }
 
-const setNewTool = (count, name, price, url) => {
+const setNewTool = (transaction, count, name, price, url) => {
   const toolsRef = db.collection("tools").doc(`${count}`);
-  toolsRef.set({
+  transaction.set(
+    toolsRef,
+    {
     id: count,
     name: name,
     image: url,
     price: price
-  }, { merge: true });
+    },
+    { merge: true }
+  );
   console.log("New tool saved to Firebase Firestore tool collection.");
 }
 
-const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, toolSubcategories) => {
+const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, selectedSubcategories) => {
   storageRef
     .getDownloadURL()
     .then((url) => {
@@ -42,7 +46,7 @@ const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategorie
       toolCategory = `0${toolCategories}`;
       console.log(toolCategory)
       // ["1:1", "1:2"]
-      console.log(toolSubcategories)
+      console.log(selectedSubcategories)
 
       const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
       const categoryRef = db.collection("categories").doc(`${toolCategory}`);
@@ -60,35 +64,30 @@ const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategorie
 
             const newCount = numberOfToolsDoc.data().count + 1;
             // setNewTool se vykoná, ikdyž transaction fail, proč?
-            setNewTool(newCount, toolName, toolPrice, url);
+            setNewTool(transaction, newCount, toolName, toolPrice, url);
             transaction.update(numberOfToolsRef, { count: newCount });
 
             console.log(oldCategory.subcategories)
             
-            const newCategory = oldCategory.subcategories.forEach((subcategory, index) => {
-              console.log(subcategory, subcategory.id, index)
-
-              if (toolSubcategories.includes(subcategory.id)) {
-
-                const toolStore = [...oldCategory.subcategories[index].tools, newCount];
-                const idStored = oldCategory.subcategories[index].id
-                const titleStored = oldCategory.subcategories[index].title;
-                console.log(toolStore, idStored, titleStored)
-
-                const newCategory = {
-                  id: oldCategory.id,
-                  title: oldCategory.title,
-                  subcategories: [
-                    {
-                      id: idStored,
-                      title: titleStored,
-                      tools: toolStore
-                    }
-                  ]
-                }
-                // transaction.update(categoryRef, newCategory);
+            let newSubcategories = [];
+            oldCategory.subcategories.forEach((subcategory) => {
+              console.log(subcategory.tools)
+              let newTools = [...(subcategory.tools || [])];
+              if (selectedSubcategories.includes(subcategory.id) && !newTools.includes(newCount)) {
+                newTools = [...newTools, newCount];
               }
-            })
+              let newSubcategory = {
+                ...subcategory,
+                tools: newTools
+              };
+              newSubcategories = [...newSubcategories, newSubcategory];
+            });
+
+            const newCategory = {
+              ...oldCategory,
+              subcategories: newSubcategories
+            }
+            transaction.update(categoryRef, newCategory);
           })
       }).then(() => {
         console.log("Transaction successfully commited!");
@@ -221,6 +220,7 @@ const uploadingToolToDatabase = async () => {
     const tool = getTool(toolNameElement, toolPriceElement, toolImage, imgType);
 
     storeImageToDatabase({ tool });
+    
     form.reset();
     document.querySelector(".myimage").src = "";
     if (categoriesSelect) {
