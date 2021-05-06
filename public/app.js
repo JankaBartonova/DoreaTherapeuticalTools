@@ -1,3 +1,6 @@
+let categoriesSelect = null;
+let subcategoriesSelect = null;
+
 const getCategoriesAndSubcategories = (snapshot) => {
   const categoriesAndSubcategories = new Array();
   
@@ -73,11 +76,11 @@ const loadMultiselectCategories = async (snapshot) => {
   const categories = await getCategoriesAndSubcategories(snapshot);
   const multiSelectItems = await getMultiSelectItems(categories);
 
-  addMultiselectCategories(
+  categoriesSelect = addMultiselectCategories(
     ".categories",
     "categoriesTags",
     multiSelectItems,
-    (value) => loadMultiselectSubcategories(value, categories, subcategoriesSelect)
+    (value) => loadMultiselectSubcategories(value, categories, subcategoriesSelectContainer)
   );
 }
 

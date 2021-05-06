@@ -2,7 +2,7 @@ const getDatabaseCategoriesAndSubcategories = async (collection) => {
   const databaseCategoriesAndSubcategoriesSnapshot = await db.collection(collection.toString())
     .get()
     .then((snapshot) => {
-      return snapshot 
+      return snapshot
     })
   return databaseCategoriesAndSubcategoriesSnapshot;
 }
@@ -10,9 +10,9 @@ const getDatabaseCategoriesAndSubcategories = async (collection) => {
 const getSelectedCards = async (tools) => {
   try {
     const selectedToolsDatabaseSnapshot = await db.collection("tools")
-    .where("id", "in", tools)
-    .get()
-    
+      .where("id", "in", tools)
+      .get()
+
     console.log("Selected tools returned from database");
     return selectedToolsDatabaseSnapshot.docs.map((databaseTool) => {
       return databaseTool.data()
@@ -39,43 +39,63 @@ const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategorie
     .getDownloadURL()
     .then((url) => {
 
-      toolCategory = "05";
+      toolCategory = `0${toolCategories}`;
+      console.log(toolCategory)
+      // ["1:1", "1:2"]
+      console.log(toolSubcategories)
 
       const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
       const categoryRef = db.collection("categories").doc(`${toolCategory}`);
-      
+
       return db.runTransaction((transaction) => {
         return transaction
           .get(numberOfToolsRef)
-          .then((numberOfTools) => {
-            if (!numberOfTools) {
-              throw "Counter does not exist!";
-            }
-            
-            const newCount = numberOfTools.data().count + 1;
-            setNewTool(newCount, toolName, toolPrice, url);
+          .then(async (numberOfToolsDoc) => {
+            const oldCategory = await transaction
+              .get(categoryRef)
+              .then((categoryDoc) => {
+                console.log(categoryDoc.data());
+                return categoryDoc.data();
+              })
 
+            const newCount = numberOfToolsDoc.data().count + 1;
+            // setNewTool se vykoná, ikdyž transaction fail, proč?
+            setNewTool(newCount, toolName, toolPrice, url);
             transaction.update(numberOfToolsRef, { count: newCount });
+
+            console.log(oldCategory.subcategories)
+            
+            const newCategory = oldCategory.subcategories.forEach((subcategory, index) => {
+              console.log(subcategory, subcategory.id, index)
+
+              if (toolSubcategories.includes(subcategory.id)) {
+
+                const toolStore = [...oldCategory.subcategories[index].tools, newCount];
+                const idStored = oldCategory.subcategories[index].id
+                const titleStored = oldCategory.subcategories[index].title;
+                console.log(toolStore, idStored, titleStored)
+
+                const newCategory = {
+                  id: oldCategory.id,
+                  title: oldCategory.title,
+                  subcategories: [
+                    {
+                      id: idStored,
+                      title: titleStored,
+                      tools: toolStore
+                    }
+                  ]
+                }
+                // transaction.update(categoryRef, newCategory);
+              }
+            })
           })
       }).then(() => {
         console.log("Transaction successfully commited!");
       }).catch((error) => {
         console.log("Transaction failed! ", error);
       });
-
-      //     // console.log(toolCategories, toolSubcategories);
-      //     // toolCategory = "5";
-      //     // toolSubcategory = "5";
-      //     // // toolCategories is a SET!!!!
-      //     // const categoriesRef = db.collection("categories").doc(`0${toolCategory}`)
-
-      //     // batch.update(categoriesRef, {
-      //     //  subcategories:
-      //     //     {
-      //     //       "tools": [`${counter}`]
-      //     //     }
-      //     // })
-    })   
+    });
 }
 
 const pickFile = (input) => {
@@ -90,14 +110,14 @@ const pickFile = (input) => {
 
       input.removeEventListener("change", this);
     });
-    input.click(); 
+    input.click();
   });
 }
 
 const getFileTypeFrom64Url = (url) => {
   const firstPosition = url.indexOf("/");
   const lastPosition = url.indexOf(";");
-  const type = url.slice(firstPosition + 1,lastPosition);
+  const type = url.slice(firstPosition + 1, lastPosition);
   return type;
 }
 
@@ -109,18 +129,18 @@ const getImageAndShowAtDom = (select) => {
       e.preventDefault()
       const input = document.createElement("input");
       input.type = "file";
-    
+
       try {
         //app
         const selectedFile = await pickFile(input);
         const loadedImg = await loadFile(selectedFile);
-        
+
         //dom
         document.querySelector(".myimage").src = loadedImg;
 
         if (loadedImg) {
           resolve(loadedImg);
-        } 
+        }
 
       } catch (e) {
         console.log(e);
@@ -137,17 +157,19 @@ const storeImageToDatabase = ({ tool }) => {
   storageRef
     .putString(tool.image, 'data_url')
     .then(() => {
-        console.log('Uploaded file to Firebase Storage!');
-        uploadImageUrlToDatabase(storageRef, tool.name, parseInt(tool.price), tool.categories, tool.subcategories);
-      });
-}  
+      console.log('Uploaded file to Firebase Storage!');
+      const toolSubcategories = [...tool.subcategories]
+      console.log(toolSubcategories);
+      uploadImageUrlToDatabase(storageRef, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories);
+    });
+}
 
 const getToolValue = (element) => {
   return element.value;
 }
 
 const getMultiselectValues = () => {
-  const toolMultiselectElements = document.querySelectorAll(".select-pure__option--selected");   
+  const toolMultiselectElements = document.querySelectorAll(".select-pure__option--selected");
   const toolCategoriesAndSubcategories = Array.from(toolMultiselectElements).map((toolCategory) => {
     return toolCategory.dataset.value;
   });
@@ -155,7 +177,7 @@ const getMultiselectValues = () => {
   const categories = new Set();
   const subCategories = new Set();
 
-  toolCategoriesAndSubcategories.forEach((value) => { 
+  toolCategoriesAndSubcategories.forEach((value) => {
     if (value.includes(":")) {
       subCategories.add(value);
     } else {
@@ -201,8 +223,14 @@ const uploadingToolToDatabase = async () => {
     storeImageToDatabase({ tool });
     form.reset();
     document.querySelector(".myimage").src = "";
+    if (categoriesSelect) {
+      categoriesSelect.reset();
+    }
+    if (subcategoriesSelect) {
+      subcategoriesSelect.reset();
+    }
   });
-  
+
   const toolImage = await getImageAndShowAtDom(select);
   const imgType = getFileTypeFrom64Url(toolImage);
 }

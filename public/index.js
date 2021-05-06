@@ -3,7 +3,7 @@ const userInfo = document.querySelector(".user-info");
 const navBarCategories = document.querySelector(".navBarCategories");
 const navBarSubcategories = document.querySelector(".navBarSubcategories");
 const cardContainer = document.querySelector(".cardContainer");
-const subcategoriesSelect = document.querySelector(".subcategories");
+const subcategoriesSelectContainer = document.querySelector(".subcategories");
 const toolSubcategories = document.querySelector(".toolSubcategories");
 
 (async () => {

@@ -129,7 +129,7 @@ const loadMultiselectSubcategories = (value, categories, container) => {
 
   const multiselectSubCategories = getSubcategories(categories);
   const subItems = addMultiselectSubCategories(value, multiselectSubCategories);        
-  addMultiselectCategories(
+  subcategoriesSelect = addMultiselectCategories(
     ".subcategories",
     "subcategoriesTags",
     subItems,
