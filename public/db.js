@@ -38,15 +38,12 @@ const setNewTool = (transaction, count, name, price, url) => {
   console.log("New tool saved to Firebase Firestore tool collection.");
 }
 
-const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, selectedSubcategories) => {
+const uploadToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, selectedSubcategories) => {
   storageRef
     .getDownloadURL()
     .then((url) => {
 
       toolCategory = `0${toolCategories}`;
-      console.log(toolCategory)
-      // ["1:1", "1:2"]
-      console.log(selectedSubcategories)
 
       const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
       const categoryRef = db.collection("categories").doc(`${toolCategory}`);
@@ -63,15 +60,11 @@ const uploadImageUrlToDatabase = (storageRef, toolName, toolPrice, toolCategorie
               })
 
             const newCount = numberOfToolsDoc.data().count + 1;
-            // setNewTool se vykoná, ikdyž transaction fail, proč?
             setNewTool(transaction, newCount, toolName, toolPrice, url);
             transaction.update(numberOfToolsRef, { count: newCount });
-
-            console.log(oldCategory.subcategories)
             
             let newSubcategories = [];
             oldCategory.subcategories.forEach((subcategory) => {
-              console.log(subcategory.tools)
               let newTools = [...(subcategory.tools || [])];
               if (selectedSubcategories.includes(subcategory.id) && !newTools.includes(newCount)) {
                 newTools = [...newTools, newCount];
@@ -159,7 +152,7 @@ const storeImageToDatabase = ({ tool }) => {
       console.log('Uploaded file to Firebase Storage!');
       const toolSubcategories = [...tool.subcategories]
       console.log(toolSubcategories);
-      uploadImageUrlToDatabase(storageRef, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories);
+      uploadToolUrlToDatabase(storageRef, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories);
     });
 }
 
