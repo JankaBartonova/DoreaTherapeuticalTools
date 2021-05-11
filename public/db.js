@@ -78,16 +78,18 @@ const getCategoryDoc = (transaction, categoryRef) => {
   })
 }
 
+const getNumeberOfTools = (transaction, numberOfToolsRef) => {
+  return transaction
+   .get(numberOfToolsRef);
+}
+
 const createToolAndSaveUrlToCategories = (numberOfToolsRef, categoryRef, toolName, toolPrice, url, selectedSubcategories) => {
-  return db.runTransaction((transaction) => {
-    return transaction
-      .get(numberOfToolsRef)
-      .then(async (numberOfToolsDoc) => {
-        const oldCategory =  await getCategoryDoc(transaction, categoryRef);
-        const newCount = await saveNewToolAndIncrementCounter(transaction, numberOfToolsDoc, numberOfToolsRef, toolName, toolPrice, url);
-        const newSubcategories = await addNewToolToSelectedSubcategories(oldCategory, newCount, selectedSubcategories);
-        updateCategory(transaction, categoryRef, oldCategory, newSubcategories);
-      })
+  return db.runTransaction(async (transaction) => {
+    const numberOfToolsDoc = await getNumeberOfTools(transaction, numberOfToolsRef) 
+    const oldCategory =  await getCategoryDoc(transaction, categoryRef);
+    const newCount = await saveNewToolAndIncrementCounter(transaction, numberOfToolsDoc, numberOfToolsRef, toolName, toolPrice, url);
+    const newSubcategories = await addNewToolToSelectedSubcategories(oldCategory, newCount, selectedSubcategories);
+    updateCategory(transaction, categoryRef, oldCategory, newSubcategories);
   }).then(() => {
     console.log("Transaction successfully commited!");
   }).catch((error) => {
@@ -104,7 +106,6 @@ const saveToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, 
 
       const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
       const categoryRef = db.collection("categories").doc(`${toolCategory}`);
-
       
       createToolAndSaveUrlToCategories(numberOfToolsRef, categoryRef, toolName, toolPrice, url, selectedSubcategories);
     });
