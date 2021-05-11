@@ -61,6 +61,23 @@ const addNewToolToSelectedSubcategories = (oldCategory, newCount, selectedSubcat
   return newSubcategories;
 }
 
+const updateCategory = (transaction, categoryRef, oldCategory, newSubcategories) => {
+  const newCategory = {
+    ...oldCategory,
+    subcategories: newSubcategories
+  }
+  transaction.update(categoryRef, newCategory);
+}
+
+const getCategoryDoc = (transaction, categoryRef) => {
+  return transaction
+  .get(categoryRef)
+  .then((categoryDoc) => {
+    console.log(categoryDoc.data());
+    return categoryDoc.data();
+  })
+}
+
 const uploadToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, selectedSubcategories) => {
   storageRef
     .getDownloadURL()
@@ -75,21 +92,13 @@ const uploadToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories
         return transaction
           .get(numberOfToolsRef)
           .then(async (numberOfToolsDoc) => {
-            const oldCategory = await transaction
-              .get(categoryRef)
-              .then((categoryDoc) => {
-                console.log(categoryDoc.data());
-                return categoryDoc.data();
-              })
-
+            
+            
+            const oldCategory =  await getCategoryDoc(transaction, categoryRef);
+            console.log(oldCategory)
             const newCount = await saveNewToolAndIncrementCounter(transaction, numberOfToolsDoc, numberOfToolsRef, toolName, toolPrice, url);
             const newSubcategories = await addNewToolToSelectedSubcategories(oldCategory, newCount, selectedSubcategories);
-            
-            const newCategory = {
-              ...oldCategory,
-              subcategories: newSubcategories
-            }
-            transaction.update(categoryRef, newCategory);
+            updateCategory(transaction, categoryRef, oldCategory, newSubcategories);
           })
       }).then(() => {
         console.log("Transaction successfully commited!");
