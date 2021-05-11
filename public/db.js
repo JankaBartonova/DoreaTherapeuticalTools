@@ -38,9 +38,9 @@ const setNewTool = (transaction, count, name, price, url) => {
   console.log("New tool saved to Firebase Firestore tool collection.");
 }
 
-const saveNewToolAndIncrementCounter = (transaction, counterDoc, counterRef, toolName, toolPrice, url) => {
-  const newCount = counterDoc.data().count + 1;
-  setNewTool(transaction, newCount, toolName, toolPrice, url);
+const createNewToolAndIncrementCounter = (transaction, counter, counterRef, name, price, url ) => {
+  const newCount = counter + 1;
+  setNewTool(transaction, newCount, name, price, url);
   transaction.update(counterRef, { count: newCount });
   return newCount;
 }
@@ -69,25 +69,20 @@ const updateCategory = (transaction, categoryRef, oldCategory, newSubcategories)
   transaction.update(categoryRef, newCategory);
 }
 
-const getCategoryDoc = (transaction, categoryRef) => {
+const getFirebaseTransactionDocument = (transaction, reference) => {
   return transaction
-  .get(categoryRef)
-  .then((categoryDoc) => {
-    console.log(categoryDoc.data());
-    return categoryDoc.data();
+  .get(reference)
+  .then((document) => {
+    console.log(document.data());
+    return document.data();
   })
 }
 
-const getNumeberOfTools = (transaction, numberOfToolsRef) => {
-  return transaction
-   .get(numberOfToolsRef);
-}
-
-const createToolAndSaveUrlToCategories = (numberOfToolsRef, categoryRef, toolName, toolPrice, url, selectedSubcategories) => {
+const createToolAndSaveUrlToCategories = (numberOfToolsRef, categoryRef, toolName, toolPrice, toolUrl, selectedSubcategories) => {
   return db.runTransaction(async (transaction) => {
-    const numberOfToolsDoc = await getNumeberOfTools(transaction, numberOfToolsRef) 
-    const oldCategory =  await getCategoryDoc(transaction, categoryRef);
-    const newCount = await saveNewToolAndIncrementCounter(transaction, numberOfToolsDoc, numberOfToolsRef, toolName, toolPrice, url);
+    const numberOfTools = await getFirebaseTransactionDocument(transaction, numberOfToolsRef);
+    const oldCategory =  await getFirebaseTransactionDocument(transaction, categoryRef);
+    const newCount = await createNewToolAndIncrementCounter(transaction, numberOfTools.count, numberOfToolsRef, toolName, toolPrice, toolUrl);
     const newSubcategories = await addNewToolToSelectedSubcategories(oldCategory, newCount, selectedSubcategories);
     updateCategory(transaction, categoryRef, oldCategory, newSubcategories);
   }).then(() => {
