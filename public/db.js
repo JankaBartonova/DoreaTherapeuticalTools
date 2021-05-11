@@ -45,6 +45,22 @@ const saveNewToolAndIncrementCounter = (transaction, counterDoc, counterRef, too
   return newCount;
 }
 
+const addNewToolToSelectedSubcategories = (oldCategory, newCount, selectedSubcategories) => {
+  let newSubcategories = [];
+  oldCategory.subcategories.forEach((subcategory) => {
+    let newTools = [...(subcategory.tools || [])];
+    if (selectedSubcategories.includes(subcategory.id) && !newTools.includes(newCount)) {
+      newTools = [...newTools, newCount];
+    }
+    let newSubcategory = {
+      ...subcategory,
+      tools: newTools
+    };
+    newSubcategories = [...newSubcategories, newSubcategory];
+  });
+  return newSubcategories;
+}
+
 const uploadToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, selectedSubcategories) => {
   storageRef
     .getDownloadURL()
@@ -67,20 +83,8 @@ const uploadToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories
               })
 
             const newCount = await saveNewToolAndIncrementCounter(transaction, numberOfToolsDoc, numberOfToolsRef, toolName, toolPrice, url);
-  
-            let newSubcategories = [];
-            oldCategory.subcategories.forEach((subcategory) => {
-              let newTools = [...(subcategory.tools || [])];
-              if (selectedSubcategories.includes(subcategory.id) && !newTools.includes(newCount)) {
-                newTools = [...newTools, newCount];
-              }
-              let newSubcategory = {
-                ...subcategory,
-                tools: newTools
-              };
-              newSubcategories = [...newSubcategories, newSubcategory];
-            });
-
+            const newSubcategories = await addNewToolToSelectedSubcategories(oldCategory, newCount, selectedSubcategories);
+            
             const newCategory = {
               ...oldCategory,
               subcategories: newSubcategories
