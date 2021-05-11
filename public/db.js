@@ -38,6 +38,13 @@ const setNewTool = (transaction, count, name, price, url) => {
   console.log("New tool saved to Firebase Firestore tool collection.");
 }
 
+const saveNewToolAndIncrementCounter = (transaction, counterDoc, counterRef, toolName, toolPrice, url) => {
+  const newCount = counterDoc.data().count + 1;
+  setNewTool(transaction, newCount, toolName, toolPrice, url);
+  transaction.update(counterRef, { count: newCount });
+  return newCount;
+}
+
 const uploadToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, selectedSubcategories) => {
   storageRef
     .getDownloadURL()
@@ -59,10 +66,8 @@ const uploadToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories
                 return categoryDoc.data();
               })
 
-            const newCount = numberOfToolsDoc.data().count + 1;
-            setNewTool(transaction, newCount, toolName, toolPrice, url);
-            transaction.update(numberOfToolsRef, { count: newCount });
-            
+            const newCount = await saveNewToolAndIncrementCounter(transaction, numberOfToolsDoc, numberOfToolsRef, toolName, toolPrice, url);
+  
             let newSubcategories = [];
             oldCategory.subcategories.forEach((subcategory) => {
               let newTools = [...(subcategory.tools || [])];
