@@ -78,7 +78,24 @@ const getCategoryDoc = (transaction, categoryRef) => {
   })
 }
 
-const uploadToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, selectedSubcategories) => {
+const createToolAndSaveUrlToCategories = (numberOfToolsRef, categoryRef, toolName, toolPrice, url, selectedSubcategories) => {
+  return db.runTransaction((transaction) => {
+    return transaction
+      .get(numberOfToolsRef)
+      .then(async (numberOfToolsDoc) => {
+        const oldCategory =  await getCategoryDoc(transaction, categoryRef);
+        const newCount = await saveNewToolAndIncrementCounter(transaction, numberOfToolsDoc, numberOfToolsRef, toolName, toolPrice, url);
+        const newSubcategories = await addNewToolToSelectedSubcategories(oldCategory, newCount, selectedSubcategories);
+        updateCategory(transaction, categoryRef, oldCategory, newSubcategories);
+      })
+  }).then(() => {
+    console.log("Transaction successfully commited!");
+  }).catch((error) => {
+    console.log("Transaction failed! ", error);
+  });
+}
+
+const saveToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories, selectedSubcategories) => {
   storageRef
     .getDownloadURL()
     .then((url) => {
@@ -88,23 +105,8 @@ const uploadToolUrlToDatabase = (storageRef, toolName, toolPrice, toolCategories
       const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
       const categoryRef = db.collection("categories").doc(`${toolCategory}`);
 
-      return db.runTransaction((transaction) => {
-        return transaction
-          .get(numberOfToolsRef)
-          .then(async (numberOfToolsDoc) => {
-            
-            
-            const oldCategory =  await getCategoryDoc(transaction, categoryRef);
-            console.log(oldCategory)
-            const newCount = await saveNewToolAndIncrementCounter(transaction, numberOfToolsDoc, numberOfToolsRef, toolName, toolPrice, url);
-            const newSubcategories = await addNewToolToSelectedSubcategories(oldCategory, newCount, selectedSubcategories);
-            updateCategory(transaction, categoryRef, oldCategory, newSubcategories);
-          })
-      }).then(() => {
-        console.log("Transaction successfully commited!");
-      }).catch((error) => {
-        console.log("Transaction failed! ", error);
-      });
+      
+      createToolAndSaveUrlToCategories(numberOfToolsRef, categoryRef, toolName, toolPrice, url, selectedSubcategories);
     });
 }
 
@@ -170,7 +172,7 @@ const storeImageToDatabase = ({ tool }) => {
       console.log('Uploaded file to Firebase Storage!');
       const toolSubcategories = [...tool.subcategories]
       console.log(toolSubcategories);
-      uploadToolUrlToDatabase(storageRef, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories);
+      saveToolUrlToDatabase(storageRef, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories);
     });
 }
 
