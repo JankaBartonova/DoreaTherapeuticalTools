@@ -15,3 +15,14 @@ const loadFile = (file) => new Promise((resolve, reject) => {
 
   reader.readAsDataURL(file);
 });
+
+const createArrayFromArrayOfArrays = (arrayOfArrays) => {
+  arrayOfElements = [];
+  arrayOfArrays.forEach((array) => {
+    array.forEach((element) => {
+      arrayOfElements.push(element);
+    })
+  })
+  console.log(arrayOfElements);
+  return arrayOfElements;  
+}

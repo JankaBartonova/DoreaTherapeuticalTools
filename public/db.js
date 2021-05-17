@@ -7,16 +7,33 @@ const getDatabaseCategoriesAndSubcategories = async (collection) => {
   return databaseCategoriesAndSubcategoriesSnapshot;
 }
 
-const getSelectedCards = async (tools) => {
-  try {
-    const selectedToolsDatabaseSnapshot = await db.collection("tools")
-      .where("id", "in", tools)
-      .get()
+const downloadToolsFromDatabase = async (ids) => {
+  let batches = [];
+  while (ids.length) {
+    const batchIds = ids.splice(0, 10);
+    batches.push(
+      await db.collection("tools")
+        .where(
+          "id",
+          'in',
+          [...batchIds]
+        )
+        .get()
+        .then(results => results.docs.map(result => ({ ...result.data() })))
+    )
+    return batches;
+  }
+} 
 
-    console.log("Selected tools returned from database");
-    return selectedToolsDatabaseSnapshot.docs.map((databaseTool) => {
-      return databaseTool.data()
-    });
+const getSelectedCards = async (ids) => {
+  try {
+    if (!ids || !ids.length) {
+      return false;
+    }
+    
+    const selectedToolsBatches = await downloadToolsFromDatabase(ids);
+    const selectedTools = await createArrayFromArrayOfArrays(selectedToolsBatches);
+    return selectedTools;
 
   } catch (error) {
     console.log(error);
@@ -28,10 +45,10 @@ const setNewTool = (transaction, count, name, price, url) => {
   transaction.set(
     toolsRef,
     {
-    id: count,
-    name: name,
-    image: url,
-    price: price
+      id: count,
+      name: name,
+      image: url,
+      price: price
     },
     { merge: true }
   );
@@ -47,7 +64,7 @@ const incrementCounter = async (transaction, counterRef) => {
 
 const createNewTool = async (transaction, counterRef, name, price, url) => {
   const newCount = await incrementCounter(transaction, counterRef);
-  setNewTool(transaction, newCount, name, price, url); 
+  setNewTool(transaction, newCount, name, price, url);
   return newCount;
 }
 
@@ -107,7 +124,7 @@ const saveTool = (storageRef, toolName, toolPrice, toolCategories, selectedSubca
 
       const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
       const categoryRef = db.collection("categories").doc(`${toolCategory}`);
-      
+
       createToolAndSaveUrlToCategories(numberOfToolsRef, categoryRef, toolName, toolPrice, url, selectedSubcategories);
     });
 }
@@ -235,7 +252,7 @@ const uploadingToolToDatabase = async () => {
     const tool = getTool(toolNameElement, toolPriceElement, toolImage, imgType);
 
     storeImageToDatabase({ tool });
-    
+
     form.reset();
     document.querySelector(".myimage").src = "";
     if (categoriesSelect) {
