@@ -23,14 +23,14 @@ const downloadToolsFromDatabase = async (ids) => {
     )
     return batches;
   }
-} 
+}
 
 const getSelectedCards = async (ids) => {
   try {
     if (!ids || !ids.length) {
       return false;
     }
-    
+
     const selectedToolsBatches = await downloadToolsFromDatabase(ids);
     const selectedTools = await createArrayFromArrayOfArrays(selectedToolsBatches);
     return selectedTools;
@@ -52,7 +52,7 @@ const setNewTool = (transaction, count, name, price, url) => {
     },
     { merge: true }
   );
-  console.log("New tool saved to Firebase Firestore tool collection.");
+  console.log(`New tool od ID ${count} saved to Firebase Firestore tool collection.`);
 }
 
 const incrementCounter = async (transaction, counterRef) => {
@@ -68,46 +68,59 @@ const createNewTool = async (transaction, counterRef, name, price, url) => {
   return newCount;
 }
 
-const addToolToSubcategories = (oldCategory, newCount, subcategories) => {
-  return oldCategory.subcategories.map((subcategory) => {
-    let newTools = [...(subcategory.tools || [])];
-    if (subcategories.includes(subcategory.id) && !newTools.includes(newCount)) {
+const addToolToSubcategories = (selectedOldCategory, newCount, selectedSubcategories) => {
+  return selectedOldCategory.subcategories.map((oldSubcategory) => {
+    let newTools = [...(oldSubcategory.tools || [])];
+    if (selectedSubcategories.includes(oldSubcategory.id) && !newTools.includes(newCount)) {
       newTools = [...newTools, newCount];
+      return {
+        ...oldSubcategory,
+        tools: newTools
+      }
+    } else {
+      return oldSubcategory;
     }
-    return {
-      ...subcategory,
-      tools: newTools
-    };
   })
 }
 
-const updateCategory = (transaction, categoryRef, newCategory) => {
-  transaction.update(categoryRef, newCategory);
-}
 
-const updateSubcategories = (transaction, categoryRef, oldCategory, newSubcategories) => {
+
+const updateSubcategories = (transaction, selectedCategoryId, newSubcategories, selectedOldCategory) => {
+  const categoryRef = db.collection("categories").doc(`0${selectedCategoryId}`);
+  
   const newCategory = {
-    ...oldCategory,
+    ...selectedOldCategory,
     subcategories: newSubcategories
   }
-  updateCategory(transaction, categoryRef, newCategory);
+  console.log(newCategory)
+  transaction.update(categoryRef, newCategory);
 }
 
 const getFirebaseTransactionDocument = (transaction, reference) => {
   return transaction
     .get(reference)
     .then((document) => {
-      console.log(document.data());
       return document.data();
     })
 }
 
-const createToolAndSaveUrlToCategories = (numberOfToolsRef, categoryRef, toolName, toolPrice, toolUrl, subcategories) => {
+const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesIds, toolName, toolPrice, toolUrl, selectedSubcategories) => {
   return db.runTransaction(async (transaction) => {
-    const oldCategory = await getFirebaseTransactionDocument(transaction, categoryRef);
+    const oldCategories = await getFirebaseCollection("categories");
     const toolId = await createNewTool(transaction, numberOfToolsRef, toolName, toolPrice, toolUrl);
-    const newSubcategories = await addToolToSubcategories(oldCategory, toolId, subcategories);
-    updateSubcategories(transaction, categoryRef, oldCategory, newSubcategories);
+
+    console.log(selectedSubcategories)
+    selectedCategoriesIds.forEach(async (selectedCategoryId) => {
+      console.log(selectedCategoryId)
+
+      const selectedOldCategory = oldCategories.find((oldCategory) => {
+        return oldCategory.id == selectedCategoryId;
+      })
+
+      const newSubcategories = await addToolToSubcategories(selectedOldCategory, toolId, selectedSubcategories);
+
+      updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategory);
+    })
   }).then(() => {
     console.log("Transaction successfully commited!");
   }).catch((error) => {
@@ -115,17 +128,25 @@ const createToolAndSaveUrlToCategories = (numberOfToolsRef, categoryRef, toolNam
   });
 }
 
+const getFirebaseCollection = async (collection) => {
+  const categories = await getDatabaseCategoriesAndSubcategories(collection);
+  const databaseSnapshot = await getCategoriesAndSubcategories(categories);
+  return databaseSnapshot;
+}
+
+
 const saveTool = (storageRef, toolName, toolPrice, toolCategories, selectedSubcategories) => {
   storageRef
     .getDownloadURL()
     .then((url) => {
+      // ["1", "2"]
 
-      toolCategory = `0${toolCategories}`;
+      //toolCategory = `0${toolCategories}`;
 
-      const numberOfToolsRef = db.collection("tools").doc("numberOfTools");
-      const categoryRef = db.collection("categories").doc(`${toolCategory}`);
+      const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
+      //const categoryRef = db.collection("categories").doc(`${toolCategory}`);
 
-      createToolAndSaveUrlToCategories(numberOfToolsRef, categoryRef, toolName, toolPrice, url, selectedSubcategories);
+      createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, url, selectedSubcategories);
     });
 }
 
@@ -190,7 +211,6 @@ const storeImageToDatabase = ({ tool }) => {
     .then(() => {
       console.log('Uploaded file to Firebase Storage!');
       const toolSubcategories = [...tool.subcategories]
-      console.log(toolSubcategories);
       saveTool(storageRef, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories);
     });
 }

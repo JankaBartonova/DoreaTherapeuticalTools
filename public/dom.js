@@ -134,6 +134,11 @@ const loadMultiselectSubcategories = (value, categories, container) => {
     "subcategoriesTags",
     subItems,
     (value) => {console.log("subitem change", value)});
+    
+  // console.log(subcategoriesSelectContainer)
+  subcategoriesSelectContainer.addEventListener("change", (event) => {
+    console.log(event.target.value);
+  })
 }
 
 const addMultiselectSubCategories = (value, multiselectSubCategories) => {

@@ -86,6 +86,5 @@ const loadMultiselectCategories = async (snapshot) => {
 
 const displaySelectedCards = async (ids) => {
   const selectedCards = await getSelectedCards(ids);
-  console.log(selectedCards);
   await showSelectedCards(selectedCards);
 }
