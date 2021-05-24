@@ -26,3 +26,10 @@ const createArrayFromArrayOfArrays = (arrayOfArrays) => {
   console.log(arrayOfElements);
   return arrayOfElements;  
 }
+
+const findElementsById = (arrayOfObjects, id) => {
+  console.log(arrayOfObjects)
+  return arrayOfObjects.find((object) => {
+    return object.id == id;
+  })
+}

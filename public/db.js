@@ -109,16 +109,9 @@ const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesId
     const oldCategories = await getFirebaseCollection("categories");
     const toolId = await createNewTool(transaction, numberOfToolsRef, toolName, toolPrice, toolUrl);
 
-    console.log(selectedSubcategories)
     selectedCategoriesIds.forEach(async (selectedCategoryId) => {
-      console.log(selectedCategoryId)
-
-      const selectedOldCategory = oldCategories.find((oldCategory) => {
-        return oldCategory.id == selectedCategoryId;
-      })
-
+      const selectedOldCategory = await findElementsById(oldCategories, selectedCategoryId);
       const newSubcategories = await addToolToSubcategories(selectedOldCategory, toolId, selectedSubcategories);
-
       updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategory);
     })
   }).then(() => {
