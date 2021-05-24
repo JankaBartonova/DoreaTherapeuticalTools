@@ -74,9 +74,19 @@ const addCard = (card) => {
   cardContainer.innerHTML += html;
 }
 
-const addMultiselectCategories = (parent, _class, options, onChange) => {
+const addMultiselectCategories = (parent, _class, options, values, onChange) => {
+  console.log("addMultiselect values", values);
+  console.log("addMultiselect options", options);
+
+  values = values.filter((value) => {
+    return options.find((option) => {
+      return option.value == value;
+    });
+  })
+
   return new SelectPure(parent, {
     options: options,
+    value: values,
     multiple: true,
     autocomplete: true,
     icon: "fa fa-times",
@@ -119,30 +129,29 @@ const displayAndHideTools = (target, snapshot) => {
   }
 }
 
-const loadMultiselectSubcategories = (value, categories, container) => {
+const loadMultiselectSubcategories = (values, categories, container) => {
   removeAllElements(container);
 
   // if category is empty, do not show subcategories
-  if (value.length == 0) {
+  if (values.length == 0) {
     return;
   }
 
   const multiselectSubCategories = getSubcategories(categories);
-  const subItems = addMultiselectSubCategories(value, multiselectSubCategories);        
+  const subItems = addMultiselectSubCategories(values, multiselectSubCategories);        
   subcategoriesSelect = addMultiselectCategories(
     ".subcategories",
     "subcategoriesTags",
     subItems,
-    (value) => {console.log("subitem change", value)});
-    
-  // console.log(subcategoriesSelectContainer)
-  subcategoriesSelectContainer.addEventListener("change", (event) => {
-    console.log(event.target.value);
-  })
+    remeberedSubcategories,
+    (values) => {
+      console.log("subitem change", values)
+      remeberedSubcategories = values;
+    });
 }
 
-const addMultiselectSubCategories = (value, multiselectSubCategories) => {
-  const categoryValues = value;
+const addMultiselectSubCategories = (values, multiselectSubCategories) => {
+  const categoryValues = values;
   let subItems = [];
   categoryValues.forEach((categoryValue) => {
     const array = multiselectSubCategories[parseInt(categoryValue) - 1].map((subcategory) => {
@@ -153,7 +162,6 @@ const addMultiselectSubCategories = (value, multiselectSubCategories) => {
       };
     })
     subItems = subItems.concat(array);
-    return subItems;
   });
   return subItems;
 }

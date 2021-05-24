@@ -1,5 +1,6 @@
 let categoriesSelect = null;
 let subcategoriesSelect = null;
+let remeberedSubcategories = [];
 
 const getCategoriesAndSubcategories = (snapshot) => {
   const categoriesAndSubcategories = new Array();
@@ -80,6 +81,7 @@ const loadMultiselectCategories = async (snapshot) => {
     ".categories",
     "categoriesTags",
     multiSelectItems,
+    [],
     (value) => loadMultiselectSubcategories(value, categories, subcategoriesSelectContainer)
   );
 }
