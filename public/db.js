@@ -9,6 +9,7 @@ const getDatabaseCategoriesAndSubcategories = async (collection) => {
 
 const downloadToolsFromDatabase = async (ids) => {
   let batches = [];
+  console.log("Tools IDs", ids);
   while (ids.length) {
     const batchIds = ids.splice(0, 10);
     batches.push(
@@ -21,8 +22,9 @@ const downloadToolsFromDatabase = async (ids) => {
         .get()
         .then(results => results.docs.map(result => ({ ...result.data() })))
     )
-    return batches;
   }
+  console.log(batches);
+  return batches;
 }
 
 const getSelectedCards = async (ids) => {
@@ -32,6 +34,7 @@ const getSelectedCards = async (ids) => {
     }
 
     const selectedToolsBatches = await downloadToolsFromDatabase(ids);
+    console.log(selectedToolsBatches)
     const selectedTools = await createArrayFromArrayOfArrays(selectedToolsBatches);
     return selectedTools;
 

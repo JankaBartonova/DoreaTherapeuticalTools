@@ -75,8 +75,6 @@ const addCard = (card) => {
 }
 
 const addMultiselectCategories = (parent, _class, options, values, onChange) => {
-  console.log("addMultiselect values", values);
-  console.log("addMultiselect options", options);
 
   values = values.filter((value) => {
     return options.find((option) => {
