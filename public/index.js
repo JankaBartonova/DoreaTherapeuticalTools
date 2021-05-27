@@ -5,9 +5,6 @@ const navBarSubcategories = document.querySelector(".navBarSubcategories");
 const cardContainer = document.querySelector(".cardContainer");
 const subcategoriesSelectContainer = document.querySelector(".subcategories");
 const toolSubcategories = document.querySelector(".toolSubcategories");
-const admin = document.querySelector(".admin");
-const popupAdmin = document.querySelector(".popup-admin-wrapper");
-const closeIconAdmin = document.querySelector(".popup-admin-close");
 const sign = document.querySelector(".sign");
 const popupSign = document.querySelector(".popup-sign-wrapper");
 const closeIconSign = document.querySelector(".popup-sign-close");
@@ -27,7 +24,6 @@ const closeIconSign = document.querySelector(".popup-sign-close");
   }
 })();
 
-showAndHidePopup(admin, popupAdmin, closeIconAdmin);
 showAndHidePopup(sign, popupSign, closeIconSign);
 
 findToolByNumber(searchNavigation)

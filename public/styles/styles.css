@@ -178,6 +178,7 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   width: 100%;
   height: 100%;
   z-index: 20;
+  display: none;
 }
 
 .popup-sign{
