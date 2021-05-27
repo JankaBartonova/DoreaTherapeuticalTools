@@ -201,7 +201,7 @@ const getImageAndShowAtDom = (select) => {
 
 const storeImageToDatabase = ({ tool }) => {
   console.log(tool)
-  const storageRef = firebase.storage().ref("images/" + tool.name + `.${tool.type}`);
+  const storageRef = storage.ref("images/" + tool.name + `.${tool.type}`);
   storageRef
     .putString(tool.image, 'data_url')
     .then(() => {

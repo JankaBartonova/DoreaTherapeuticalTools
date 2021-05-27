@@ -5,9 +5,13 @@ const navBarSubcategories = document.querySelector(".navBarSubcategories");
 const cardContainer = document.querySelector(".cardContainer");
 const subcategoriesSelectContainer = document.querySelector(".subcategories");
 const toolSubcategories = document.querySelector(".toolSubcategories");
-const login = document.querySelector(".admin");
-const popup = document.querySelector(".popup-login-wrapper");
-const closeIcon = document.querySelector(".popup-login-close");
+const admin = document.querySelector(".admin");
+const popupAdmin = document.querySelector(".popup-admin-wrapper");
+const closeIconAdmin = document.querySelector(".popup-admin-close");
+const sign = document.querySelector(".sign");
+const popupSign = document.querySelector(".popup-sign-wrapper");
+const closeIconSign = document.querySelector(".popup-sign-close");
+
 
 (async () => {
   try {
@@ -23,7 +27,8 @@ const closeIcon = document.querySelector(".popup-login-close");
   }
 })();
 
-showAndHidePopup(login, popup, closeIcon);
+showAndHidePopup(admin, popupAdmin, closeIconAdmin);
+showAndHidePopup(sign, popupSign, closeIconSign);
 
 findToolByNumber(searchNavigation)
 uploadingToolToDatabase();

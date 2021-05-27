@@ -36,15 +36,37 @@
     </div>
 
     <!-- popup admin-->
-    <div class="popup-login-wrapper">
-      <div class="popup-login">
-        <div class="popup-login-close">
+    <div class="popup-admin-wrapper">
+      <div class="popup-admin">
+        <div class="popup-admin-close">
           <i class="fas fa-times fa-2x"></i>
         </div>
-        <div class="popup-login-content">
-          <button class="btn btn-outline-primary" type="submit">Přihlásit</button>
-          <button class="btn btn-outline-primary" type="submit">Odhlásit</button>
-          <button class="btn btn-outline-primary" type="submit">Zaregirstovat</button>
+        <div class="popup-admin-content">
+          <button class="btn btn-outline-primary login" type="submit">Přihlásit</button>
+          <button class="btn btn-outline-primary logout" type="submit">Odhlásit</button>
+          <button class="btn btn-outline-primary sign" type="submit">Regirstovat</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sign up form -->
+    <div class="popup-sign-wrapper">
+      <div class="popup-sign">
+        <div class="popup-sign-close">
+          <i class="fas fa-times fa-2x"></i>
+        </div>
+        <div class="popup-sign-title">
+          <h4>Registrace nového uživatele</h4>
+        </div>
+        <div class="popup-sign-content">
+          <form id="signup-form">
+            <div class="input-field">
+              <label for="signup-email">Email</label>
+              <input type="email" id="signup-email" required />
+            </div>
+              <label for="signup-password">Heslo</label>   
+              <input type="password" id="signup-password" required />
+          </form>
         </div>
       </div>
     </div>
@@ -184,7 +206,7 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
-    firebase.storage();
+    const storage = firebase.storage();
     const auth = firebase.auth();
     const db = firebase.firestore();
   </script>

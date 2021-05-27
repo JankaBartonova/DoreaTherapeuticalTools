@@ -184,14 +184,14 @@ const findToolByNumber = (domElement) => {
   });
 }
 
-const showAndHidePopup = (login, popup, close) => {
-  login.addEventListener("click", (e) => {
+const showAndHidePopup = (action, popup, close) => {
+  action.addEventListener("click", (e) => {
     popup.style.display = "block";
   });
   close.addEventListener("click", (e) => {
     popup.style.display = "none";
   });
-  popup.addEventListener("click", (e) => {
-    popup.style.display = "none";
-  });
+  // popup.addEventListener("click", (e) => {
+  //   popup.style.display = "none";
+  // });
 }
