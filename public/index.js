@@ -7,7 +7,7 @@ const subcategoriesSelectContainer = document.querySelector(".subcategories");
 const toolSubcategories = document.querySelector(".toolSubcategories");
 const login = document.querySelector(".admin");
 const popup = document.querySelector(".popup-login-wrapper");
-const close = document.querySelector(".popup-login-close");
+const closeIcon = document.querySelector(".popup-login-close");
 
 (async () => {
   try {
@@ -23,7 +23,7 @@ const close = document.querySelector(".popup-login-close");
   }
 })();
 
-showAndHidePopup(login, popup, close);
+showAndHidePopup(login, popup, closeIcon);
 
 findToolByNumber(searchNavigation)
 uploadingToolToDatabase();

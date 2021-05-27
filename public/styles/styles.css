@@ -164,7 +164,8 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
 
 .popup-login-close{
   position: absolute;
-  top: 5px;
-  right: 8px;
+  top: 10px;
+  right: 15px;
   cursor: pointer;
+  color: #2fa4e7;
 }
