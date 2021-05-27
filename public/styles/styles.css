@@ -138,3 +138,33 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   width: 350px;
   border: 1px #ddd;
 }
+
+.popup-login-wrapper{
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  z-index: 10;
+}
+
+.popup-login{
+  font-family: arial;
+  text-align: center;
+  width: 100%;
+  max-width: 500px;
+  height: 50%;
+  margin: 10% auto;
+  padding: 100px;
+  background: white;
+  position: relative;
+}
+
+.popup-login-close{
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  cursor: pointer;
+}
