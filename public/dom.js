@@ -191,7 +191,22 @@ const showAndHidePopup = (action, popup, close) => {
   close.addEventListener("click", (e) => {
     popup.style.display = "none";
   });
-  // popup.addEventListener("click", (e) => {
-  //   popup.style.display = "none";
-  // });
+}
+
+const setupUiHeader = (user, loggedInLinks, loggedOutLinks) => {
+  if (user) {
+    loggedInLinks.forEach((link) => { 
+      link.style.display = "block"; 
+    });
+    loggedOutLinks.forEach((link) => {
+      link.style.display = "none"; 
+    });
+  } else {
+    loggedInLinks.forEach((link) => {
+      link.style.display = "none"; 
+    });
+    loggedOutLinks.forEach((link) => {
+      link.style.display = "block"; 
+    });
+  }
 }

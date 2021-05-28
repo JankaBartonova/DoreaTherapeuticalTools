@@ -24,36 +24,69 @@
     <!-- header -->
     <div class="navbar navbar-expand-sm">
       <div class="container-fluid"> 
-        <div class="col-lg-4">
+        <div class="col-6">
           <a class="navbar-brand bg-white" href="https://www.sdbrno.cz/">
               <img src="img/03-logo-slezska-diakonie-usek-brno@2x.png" alt="Slezká Diakonie" class="img-fluid">
           </a>
         </div>
-        <div class="col-3 d-flex justify-content-end">
-          <button class="btn btn-outline-primary sign mx-1" type="submit">Registovat</button>
-          <button class="btn btn-outline-primary login mx-1" type="submit">Přihlásit</button>
-          <button class="btn btn-outline-primary logout mx-1" type="submit">Odhlásit</button>
+        <div class="col-6 d-flex justify-content-end">
+          <button class="btn btn-outline-primary logged-in create-tool mx-1" type="submit">Vytvořit pomůcku</button>
+          <button class="btn btn-outline-primary logged-out sign mx-1" type="submit">Registovat</button>
+          <button class="btn btn-outline-primary logged-out login mx-1" type="submit">Přihlásit</button>
+          <button class="btn btn-outline-primary logged-in logout mx-1" type="submit">Odhlásit</button>
         </div>
       </div>
     </div>
     
     <!-- Sign up form -->
-    <div class="popup-sign-wrapper">
-      <div class="popup-sign">
-        <div class="popup-sign-close">
+    <div class="popup-signup-wrapper" id="popup-signup-wrapper">
+      <div class="popup-signup">
+        <div class="popup-signup-close">
           <i class="fas fa-times fa-2x"></i>
         </div>
-        <div class="popup-sign-title">
+        <div class="popup-signup-title">
           <h4>Registrace nového uživatele</h4>
         </div>
-        <div class="popup-sign-content">
+        <div class="popup-signup-content">
           <form id="signup-form">
             <div class="input-field">
               <label for="signup-email">Email</label>
               <input type="email" id="signup-email" required />
             </div>
+            <div>
               <label for="signup-password">Heslo</label>   
               <input type="password" id="signup-password" required />
+            </div>
+            <div>
+              <button class="btn btn-outline-primary" id="signup-button" type="submit">Registrovat</button>   
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+     <!-- login form -->
+     <div class="popup-login-wrapper" id="popup-login-wrapper">
+      <div class="popup-login">
+        <div class="popup-login-close">
+          <i class="fas fa-times fa-2x"></i>
+        </div>
+        <div class="popup-login-title">
+          <h4>Přihlášení nového uživatele</h4>
+        </div>
+        <div class="popup-login-content">
+          <form id="login-form">
+            <div class="input-field">
+              <label for="login-email">Email</label>
+              <input type="email" id="login-email" required />
+            </div>
+            <div>
+              <label for="login-password">Heslo</label>   
+              <input type="password" id="login-password" required />
+            </div>
+            <div>
+              <button class="btn btn-outline-primary" id="login-button" type="submit">Přihlásit</button>   
+            </div>
           </form>
         </div>
       </div>
@@ -95,10 +128,6 @@
             <label for="search" class="hide">Vyhledat pomůcku</label>
             <input type="text" class="form-control" name="search" id="search" placeholder="Vyhledejte číslo pomůcky"> 
           </form>
-        </div>
-        <div class="col-xs-12 col-sm-6 d-flex justify-content-end">
-          <label for="tool-creation" class="hide">Vyhledat pomůcku</label>
-          <button class="btn btn-outline-primary d-none" type="submit">Vytvořit novou pomůcku</button>
         </div>
       </div>  
       <div class="container">
@@ -203,6 +232,7 @@
   <script src="app.js"></script>
   <script src="db.js"></script>
   <script src="dom.js"></script>
+  <script src="auth.js"></script>
   <script src="index.js"></script>
 
   </body>
