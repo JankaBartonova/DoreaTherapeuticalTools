@@ -26,7 +26,7 @@ signupForm.addEventListener("submit", (e) => {
   auth.createUserWithEmailAndPassword(email, password)
     .then((userCredentials) => {
       console.log(userCredentials.user);
-      signupPopup.style = "none";
+      signupPopup.classList.add("d-none");
       signupForm.reset();
     })
     .catch((error) => {
@@ -48,7 +48,7 @@ signInForm.addEventListener("submit", (e) => {
 
   auth.signInWithEmailAndPassword(email, password)
     .then(() => {
-      loginPopup.style = "none";
+      loginPopup.classList.add("d-none");
       signInForm.reset();
     })
     .catch((error) => console.log(error));

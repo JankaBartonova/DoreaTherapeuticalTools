@@ -186,27 +186,27 @@ const findToolByNumber = (domElement) => {
 
 const showAndHidePopup = (action, popup, close) => {
   action.addEventListener("click", (e) => {
-    popup.style.display = "block";
+    popup.classList.remove("d-none");
   });
   close.addEventListener("click", (e) => {
-    popup.style.display = "none";
+    popup.classList.add("d-none");
   });
 }
 
 const setupUiHeader = (user, loggedInLinks, loggedOutLinks) => {
   if (user) {
     loggedInLinks.forEach((link) => { 
-      link.style.display = "block"; 
+      link.classList.remove("d-none"); 
     });
     loggedOutLinks.forEach((link) => {
-      link.style.display = "none"; 
+      link.classList.add("d-none"); 
     });
   } else {
     loggedInLinks.forEach((link) => {
-      link.style.display = "none"; 
+      link.classList.add("d-none"); 
     });
     loggedOutLinks.forEach((link) => {
-      link.style.display = "block"; 
+      link.classList.remove("d-none"); 
     });
   }
 }

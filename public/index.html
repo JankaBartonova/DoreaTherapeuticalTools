@@ -30,16 +30,16 @@
           </a>
         </div>
         <div class="col-6 d-flex justify-content-end">
-          <button class="btn btn-outline-primary logged-in create-tool mx-1" type="submit">Vytvořit pomůcku</button>
-          <button class="btn btn-outline-primary logged-out sign mx-1" type="submit">Registovat</button>
-          <button class="btn btn-outline-primary logged-out login mx-1" type="submit">Přihlásit</button>
-          <button class="btn btn-outline-primary logged-in logout mx-1" type="submit">Odhlásit</button>
+          <button class="btn btn-outline-primary logged-in create-tool mx-1 d-none" type="submit">Vytvořit pomůcku</button>
+          <button class="btn btn-outline-primary logged-out sign mx-1 d-none" type="submit">Registovat</button>
+          <button class="btn btn-outline-primary logged-out login mx-1 d-none" type="submit">Přihlásit</button>
+          <button class="btn btn-outline-primary logged-in logout mx-1 d-none" type="submit">Odhlásit</button>
         </div>
       </div>
     </div>
     
     <!-- Sign up form -->
-    <div class="popup-signup-wrapper" id="popup-signup-wrapper">
+    <div class="popup-signup-wrapper d-none" id="popup-signup-wrapper">
       <div class="popup-signup">
         <div class="popup-signup-close">
           <i class="fas fa-times fa-2x"></i>
@@ -66,7 +66,7 @@
     </div>
 
      <!-- login form -->
-     <div class="popup-login-wrapper" id="popup-login-wrapper">
+     <div class="popup-login-wrapper d-none" id="popup-login-wrapper">
       <div class="popup-login">
         <div class="popup-login-close">
           <i class="fas fa-times fa-2x"></i>
