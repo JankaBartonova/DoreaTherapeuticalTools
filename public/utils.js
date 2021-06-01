@@ -9,27 +9,8 @@ const loadFile = (file) => new Promise((resolve, reject) => {
   });
 
   reader.addEventListener("error", (e) => {
-    console.log("error: ", e)
     reject(reader.error);
   })
 
   reader.readAsDataURL(file);
 });
-
-const createArrayFromArrayOfArrays = (arrayOfArrays) => {
-  arrayOfElements = [];
-  arrayOfArrays.forEach((array) => {
-    array.forEach((element) => {
-      arrayOfElements.push(element);
-    })
-  })
-  console.log(arrayOfElements);
-  return arrayOfElements;  
-}
-
-const findElementsById = (arrayOfObjects, id) => {
-  console.log(arrayOfObjects)
-  return arrayOfObjects.find((object) => {
-    return object.id == id;
-  })
-}

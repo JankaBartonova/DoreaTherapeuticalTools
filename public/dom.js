@@ -12,10 +12,7 @@ const addSubNavBar = (domElement, subcategory, categoryIndex, subcategoryIndex) 
   domElement.innerHTML += html;
 }
 
-const displayAndHideSubnavigation = (domElement, category, snapshot) => {
-  const categoryIndex = category.dataset.index;
-  const subcategories = snapshot.docs[categoryIndex].data().subcategories;
-  
+const updateSubnavigationVisibility = (domElement, category, subcategories, categoryIndex) => {
   removeAllElements(domElement);
    
   if (category.classList.contains("active")) {
@@ -49,7 +46,6 @@ const addCard = (card) => {
   } else if (cardId.length == 2) {
     cardId = `0${cardId}`
   }
-  console.log(cardId);
 
   let html = `
   <div class="col-md-6 col-lg-4 my-3">
@@ -61,7 +57,7 @@ const addCard = (card) => {
       <ul class="list-group list-group-flush text-primary">
         <li class="list-group-item">Číslo pomůcky: ${cardId}</li>
         <li class="list-group-item">Orientační cena: <span>${card.price}</span>Kč</li>
-        <div class="container d-none">
+        <div class="container admin-buttons d-none">
           <div class="row py-2 px-2 d-flex justify-content-center">
             <a href="#" class="btn col-sm-5 mx-2 btn-primary">Upravit</a>
             <a href="#" class="btn col-sm-5 mx-2 btn-danger">Smazat</a>
@@ -74,9 +70,7 @@ const addCard = (card) => {
   cardContainer.innerHTML += html;
 }
 
-const addMultiselectCategories = (parent, _class, options, values, onChange) => {
-  console.log("addMultiselect values", values);
-  console.log("addMultiselect options", options);
+const addCategoriesMultiselect = (parent, _class, options, values, onChange) => {
 
   values = values.filter((value) => {
     return options.find((option) => {
@@ -116,12 +110,7 @@ const showSelectedCards = (tools) => {
   })  
 }
 
-const displayAndHideTools = (target, snapshot) => {
-  const categoryIndex = target.dataset.categoryIndex;
-  const subcategoryIndex = target.dataset.subcategoryIndex;
-  const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
-  console.log(toolIds)
-
+const updateToolsVisibility = (toolIds) => {
   removeAllElements(cardContainer);
   
   if (toolIds) {
@@ -138,23 +127,22 @@ const loadMultiselectSubcategories = (values, categories, container) => {
   }
 
   const multiselectSubCategories = getSubcategories(categories);
-  const subItems = addMultiselectSubCategories(values, multiselectSubCategories);        
-  subcategoriesSelect = addMultiselectCategories(
+  const subItems = getMultiselectSubcategories(values, multiselectSubCategories);        
+  subcategoriesSelect = addCategoriesMultiselect(
     ".subcategories",
     "subcategoriesTags",
     subItems,
     remeberedSubcategories,
     (values) => {
-      console.log("subitem change", values)
       remeberedSubcategories = values;
     });
 }
 
-const addMultiselectSubCategories = (values, multiselectSubCategories) => {
+const getMultiselectSubcategories = (values, multiselectSubcategories) => {
   const categoryValues = values;
   let subItems = [];
   categoryValues.forEach((categoryValue) => {
-    const array = multiselectSubCategories[parseInt(categoryValue) - 1].map((subcategory) => {
+    const array = multiselectSubcategories[parseInt(categoryValue) - 1].map((subcategory) => {
       const sublabel = subcategory.title;
       return {
         label: sublabel,
@@ -166,22 +154,13 @@ const addMultiselectSubCategories = (values, multiselectSubCategories) => {
   return subItems;
 }
 
-const findToolByNumber = (domElement) => {
-  domElement.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const toolNumberUser = domElement.search.value;
-  
-    let toolsAmount = 356;
-  
-    const toolPattern = /^[0-9]+$/
-    if (toolPattern.test(toolNumberUser)) {
-      console.log("Tool is a number");
-  
-    } else {
-      console.log("Tool is not a number");
-      userInfo.textContent = `Číslo pomůcky může být pouze číslo! Aktuálně nabízíme ${toolsAmount} pomůcek.`;
-      userInfo.style.color = "crimson";
-      userInfo.style.fontWeight = "bold";
-    }
-  });
+const resetForm = (form, categoriesSelect, subcategoriesSelect) => {
+  form.reset();
+  document.querySelector(".tool-image").src = "";
+  if (categoriesSelect) {
+    categoriesSelect.reset();
+  }
+  if (subcategoriesSelect) {
+    subcategoriesSelect.reset();
+  }
 }

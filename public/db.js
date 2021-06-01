@@ -1,9 +1,23 @@
+const getCategoriesAndSubcategories = (snapshot) => {
+  const categoriesAndSubcategories = new Array();
+  
+  snapshot.docs.forEach((doc) => {
+    categoriesAndSubcategories.push(doc.data());
+  });
+  return categoriesAndSubcategories;
+}
+
+const getCategories = (snapshot) => {
+  const categoriesAndSubcategories = getCategoriesAndSubcategories(snapshot);
+  const categories = categoriesAndSubcategories.map((category) => {
+    return category.title;
+  })
+  return categories;
+}
+
 const getDatabaseCategoriesAndSubcategories = async (collection) => {
   const databaseCategoriesAndSubcategoriesSnapshot = await db.collection(collection.toString())
     .get()
-    .then((snapshot) => {
-      return snapshot
-    })
   return databaseCategoriesAndSubcategoriesSnapshot;
 }
 
@@ -21,18 +35,17 @@ const downloadToolsFromDatabase = async (ids) => {
         .get()
         .then(results => results.docs.map(result => ({ ...result.data() })))
     )
-    return batches;
   }
+  return batches.flat();
 }
 
-const getSelectedCards = async (ids) => {
+const getSelectedTools = async (ids) => {
   try {
     if (!ids || !ids.length) {
       return false;
     }
 
-    const selectedToolsBatches = await downloadToolsFromDatabase(ids);
-    const selectedTools = await createArrayFromArrayOfArrays(selectedToolsBatches);
+    const selectedTools = await downloadToolsFromDatabase(ids);
     return selectedTools;
 
   } catch (error) {
@@ -83,8 +96,6 @@ const addToolToSubcategories = (selectedOldCategory, newCount, selectedSubcatego
   })
 }
 
-
-
 const updateSubcategories = (transaction, selectedCategoryId, newSubcategories, selectedOldCategory) => {
   const categoryRef = db.collection("categories").doc(`0${selectedCategoryId}`);
   
@@ -104,15 +115,21 @@ const getFirebaseTransactionDocument = (transaction, reference) => {
     })
 }
 
+const findElementsById = (arrayOfObjects, id) => {
+  return arrayOfObjects.find((object) => {
+    return object.id == id;
+  })
+}
+
 const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesIds, toolName, toolPrice, toolUrl, selectedSubcategories) => {
   return db.runTransaction(async (transaction) => {
     const oldCategories = await getFirebaseCollection("categories");
     const toolId = await createNewTool(transaction, numberOfToolsRef, toolName, toolPrice, toolUrl);
 
     selectedCategoriesIds.forEach(async (selectedCategoryId) => {
-      const selectedOldCategory = await findElementsById(oldCategories, selectedCategoryId);
-      const newSubcategories = await addToolToSubcategories(selectedOldCategory, toolId, selectedSubcategories);
-      updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategory);
+      const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
+      const newSubcategories = await addToolToSubcategories(selectedOldCategories, toolId, selectedSubcategories);
+      updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
     })
   }).then(() => {
     console.log("Transaction successfully commited!");
@@ -132,13 +149,7 @@ const saveTool = (storageRef, toolName, toolPrice, toolCategories, selectedSubca
   storageRef
     .getDownloadURL()
     .then((url) => {
-      // ["1", "2"]
-
-      //toolCategory = `0${toolCategories}`;
-
       const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
-      //const categoryRef = db.collection("categories").doc(`${toolCategory}`);
-
       createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, url, selectedSubcategories);
     });
 }
@@ -181,7 +192,7 @@ const getImageAndShowAtDom = (select) => {
         const loadedImg = await loadFile(selectedFile);
 
         //dom
-        document.querySelector(".myimage").src = loadedImg;
+        document.querySelector(".tool-image").src = loadedImg;
 
         if (loadedImg) {
           resolve(loadedImg);
@@ -251,31 +262,4 @@ const getTool = (nameElement, priceElement, toolImage, imgType) => {
     image: toolImage,
     type: imgType
   }
-}
-
-const uploadingToolToDatabase = async () => {
-  const toolNameElement = document.getElementById("tool-name");
-  const toolPriceElement = document.getElementById("tool-price");
-  const select = document.getElementById("select");
-
-  const form = document.getElementById("upload-form");
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const tool = getTool(toolNameElement, toolPriceElement, toolImage, imgType);
-
-    storeImageToDatabase({ tool });
-
-    form.reset();
-    document.querySelector(".myimage").src = "";
-    if (categoriesSelect) {
-      categoriesSelect.reset();
-    }
-    if (subcategoriesSelect) {
-      subcategoriesSelect.reset();
-    }
-  });
-
-  const toolImage = await getImageAndShowAtDom(select);
-  const imgType = getFileTypeFrom64Url(toolImage);
 }

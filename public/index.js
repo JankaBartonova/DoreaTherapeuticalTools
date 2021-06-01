@@ -1,24 +1,21 @@
-const searchNavigation = document.querySelector(".form-search");
-const userInfo = document.querySelector(".user-info");
-const navBarCategories = document.querySelector(".navBarCategories");
-const navBarSubcategories = document.querySelector(".navBarSubcategories");
-const cardContainer = document.querySelector(".cardContainer");
+const searchForm = document.querySelector(".form-search");
+const navBarCategories = document.querySelector(".navbar-categories");
+const navBarSubcategories = document.querySelector(".navbar-subcategories");
+const cardContainer = document.querySelector(".card-container");
 const subcategoriesSelectContainer = document.querySelector(".subcategories");
-const toolSubcategories = document.querySelector(".toolSubcategories");
+const toolSubcategories = document.querySelector(".tool-subcategories");
 
 (async () => {
   try {
     const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
-    const categories = await getCategories(snapshot);
+    const categories = getCategories(snapshot);
     addCategoriesToNavbar(categories);
     displaySubnavigationOnClick(snapshot, navBarCategories, navBarSubcategories);
     displayToolsInSelectedSubcategory(snapshot, navBarSubcategories);
-    loadMultiselectCategories(snapshot);
-
+    createMultiselectCategories(snapshot);
   } catch (error) {
     console.log(error);
   }
 })();
 
-findToolByNumber(searchNavigation)
 uploadingToolToDatabase();
