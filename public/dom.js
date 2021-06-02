@@ -164,3 +164,18 @@ const resetForm = (form, categoriesSelect, subcategoriesSelect) => {
     subcategoriesSelect.reset();
   }
 }
+
+const showImage = (image) => {
+  document.querySelector(".tool-image").src = image;
+}
+
+const waitForClick = (element) => {
+  return new Promise((resolve) => {
+    const handler = async (e) => {
+      e.preventDefault();
+      element.removeEventListener("click", handler);
+      resolve(true);
+    }
+    element.addEventListener("click", handler);
+  })
+}

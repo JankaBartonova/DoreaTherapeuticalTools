@@ -14,15 +14,15 @@ const displaySubnavigationOnClick = (snapshot, domElement, domElementSibling) =>
     if (e.target == domElement) {
       return false;
     }
-    
+
     const categoryIndex = e.target.dataset.index;
     const subcategories = snapshot.docs[categoryIndex].data().subcategories;
     const buttonsNavBar = document.querySelectorAll(".btnNavBar");
 
     toggleElement(e.target, buttonsNavBar);
-    updateSubnavigationVisibility(domElementSibling, e.target, subcategories, categoryIndex);      
-    });
-    return snapshot;
+    updateSubnavigationVisibility(domElementSibling, e.target, subcategories, categoryIndex);
+  });
+  return snapshot;
 }
 
 const displayToolsInSelectedSubcategory = (snapshot, domElement) => {
@@ -53,7 +53,7 @@ const getMultiSelectItems = (responseCategories) => {
   });
   return items;
 }
-    
+
 const getSubcategories = (categories) => {
   const items = categories.map((category) => {
     const subcategories = category.subcategories
@@ -63,7 +63,7 @@ const getSubcategories = (categories) => {
 }
 
 const createMultiselectCategories = async (snapshot) => {
-      
+
   const categories = await getCategoriesAndSubcategories(snapshot);
   const multiSelectItems = await getMultiSelectItems(categories);
 
@@ -102,8 +102,34 @@ const uploadingToolToDatabase = async () => {
   // Start infinite image file picking handling loop.
   (async () => {
     while (true) {
-      toolImage = await getImageAndShowAtDom(select);
+      toolImage = await waitForImage(select);
       imgType = getFileTypeFrom64Url(toolImage);
     }
   })();
+}
+
+const waitForImage = async (select) => {
+  await waitForClick(select);
+
+  const image = await handleImageSelect()
+  if (!image) {
+    console.error("Can not load image!");
+  }
+
+  return image;
+}
+
+const handleImageSelect = async () => {
+  try {
+    const selectedFile = await pickFile();
+    const loadedImg = await loadFile(selectedFile);
+    showImage(loadedImg);
+
+    if (loadedImg) {
+      return loadedImg;
+    }
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
 }

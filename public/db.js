@@ -154,8 +154,10 @@ const saveTool = (storageRef, toolName, toolPrice, toolCategories, selectedSubca
     });
 }
 
-const pickFile = (input) => {
+const pickFile = () => {
   return new Promise((resolve, reject) => {
+    const input = document.createElement("input");
+    input.type = "file";
     input.addEventListener("change", async (e) => {
       const selectedFile = input.files[0];
       if (selectedFile) {
@@ -175,40 +177,6 @@ const getFileTypeFrom64Url = (url) => {
   const lastPosition = url.indexOf(";");
   const type = url.slice(firstPosition + 1, lastPosition);
   return type;
-}
-
-const getImageAndShowAtDom = (select) => {
-  return new Promise((resolve, reject) => {
-    const handleSelectImage = async (e) => {
-      //dom
-      e.preventDefault()
-      const input = document.createElement("input");
-      input.type = "file";
-
-      try {
-        //app
-        const selectedFile = await pickFile(input);
-        const loadedImg = await loadFile(selectedFile);
-
-        //dom
-        document.querySelector(".tool-image").src = loadedImg;
-
-        if (loadedImg) {
-          resolve(loadedImg);
-          select.removeEventListener("click", handleSelectImage);
-        }
-
-      } catch (e) {
-        console.log(e);
-        reject("Can not load image!")
-        select.removeEventListener("click", handleSelectImage);
-        // tady můžu dát zástupný obrázek
-      }
-    }
-
-    //dom
-    select.addEventListener("click", handleSelectImage)
-  })
 }
 
 const storeImageToDatabase = ({ tool }) => {
