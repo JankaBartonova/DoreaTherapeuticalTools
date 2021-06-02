@@ -193,7 +193,7 @@ const showAndHidePopup = (action, popup, close) => {
   });
 }
 
-const setupUiHeader = (user, loggedInLinks, loggedOutLinks) => {
+const setupUi = (user, loggedInLinks, loggedOutLinks) => {
   if (user) {
     loggedInLinks.forEach((link) => { 
       link.classList.remove("d-none"); 
@@ -208,5 +208,15 @@ const setupUiHeader = (user, loggedInLinks, loggedOutLinks) => {
     loggedOutLinks.forEach((link) => {
       link.classList.remove("d-none"); 
     });
+    admin.classList.add("d-none");
   }
 }
+
+const showAdminInterface = (user, admin) => {
+  if (user) {
+    admin.classList.remove("d-none");
+  } else {
+    admin.classList.add("d-none");
+  }
+ }
+ 

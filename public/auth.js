@@ -5,15 +5,23 @@ const signupPopup = document.querySelector("#popup-signup-wrapper");
 const loginPopup = document.querySelector("#popup-login-wrapper");
 const logout = document.querySelector(".logout");
 const signInForm = document.querySelector("#login-form");
+const createTool = document.querySelector(".create-tool");
+const admin = document.querySelector(".popup-admin-wrapper");
 
 // listen for users status change
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log("User logged in: ", user);
-    setupUiHeader(user, loggedInLinks, loggedOutLinks);
+    setupUi(user, loggedInLinks, loggedOutLinks);
+
+    // Create new tool
+    createTool.addEventListener("click", (e) => {
+      e.preventDefault();
+      showAdminInterface(user, admin);
+    });
   } else {
-    setupUiHeader(null, loggedInLinks, loggedOutLinks);
     console.log("User logged out!");
+    setupUi(null, loggedInLinks, loggedOutLinks);
   }
 })
 

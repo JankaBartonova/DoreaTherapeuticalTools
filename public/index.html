@@ -1,172 +1,183 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Font Awesome -->
-    <script src="https://kit.fontawesome.com/421fe099e2.js" crossorigin="anonymous"></script>
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/421fe099e2.js" crossorigin="anonymous"></script>
 
-    <!-- Bootstrap style (https://bootswatch.com/cerulean/#top) -->
-    <link rel="stylesheet" href="styles/bootstrap.min.css">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+    integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 
-    <!-- My styles -->
-    <link rel="stylesheet" href="styles/styles.css">
+  <!-- Bootstrap style (https://bootswatch.com/cerulean/#top) -->
+  <link rel="stylesheet" href="styles/bootstrap.min.css">
 
-    <title>Pomůcky DOREA/test</title>
-  </head>
-  <body>
-    
-    <!-- header -->
-    <div class="navbar navbar-expand-sm">
-      <div class="container-fluid"> 
-        <div class="col-6">
-          <a class="navbar-brand bg-white" href="https://www.sdbrno.cz/">
-              <img src="img/03-logo-slezska-diakonie-usek-brno@2x.png" alt="Slezká Diakonie" class="img-fluid">
-          </a>
-        </div>
-        <div class="col-6 d-flex justify-content-end">
-          <button class="btn btn-outline-primary logged-in create-tool mx-1 d-none" type="submit">Vytvořit pomůcku</button>
-          <button class="btn btn-outline-primary logged-out sign mx-1 d-none" type="submit">Registovat</button>
-          <button class="btn btn-outline-primary logged-out login mx-1 d-none" type="submit">Přihlásit</button>
-          <button class="btn btn-outline-primary logged-in logout mx-1 d-none" type="submit">Odhlásit</button>
-        </div>
+  <!-- My styles -->
+  <link rel="stylesheet" href="styles/styles.css">
+
+  <title>Pomůcky DOREA/test</title>
+</head>
+
+<body>
+
+  <!-- header -->
+  <div class="navbar navbar-expand-sm">
+    <div class="container-fluid">
+      <div class="col-6">
+        <a class="navbar-brand bg-white" href="https://www.sdbrno.cz/">
+          <img src="img/03-logo-slezska-diakonie-usek-brno@2x.png" alt="Slezká Diakonie" class="img-fluid">
+        </a>
+      </div>
+      <div class="col-6 d-flex justify-content-end">
+        <button class="btn btn-outline-primary logged-in create-tool mx-1 d-none" type="submit">Vytvořit
+          pomůcku</button>
+        <button class="btn btn-outline-primary logged-out sign mx-1 d-none" type="submit">Registovat</button>
+        <button class="btn btn-outline-primary logged-out login mx-1 d-none" type="submit">Přihlásit</button>
+        <button class="btn btn-outline-primary logged-in logout mx-1 d-none" type="submit">Odhlásit</button>
       </div>
     </div>
-    
-    <!-- Sign up form -->
-    <div class="popup-signup-wrapper d-none" id="popup-signup-wrapper">
-      <div class="popup-signup">
-        <div class="popup-signup-close">
-          <i class="fas fa-times fa-2x"></i>
-        </div>
-        <div class="popup-signup-title">
-          <h4>Registrace nového uživatele</h4>
-        </div>
-        <div class="popup-signup-content">
-          <form id="signup-form">
-            <div class="input-field">
-              <label for="signup-email">Email</label>
-              <input type="email" id="signup-email" required />
-            </div>
-            <div>
-              <label for="signup-password">Heslo</label>   
-              <input type="password" id="signup-password" required />
-            </div>
-            <div>
-              <button class="btn btn-outline-primary" id="signup-button" type="submit">Registrovat</button>   
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+  </div>
 
-     <!-- login form -->
-     <div class="popup-login-wrapper d-none" id="popup-login-wrapper">
-      <div class="popup-login">
-        <div class="popup-login-close">
-          <i class="fas fa-times fa-2x"></i>
-        </div>
-        <div class="popup-login-title">
-          <h4>Přihlášení nového uživatele</h4>
-        </div>
-        <div class="popup-login-content">
-          <form id="login-form">
-            <div class="input-field">
-              <label for="login-email">Email</label>
-              <input type="email" id="login-email" required />
-            </div>
-            <div>
-              <label for="login-password">Heslo</label>   
-              <input type="password" id="login-password" required />
-            </div>
-            <div>
-              <button class="btn btn-outline-primary" id="login-button" type="submit">Přihlásit</button>   
-            </div>
-          </form>
-        </div>
+  <!-- Sign up form -->
+  <div class="popup-signup-wrapper d-none" id="popup-signup-wrapper">
+    <div class="popup-signup">
+      <div class="popup-signup-close">
+        <i class="fas fa-times fa-2x"></i>
+      </div>
+      <div class="popup-signup-title">
+        <h4>Registrace nového uživatele</h4>
+      </div>
+      <div class="popup-signup-content">
+        <form id="signup-form">
+          <div class="input-field">
+            <label for="signup-email">Email</label>
+            <input type="email" id="signup-email" required />
+          </div>
+          <div>
+            <label for="signup-password">Heslo</label>
+            <input type="password" id="signup-password" required />
+          </div>
+          <div>
+            <button class="btn btn-outline-primary" id="signup-button" type="submit">Registrovat</button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
 
-    <!-- jumbletron -->
-    <div class="jumbotron bg-primary text-white rounded-0">
-      <div class="container">
-        <div class="row"> 
-          <div class="col my-3">
-            <h1 class="display1">Výukové a rehabilitační pomůcky</h1>
-            <p class="lead">Katalog pomůcek DOREA Brno</p>
-          </div>        
-        </div>
+  <!-- login form -->
+  <div id="popup-login-wrapper" class="popup-login-wrapper d-none">
+    <div class="popup-login">
+      <div class="popup-login-close">
+        <i class="fas fa-times fa-2x"></i>
+      </div>
+      <div class="popup-login-title">
+        <h4>Přihlášení nového uživatele</h4>
+      </div>
+      <div class="popup-login-content">
+        <form id="login-form">
+          <div class="input-field">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" required />
+          </div>
+          <div>
+            <label for="login-password">Heslo</label>
+            <input type="password" id="login-password" required />
+          </div>
+          <div>
+            <button class="btn btn-outline-primary" id="login-button" type="submit">Přihlásit</button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
 
-    <!-- navbar categories -->  
-    <div class="container my-3">
-      <div class="row">
-        <div class="col navBarCategories">
-        </div>
-      </div>
-    </div>
-    
-    <!-- navbar subcategories -->  
-    <div class="container my-3">
-      <div class="row">
-        <div class="col navBarSubcategories">
-        </div>
-      </div>
-    </div>
-
-    <!-- navbar search -->
-    <div class="container my-3">
-      <div class="row">
-        <div class="col-xs-12 col-sm-6">
-          <form class="form-search">
-            <label for="search" class="hide">Vyhledat pomůcku</label>
-            <input type="text" class="form-control" name="search" id="search" placeholder="Vyhledejte číslo pomůcky"> 
-          </form>
-        </div>
-      </div>  
-      <div class="container">
-        <div class="row">
-          <div class="user-info"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- cards -->
+  <!-- jumbletron -->
+  <div class="jumbotron bg-primary text-white rounded-0">
     <div class="container">
-      <div class="row cardContainer">
+      <div class="row">
+        <div class="col my-3">
+          <h1 class="display1">Výukové a rehabilitační pomůcky</h1>
+          <p class="lead">Katalog pomůcek DOREA Brno</p>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- tools administration -->
-    <div class="admin-wrapper">
+  <!-- navbar categories -->
+  <div class="container my-3">
+    <div class="row">
+      <div class="col navBarCategories">
+      </div>
+    </div>
+  </div>
+
+  <!-- navbar subcategories -->
+  <div class="container my-3">
+    <div class="row">
+      <div class="col navBarSubcategories">
+      </div>
+    </div>
+  </div>
+
+  <!-- navbar search -->
+  <div class="container my-3">
+    <div class="row">
+      <div class="col-xs-12 col-sm-6">
+        <form class="form-search">
+          <label for="search" class="hide">Vyhledat pomůcku</label>
+          <input type="text" class="form-control" name="search" id="search" placeholder="Vyhledejte číslo pomůcky">
+        </form>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="user-info"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- cards -->
+  <div class="container">
+    <div class="row cardContainer">
+    </div>
+  </div>
+
+  <!-- tools administration -->
+  <div class="popup-admin-wrapper d-none">
+    <div class="popup-admin">
       <div class="jumbotron bg-primary text-white rounded-0 my-3">
-        <div class="container">
+        <!--
+        <div class="popup-admin-close">
+          <i class="fas fa-times fa-2x"></i>
+        </div>
+        -->
+        <div class="popup-admin-title container">
           <div class="row">
             <div class="col-xs-12">
               <h1>Administrace pomůcek</h1>
-              <p class="lead">Zadání nové pomůcky /  úprava pomůcky</p>
+              <p class="lead">Zadání nové pomůcky / úprava pomůcky</p>
             </div>
           </div>
         </div>
       </div>
-
-      <div class="container my-5">
+      <div class="popup-admin-newtool container my-5">
         <div class="row">
           <div class="col-xs-12 col-sm-6">
             <form id="upload-form" action="">
               <div class="form-group my-3">
                 <label for="tool-name" class="">Název pomůcky<span class="field-required">*</span></label>
-                <input type="text" id="tool-name" name="tool-name" placeholder="Zadejte název pomůcky" class="form-control" required>
+                <input type="text" id="tool-name" name="tool-name" placeholder="Zadejte název pomůcky"
+                  class="form-control" required>
               </div>
               <div class="form-group my-3">
                 <label for="tool-price" class="">Orientační cena pomůcky<span class="field-required">*</span></label>
-                <input type="text" id="tool-price" name="tool-price" placeholder="Zadejte orientační cenu pomůcky" class="form-control" required>
+                <input type="text" id="tool-price" name="tool-price" placeholder="Zadejte orientační cenu pomůcky"
+                  class="form-control" required>
               </div>
               <div class="toolCategories">
                 <label for="tool-categories" class="">Kategorie<span class="field-required">*</span></label>
@@ -185,16 +196,21 @@
               <div class="form-group my-3">
                 <img class="myimage">
               </div>
-              <button type="submit" id="submit" class="btn btn-primary">Uložit</button>                  
+              <button type="submit" id="submit" class="btn btn-primary">Uložit</button>
             </form>
           </div>
         </div>
       </div>
     </div>
-    
+  </div>
+
   <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+    crossorigin="anonymous"></script>
 
   <!-- The core Firebase JS SDK is always required and must be listed first -->
   <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-app.js"></script>
@@ -235,5 +251,6 @@
   <script src="auth.js"></script>
   <script src="index.js"></script>
 
-  </body>
+</body>
+
 </html>

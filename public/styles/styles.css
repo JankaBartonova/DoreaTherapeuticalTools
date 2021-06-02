@@ -146,7 +146,7 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 20;
+  z-index: 10;
 }
 
 .popup-signup{
@@ -159,6 +159,7 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   padding: 100px;
   background: white;
   position: relative;
+  z-index: 11;
 }
 
 .popup-signup-close{
@@ -176,7 +177,7 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 20;
+  z-index: 10;
 }
 
 .popup-login{
@@ -189,6 +190,7 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   padding: 100px;
   background: white;
   position: relative;
+  z-index: 11;
 }
 
 .popup-login-close{
