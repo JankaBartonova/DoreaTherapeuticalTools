@@ -111,8 +111,8 @@ const addMultiselectCategories = (parent, _class, options, values, onChange) => 
 const showSelectedCards = (tools, user) => {
   tools.forEach((tool) => {
     addCard(tool);
-  });
-  
+  });  
+
   const adminOptions = document.querySelectorAll(".admin-options");
   console.log(adminOptions, typeof adminOptions)
 
@@ -137,7 +137,7 @@ const displayAndHideTools = (target, snapshot, user) => {
   
   if (toolIds) {
     displaySelectedCards(toolIds, user);
-  }
+  } 
 }
 
 const loadMultiselectSubcategories = (values, categories, container) => {

@@ -30,7 +30,7 @@ const downloadToolsFromDatabase = async (ids) => {
 const getSelectedCards = async (ids) => {
   try {
     if (!ids || !ids.length) {
-      return false;
+      return [];
     }
 
     const selectedToolsBatches = await downloadToolsFromDatabase(ids);
@@ -90,7 +90,7 @@ const addToolToSubcategories = (selectedOldCategory, newCount, selectedSubcatego
 
 const updateSubcategories = (transaction, selectedCategoryId, newSubcategories, selectedOldCategory) => {
   const categoryRef = db.collection("categories").doc(`0${selectedCategoryId}`);
-  
+
   const newCategory = {
     ...selectedOldCategory,
     subcategories: newSubcategories
@@ -172,8 +172,7 @@ const getFileTypeFrom64Url = (url) => {
 
 const getImageAndShowAtDom = (select) => {
   return new Promise((resolve, reject) => {
-    //dom
-    select.addEventListener("click", async (e) => {
+    const handleSelectImage = async (e) => {
       //dom
       e.preventDefault()
       const input = document.createElement("input");
@@ -189,14 +188,19 @@ const getImageAndShowAtDom = (select) => {
 
         if (loadedImg) {
           resolve(loadedImg);
+          select.removeEventListener("click", handleSelectImage);
         }
 
       } catch (e) {
         console.log(e);
         reject("Can not load image!")
+        select.removeEventListener("click", handleSelectImage);
         // tady můžu dát zástupný obrázek
       }
-    })
+    }
+
+    //dom
+    select.addEventListener("click", handleSelectImage)
   })
 }
 
@@ -257,10 +261,13 @@ const getTool = (nameElement, priceElement, toolImage, imgType) => {
   }
 }
 
-const uploadingToolToDatabase = async () => {
+const uploadingToolToDatabase = () => {
   const toolNameElement = document.getElementById("tool-name");
   const toolPriceElement = document.getElementById("tool-price");
   const select = document.getElementById("select");
+
+  let toolImage = null;
+  let imgType = null;
 
   const form = document.getElementById("upload-form");
   form.addEventListener("submit", (e) => {
@@ -280,6 +287,11 @@ const uploadingToolToDatabase = async () => {
     }
   });
 
-  const toolImage = await getImageAndShowAtDom(select);
-  const imgType = getFileTypeFrom64Url(toolImage);
+  // Start infinite image file picking handling loop.
+  (async () => {
+    while (true) {
+      toolImage = await getImageAndShowAtDom(select);
+      imgType = getFileTypeFrom64Url(toolImage);
+    }
+  })();
 }
