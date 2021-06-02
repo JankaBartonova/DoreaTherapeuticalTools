@@ -1,164 +1,135 @@
-const searchNavigation = document.querySelector(".form-search");
-const userInfo = document.querySelector(".user-info");
-const navBarCategories = document.querySelector(".navBarCategories");
-const navBarSubcategories = document.querySelector(".navBarSubcategories");
-const cardContainer = document.querySelector(".cardContainer");
+let categoriesSelect = null;
+let subcategoriesSelect = null;
+let remeberedSubcategories = [];
 
-// Read navbar categories from Firebase, display it under jumbletron
-db.collection("categories")
-  .get()
-  .then((snapshot) => {
-    snapshot.docs.forEach((doc, index) => {
-      addNavBar(doc.data(), index);
-    });
-    return snapshot;
-  })
-  .then((snapshot) => {
-    // display sub navigation
-    navBarCategories.addEventListener("click", (e) => {
-
-      // avoid event listener on container
-      if (e.target == navBarCategories) {
-        return false;
-      }
-      
-      const buttonsNavBar = document.querySelectorAll(".btnNavBar");
-      toggleElement(e.target, buttonsNavBar);
-      displayAndHideSubnavigation(e.target, snapshot);      
-    });
-    return snapshot;
-  })
-  .then((snapshot) => {
-    // display tools
-    navBarSubcategories.addEventListener("click", (e) => {
-
-      // avoid event listener on container
-      if (e.target == navBarSubcategories) {
-        return false;
-      }
- 
-      const categoryIndex = e.target.dataset.categoryIndex;
-      const subcategoryIndex = e.target.dataset.subcategoryIndex;
-      const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
-
-      const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
-      toggleElement(e.target, buttonsSubNavBar);
-
-      removeAllElements(cardContainer);
-      
-      if (toolIds) {
-        displaySelectedCards(toolIds);
-      }
-    });
-  }) 
-  .catch((error) => {
-    console.log(error);
+const addCategoriesToNavbar = (categories) => {
+  categories.forEach((category, index) => {
+    addNavBar(navBarCategories, category, index);
   });
-
-  // search navigation user input
-searchNavigation.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const toolNumberUser = searchNavigation.search.value;
-
-  let toolsAmount = 356;
-
-  const toolPattern = /^[0-9]+$/
-  if (toolPattern.test(toolNumberUser)) {
-    console.log("Tool is a number");
-
-  } else {
-    console.log("Tool is not a number");
-    userInfo.textContent = `Číslo pomůcky může být pouze číslo! Aktuálně nabízíme ${toolsAmount} pomůcek.`;
-    userInfo.style.color = "crimson";
-    userInfo.style.fontWeight = "bold";
-  }
-});
-
-const addNavBar = (category, index) => {
-  let html = `
-    <label class="btn btnNavBar btn-outline-primary" data-index="${index}">${category.title}</label>
-  `
-  navBarCategories.innerHTML += html;
 }
 
-const addSubNavBar = (subcategory, categoryIndex, subcategoryIndex) => {
-  let html = `
-    <label class="btn btnSubNavBar btn-outline-info" data-category-index="${categoryIndex}" data-subcategory-index="${subcategoryIndex}">${subcategory.title}</label>
-  `
-  navBarSubcategories.innerHTML += html;
+const displaySubnavigationOnClick = (snapshot, domElement, domElementSibling) => {
+  domElement.addEventListener("click", (e) => {
+    // avoid event listener on container
+    if (e.target == domElement) {
+      return false;
+    }
+
+    const categoryIndex = e.target.dataset.index;
+    const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+    const buttonsNavBar = document.querySelectorAll(".btnNavBar");
+
+    toggleElement(e.target, buttonsNavBar);
+    updateSubnavigationVisibility(domElementSibling, e.target, subcategories, categoryIndex);
+  });
+  return snapshot;
 }
 
-const toggleElement = (category, elements) => {
-  elements.forEach((element) => {
-    if (category != element) {
-      element.classList.remove("active");
-    } else {
-      element.classList.toggle("active");
+const displayToolsInSelectedSubcategory = (snapshot, domElement) => {
+  domElement.addEventListener("click", (e) => {
+
+    // avoid event listener on container
+    if (e.target == domElement) {
+      return false;
+    }
+
+    const categoryIndex = e.target.dataset.categoryIndex;
+    const subcategoryIndex = e.target.dataset.subcategoryIndex;
+    const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
+
+    updateToolsVisibility(toolIds);
+  });
+  return snapshot;
+}
+
+const getMultiSelectItems = (responseCategories) => {
+  const items = responseCategories.map((category) => {
+    const label = category.title;
+
+    return {
+      label: label,
+      value: category.id.toString(),
     }
   });
+  return items;
 }
 
-const displayAndHideSubnavigation = (category, snapshot) => {
-  const categoryIndex = category.dataset.index;
-  const subcategories = snapshot.docs[categoryIndex].data().subcategories;
-  
-  removeAllElements(navBarSubcategories);
-   
-  if (category.classList.contains("active")) {
-    subcategories.forEach((subcategory, subcategoryIndex) => {
-      addSubNavBar(subcategory, categoryIndex, subcategoryIndex);
-    });
+const getSubcategories = (categories) => {
+  const items = categories.map((category) => {
+    const subcategories = category.subcategories
+    return subcategories;
+  });
+  return items;
+}
+
+const createMultiselectCategories = async (snapshot) => {
+
+  const categories = await getCategoriesAndSubcategories(snapshot);
+  const multiSelectItems = await getMultiSelectItems(categories);
+
+  categoriesSelect = addCategoriesMultiselect(
+    ".categories",
+    "categoriesTags",
+    multiSelectItems,
+    [],
+    (value) => loadMultiselectSubcategories(value, categories, subcategoriesSelectContainer)
+  );
+}
+
+const displaySelectedCards = async (ids) => {
+  const selectedCards = await getSelectedTools(ids);
+  await showSelectedCards(selectedCards);
+}
+
+const uploadingToolToDatabase = async () => {
+  const toolNameElement = document.getElementById("tool-name");
+  const toolPriceElement = document.getElementById("tool-price");
+  const select = document.getElementById("select");
+  const form = document.getElementById("upload-form");
+
+  let toolImage = null;
+  let imgType = null;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const tool = getTool(toolNameElement, toolPriceElement, toolImage, imgType);
+
+    storeImageToDatabase({ tool });
+    resetForm(form, categoriesSelect, subcategoriesSelect);
+  });
+
+  // Start infinite image file picking handling loop.
+  (async () => {
+    while (true) {
+      toolImage = await waitForImage(select);
+      imgType = getFileTypeFrom64Url(toolImage);
+    }
+  })();
+}
+
+const waitForImage = async (select) => {
+  await waitForClick(select);
+
+  const image = await handleImageSelect()
+  if (!image) {
+    console.error("Can not load image!");
   }
+
+  return image;
 }
 
-const removeAllElements = (container) => {
-  container.querySelectorAll(":scope > *").forEach((element) => {
-    container.removeChild(element);
-  });    
-}
+const handleImageSelect = async () => {
+  try {
+    const selectedFile = await pickFile();
+    const loadedImg = await loadFile(selectedFile);
+    showImage(loadedImg);
 
-const displaySelectedCards = (ids) => {
-  ids.forEach((tool) => {
-    db.collection("tools").where("id", "==", tool)
-    .get()
-    .then((snapshot) => {
-      snapshot.docs.forEach((doc) => {
-        addCard(doc.data());
-      })
-    })
-    .catch((error) => {
-      console.log(error);
-    })
-  })
-}
-
-const addCard = (card) => {
-  
-  let cardId = card.id.toString();
-  if (cardId.length == 1) {
-    cardId = `00${cardId}`
-  } else if (cardId.length == 2) {
-    cardId = `0${cardId}`
+    if (loadedImg) {
+      return loadedImg;
+    }
+  } catch (e) {
+    console.log(e);
+    return null;
   }
-
-  let html = `
-  <div class="col-md-6 col-lg-4 my-3">
-    <div class="card text-center">
-      <img src="${card.image || 'https://via.placeholder.com/350x200.png/999/fff'}" alt="card-img-top">
-      <div class="card-header bg-primary text-white border-primary">
-        <span class="px-3">${cardId}</span>${card.name}
-      </div>
-      <ul class="list-group list-group-flush text-primary">
-        <li class="list-group-item">Orientační cena: <span>${card.price}</span>Kč</li>
-        <div class="container">
-          <div class="row py-2 px-2 d-flex justify-content-center">
-            <a href="#" class="btn col-sm-5 mx-2 btn-primary">Upravit</a>
-            <a href="#" class="btn col-sm-5 mx-2 btn-danger">Smazat</a>
-          </div>
-        </div>
-      </ul>
-    </div>
-  </div>
-  `
-  cardContainer.innerHTML += html;
 }

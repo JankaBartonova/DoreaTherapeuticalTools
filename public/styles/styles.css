@@ -4,25 +4,41 @@
   justify-content: center;
   align-items: center;
 }
+
 .jumbotron .col-4 {
   max-width: 100%;
 }
+
 .btn-container {
   display: flex;
   justify-content: space-evenly;
 }
+
 .hide {
   display: none;
 }
+
 label.btn-outline-primary:hover {
   background-color: #30AAF1;
 }
+
 label.btn-outline-primary:not(:disabled):not(.disabled).active:hover {
   background-color: #2584BB;
 }
+
 label.btn-outline-info:hover {
   background-color: #07539a;
 }
+
 label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   background-color: #032a4f;
+}
+
+.field-required {
+  color: red;
+}
+
+.my-image {
+  width: 350px;
+  border: 1px #ddd;
 }
