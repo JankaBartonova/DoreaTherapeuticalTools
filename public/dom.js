@@ -61,7 +61,7 @@ const addCard = (card) => {
       <ul class="list-group list-group-flush text-primary">
         <li class="list-group-item">Číslo pomůcky: ${cardId}</li>
         <li class="list-group-item">Orientační cena: <span>${card.price}</span>Kč</li>
-        <div class="container d-none">
+        <div class="container admin-options d-none">
           <div class="row py-2 px-2 d-flex justify-content-center">
             <a href="#" class="btn col-sm-5 mx-2 btn-primary">Upravit</a>
             <a href="#" class="btn col-sm-5 mx-2 btn-danger">Smazat</a>
@@ -108,13 +108,26 @@ const addMultiselectCategories = (parent, _class, options, values, onChange) => 
   });
 }
 
-const showSelectedCards = (tools) => {
+const showSelectedCards = (tools, user) => {
   tools.forEach((tool) => {
     addCard(tool);
-  })  
+  });
+  
+  const adminOptions = document.querySelectorAll(".admin-options");
+  console.log(adminOptions, typeof adminOptions)
+
+  if (user) {
+    adminOptions.forEach((option) => {
+      option.classList.remove("d-none");
+    });
+  } else {
+    adminOptions.forEach((option) => {
+      option.classList.add("d-none");
+    });
+  }
 }
 
-const displayAndHideTools = (target, snapshot) => {
+const displayAndHideTools = (target, snapshot, user) => {
   const categoryIndex = target.dataset.categoryIndex;
   const subcategoryIndex = target.dataset.subcategoryIndex;
   const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
@@ -123,7 +136,7 @@ const displayAndHideTools = (target, snapshot) => {
   removeAllElements(cardContainer);
   
   if (toolIds) {
-    displaySelectedCards(toolIds);
+    displaySelectedCards(toolIds, user);
   }
 }
 
@@ -218,5 +231,5 @@ const showAdminInterface = (user, admin) => {
   } else {
     admin.classList.add("d-none");
   }
- }
+} 
  

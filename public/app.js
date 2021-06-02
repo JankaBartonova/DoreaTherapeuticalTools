@@ -39,7 +39,7 @@ const displaySubnavigationOnClick = (snapshot, domElement, domElementSibling) =>
     return snapshot;
 }
 
-const displayToolsInSelectedSubcategory = (snapshot, domElement) => {
+const displayToolsInSelectedSubcategory = (snapshot, domElement, user) => {
   domElement.addEventListener("click", (e) => {
 
     // avoid event listener on container
@@ -47,7 +47,7 @@ const displayToolsInSelectedSubcategory = (snapshot, domElement) => {
       return false;
     }
 
-    displayAndHideTools(e.target, snapshot);
+    displayAndHideTools(e.target, snapshot, user);
   });
   return snapshot;
 }
@@ -86,8 +86,8 @@ const loadMultiselectCategories = async (snapshot) => {
   );
 }
 
-const displaySelectedCards = async (ids) => {
+const displaySelectedCards = async (ids, user) => {
   const selectedCards = await getSelectedCards(ids);
   console.log(selectedCards);
-  await showSelectedCards(selectedCards);
+  await showSelectedCards(selectedCards, user);
 }

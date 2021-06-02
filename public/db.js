@@ -135,6 +135,7 @@ const saveTool = (storageRef, toolName, toolPrice, toolCategories, selectedSubca
   storageRef
     .getDownloadURL()
     .then((url) => {
+      console.log(url)
       // ["1", "2"]
 
       //toolCategory = `0${toolCategories}`;

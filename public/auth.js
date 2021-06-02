@@ -1,29 +1,34 @@
-const loggedInLinks = document.querySelectorAll(".logged-in");
-const loggedOutLinks = document.querySelectorAll(".logged-out");
+// const loggedInLinks = document.querySelectorAll(".logged-in");
+// const loggedOutLinks = document.querySelectorAll(".logged-out");
 const signupForm = document.querySelector("#signup-form");
 const signupPopup = document.querySelector("#popup-signup-wrapper");
 const loginPopup = document.querySelector("#popup-login-wrapper");
 const logout = document.querySelector(".logout");
 const signInForm = document.querySelector("#login-form");
 const createTool = document.querySelector(".create-tool");
-const admin = document.querySelector(".popup-admin-wrapper");
+// const admin = document.querySelector(".popup-admin-wrapper");
+
 
 // listen for users status change
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    console.log("User logged in: ", user);
-    setupUi(user, loggedInLinks, loggedOutLinks);
+// auth.onAuthStateChanged((user) => {
+//   if (user) {
+//     console.log("User logged in: ", user);
+//     setupUi(user, loggedInLinks, loggedOutLinks);
 
-    // Create new tool
-    createTool.addEventListener("click", (e) => {
-      e.preventDefault();
-      showAdminInterface(user, admin);
-    });
-  } else {
-    console.log("User logged out!");
-    setupUi(null, loggedInLinks, loggedOutLinks);
-  }
-})
+//     // Create new tool
+//     createTool.addEventListener("click", (e) => {
+//       e.preventDefault();
+//       showAdminInterface(user, admin);
+//     });
+
+//     // show admin options when tools listed
+//     displayToolsInSelectedSubcategory(snapshot, navBarSubcategories, user);
+
+//   } else {
+//     console.log("User logged out!");
+//     setupUi(null, loggedInLinks, loggedOutLinks);
+//   }
+// })
 
 // signup new user
 signupForm.addEventListener("submit", (e) => {
