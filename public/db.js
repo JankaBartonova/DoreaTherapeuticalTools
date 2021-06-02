@@ -42,7 +42,7 @@ const downloadToolsFromDatabase = async (ids) => {
 const getSelectedTools = async (ids) => {
   try {
     if (!ids || !ids.length) {
-      return false;
+      return [];
     }
 
     const selectedTools = await downloadToolsFromDatabase(ids);
@@ -98,7 +98,7 @@ const addToolToSubcategories = (selectedOldCategory, newCount, selectedSubcatego
 
 const updateSubcategories = (transaction, selectedCategoryId, newSubcategories, selectedOldCategory) => {
   const categoryRef = db.collection("categories").doc(`0${selectedCategoryId}`);
-  
+
   const newCategory = {
     ...selectedOldCategory,
     subcategories: newSubcategories
@@ -179,8 +179,7 @@ const getFileTypeFrom64Url = (url) => {
 
 const getImageAndShowAtDom = (select) => {
   return new Promise((resolve, reject) => {
-    //dom
-    select.addEventListener("click", async (e) => {
+    const handleSelectImage = async (e) => {
       //dom
       e.preventDefault()
       const input = document.createElement("input");
@@ -196,14 +195,19 @@ const getImageAndShowAtDom = (select) => {
 
         if (loadedImg) {
           resolve(loadedImg);
+          select.removeEventListener("click", handleSelectImage);
         }
 
       } catch (e) {
         console.log(e);
         reject("Can not load image!")
+        select.removeEventListener("click", handleSelectImage);
         // tady můžu dát zástupný obrázek
       }
-    })
+    }
+
+    //dom
+    select.addEventListener("click", handleSelectImage)
   })
 }
 

@@ -87,6 +87,9 @@ const uploadingToolToDatabase = async () => {
   const select = document.getElementById("select");
   const form = document.getElementById("upload-form");
 
+  let toolImage = null;
+  let imgType = null;
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
@@ -96,6 +99,11 @@ const uploadingToolToDatabase = async () => {
     resetForm(form, categoriesSelect, subcategoriesSelect);
   });
 
-  const toolImage = await getImageAndShowAtDom(select);
-  const imgType = getFileTypeFrom64Url(toolImage);
+  // Start infinite image file picking handling loop.
+  (async () => {
+    while (true) {
+      toolImage = await getImageAndShowAtDom(select);
+      imgType = getFileTypeFrom64Url(toolImage);
+    }
+  })();
 }
