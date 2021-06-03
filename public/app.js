@@ -2,23 +2,6 @@ let categoriesSelect = null;
 let subcategoriesSelect = null;
 let remeberedSubcategories = [];
 
-const getCategoriesAndSubcategories = (snapshot) => {
-  const categoriesAndSubcategories = new Array();
-  
-  snapshot.docs.forEach((doc) => {
-    categoriesAndSubcategories.push(doc.data());
-  });
-  return categoriesAndSubcategories;
-}
-
-const getCategories = async (snapshot) => {
-  const categoriesAndSubcategories = await getCategoriesAndSubcategories(snapshot);
-  const categories = categoriesAndSubcategories.map((category) => {
-    return category.title;
-  })
-  return categories;
-}
-
 const addCategoriesToNavbar = (categories) => {
   categories.forEach((category, index) => {
     addNavBar(navBarCategories, category, index);
@@ -31,12 +14,15 @@ const displaySubnavigationOnClick = (snapshot, domElement, domElementSibling) =>
     if (e.target == domElement) {
       return false;
     }
-  
+
+    const categoryIndex = e.target.dataset.index;
+    const subcategories = snapshot.docs[categoryIndex].data().subcategories;
     const buttonsNavBar = document.querySelectorAll(".btnNavBar");
+
     toggleElement(e.target, buttonsNavBar);
-    displayAndHideSubnavigation(domElementSibling, e.target, snapshot);      
-    });
-    return snapshot;
+    updateSubnavigationVisibility(domElementSibling, e.target, subcategories, categoryIndex);
+  });
+  return snapshot;
 }
 
 const displayToolsInSelectedSubcategory = (snapshot, domElement, user) => {
@@ -47,7 +33,11 @@ const displayToolsInSelectedSubcategory = (snapshot, domElement, user) => {
       return false;
     }
 
-    displayAndHideTools(e.target, snapshot, user);
+    const categoryIndex = e.target.dataset.categoryIndex;
+    const subcategoryIndex = e.target.dataset.subcategoryIndex;
+    const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
+
+    updateToolsVisibility(toolIds, user);
   });
   return snapshot;
 }
@@ -63,7 +53,7 @@ const getMultiSelectItems = (responseCategories) => {
   });
   return items;
 }
-    
+
 const getSubcategories = (categories) => {
   const items = categories.map((category) => {
     const subcategories = category.subcategories
@@ -72,12 +62,12 @@ const getSubcategories = (categories) => {
   return items;
 }
 
-const loadMultiselectCategories = async (snapshot) => {
-      
+const createMultiselectCategories = async (snapshot) => {
+
   const categories = await getCategoriesAndSubcategories(snapshot);
   const multiSelectItems = await getMultiSelectItems(categories);
 
-  categoriesSelect = addMultiselectCategories(
+  categoriesSelect = addCategoriesMultiselect(
     ".categories",
     "categoriesTags",
     multiSelectItems,
@@ -87,7 +77,59 @@ const loadMultiselectCategories = async (snapshot) => {
 }
 
 const displaySelectedCards = async (ids, user) => {
-  const selectedCards = await getSelectedCards(ids);
-  console.log(selectedCards);
+  const selectedCards = await getSelectedTools(ids);
   await showSelectedCards(selectedCards, user);
+}
+
+const uploadingToolToDatabase = async () => {
+  const toolNameElement = document.getElementById("tool-name");
+  const toolPriceElement = document.getElementById("tool-price");
+  const select = document.getElementById("select");
+  const form = document.getElementById("upload-form");
+
+  let toolImage = null;
+  let imgType = null;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const tool = getTool(toolNameElement, toolPriceElement, toolImage, imgType);
+
+    storeImageToDatabase({ tool });
+    resetForm(form, categoriesSelect, subcategoriesSelect);
+  });
+
+  // Start infinite image file picking handling loop.
+  (async () => {
+    while (true) {
+      toolImage = await waitForImage(select);
+      imgType = getFileTypeFrom64Url(toolImage);
+    }
+  })();
+}
+
+const waitForImage = async (select) => {
+  await waitForClick(select);
+
+  const image = await handleImageSelect()
+  if (!image) {
+    console.error("Can not load image!");
+  }
+
+  return image;
+}
+
+const handleImageSelect = async () => {
+  try {
+    const selectedFile = await pickFile();
+    const loadedImg = await loadFile(selectedFile);
+    showImage(loadedImg);
+
+    if (loadedImg) {
+      return loadedImg;
+    }
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
 }
