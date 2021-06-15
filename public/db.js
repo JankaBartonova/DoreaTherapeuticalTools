@@ -158,16 +158,17 @@ const pickFile = () => {
   return new Promise((resolve, reject) => {
     const input = document.createElement("input");
     input.type = "file";
-    input.addEventListener("change", async (e) => {
+    const onFileInputChange = (e) => {
+      console.log("on file input change");
       const selectedFile = input.files[0];
+      input.removeEventListener("change", onFileInputChange);
       if (selectedFile) {
         resolve(selectedFile);
       } else {
         reject("No file selected");
       }
-
-      input.removeEventListener("change", this);
-    });
+    };
+    input.addEventListener("change", onFileInputChange);
     input.click();
   });
 }

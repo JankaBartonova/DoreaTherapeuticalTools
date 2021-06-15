@@ -1,6 +1,10 @@
 let categoriesSelect = null;
 let subcategoriesSelect = null;
-let remeberedSubcategories = [];
+let rememberedSubcategories = [];
+let onDisplaySubnavigationClick = null;
+let onDisplayToolsInSelectedSubactegory = null;
+let onToolFormSubmit = null;
+let onCreateToolButtonClick = null;
 
 const addCategoriesToNavbar = (categories) => {
   categories.forEach((category, index) => {
@@ -8,25 +12,30 @@ const addCategoriesToNavbar = (categories) => {
   });
 }
 
-const displaySubnavigationOnClick = (snapshot, domElement, domElementSibling) => {
-  domElement.addEventListener("click", (e) => {
+const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) => {
+  domElement.removeEventListener("click", onDisplaySubnavigationClick);
+  onDisplaySubnavigationClick = (e) => {
+    console.log("on display subnavigation click")
     // avoid event listener on container
     if (e.target == domElement) {
       return false;
     }
-
+  
     const categoryIndex = e.target.dataset.index;
     const subcategories = snapshot.docs[categoryIndex].data().subcategories;
     const buttonsNavBar = document.querySelectorAll(".btnNavBar");
-
+  
     toggleElement(e.target, buttonsNavBar);
     updateSubnavigationVisibility(domElementSibling, e.target, subcategories, categoryIndex);
-  });
+  };      
+  domElement.addEventListener("click", onDisplaySubnavigationClick);
   return snapshot;
 }
 
-const displayToolsInSelectedSubcategory = (snapshot, domElement, user) => {
-  domElement.addEventListener("click", (e) => {
+const registerToolsInSelectedSubcategory = (snapshot, domElement, user) => {
+  domElement.removeEventListener("click", onDisplayToolsInSelectedSubactegory);
+  onDisplayToolsInSelectedSubactegory = (e) => {
+    console.log("on tools in selected subcategory click")
 
     // avoid event listener on container
     if (e.target == domElement) {
@@ -38,7 +47,8 @@ const displayToolsInSelectedSubcategory = (snapshot, domElement, user) => {
     const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
 
     updateToolsVisibility(toolIds, user);
-  });
+  };
+  domElement.addEventListener("click", onDisplayToolsInSelectedSubactegory);
   return snapshot;
 }
 
@@ -76,9 +86,9 @@ const createMultiselectCategories = async (snapshot) => {
   );
 }
 
-const displaySelectedCards = async (ids, user) => {
-  const selectedCards = await getSelectedTools(ids);
-  await showSelectedCards(selectedCards, user);
+const displaySelectedTools = async (ids, user) => {
+  const selectedTools = await getSelectedTools(ids);
+  await showSelectedTools(selectedTools, user);
 }
 
 const uploadingToolToDatabase = async () => {
@@ -90,14 +100,18 @@ const uploadingToolToDatabase = async () => {
   let toolImage = null;
   let imgType = null;
 
-  form.addEventListener("submit", (e) => {
+  form.removeEventListener("submit", onToolFormSubmit);
+  onToolFormSubmit = (e) => {
+    console.log("on tool form submit");
     e.preventDefault();
 
     const tool = getTool(toolNameElement, toolPriceElement, toolImage, imgType);
 
     storeImageToDatabase({ tool });
     resetForm(form, categoriesSelect, subcategoriesSelect);
-  });
+    
+  };
+  form.addEventListener("submit", onToolFormSubmit);
 
   // Start infinite image file picking handling loop.
   (async () => {

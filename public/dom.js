@@ -104,13 +104,12 @@ const addCategoriesMultiselect = (parent, _class, options, values, onChange) => 
   });
 }
 
-const showSelectedCards = (tools, user) => {
+const showSelectedTools = (tools, user) => {
   tools.forEach((tool) => {
     addCard(tool);
   });
 
   const adminOptions = document.querySelectorAll(".admin-options");
-  console.log(adminOptions, typeof adminOptions)
 
   if (user) {
     adminOptions.forEach((option) => {
@@ -127,7 +126,7 @@ const updateToolsVisibility = (toolIds, user) => {
   removeAllElements(cardContainer);
   
   if (toolIds) {
-    displaySelectedCards(toolIds, user);
+    displaySelectedTools(toolIds, user);
   }
 }
 
@@ -145,9 +144,9 @@ const loadMultiselectSubcategories = (values, categories, container) => {
     ".subcategories",
     "subcategoriesTags",
     subItems,
-    remeberedSubcategories,
+    rememberedSubcategories,
     (values) => {
-      remeberedSubcategories = values;
+      rememberedSubcategories = values;
     });
 }
 

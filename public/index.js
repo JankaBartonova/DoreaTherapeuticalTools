@@ -14,35 +14,35 @@ const loggedInLinks = document.querySelectorAll(".logged-in");
 const loggedOutLinks = document.querySelectorAll(".logged-out");
 const admin = document.querySelector(".popup-admin-wrapper");
 
-
-
 (async () => {
   try {
     const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
     const categories = getCategories(snapshot);
     addCategoriesToNavbar(categories);
-    displaySubnavigationOnClick(snapshot, navBarCategories, navBarSubcategories);
-    displayToolsInSelectedSubcategory(snapshot, navBarSubcategories);
+    registerSubnavigationOnClick(snapshot, navBarCategories, navBarSubcategories);
     createMultiselectCategories(snapshot);
 
     auth.onAuthStateChanged((user) => {
+      createTool.removeEventListener("click", onCreateToolButtonClick);
+      
       if (user) {
         console.log("User logged in: ", user);
         setupUi(user, loggedInLinks, loggedOutLinks);
 
         // Create new tool
-        createTool.addEventListener("click", (e) => {
+        onCreateToolButtonClick = (e) => {
+          console.log("on create tool button click");
           e.preventDefault();
           showAdminInterface(user, admin);
-        });
+        };
+        createTool.addEventListener("click", onCreateToolButtonClick);
 
         // show admin options when tools listed
-        displayToolsInSelectedSubcategory(snapshot, navBarSubcategories, user);
-
+        registerToolsInSelectedSubcategory(snapshot, navBarSubcategories, user);
       } else {
         console.log("User logged out!");
         setupUi(null, loggedInLinks, loggedOutLinks);
-        displayToolsInSelectedSubcategory(snapshot, navBarSubcategories, null);
+        registerToolsInSelectedSubcategory(snapshot, navBarSubcategories, null);
       }
     })
   } catch (error) {
