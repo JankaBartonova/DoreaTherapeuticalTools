@@ -40,12 +40,16 @@ const admin = document.querySelector(".popup-admin-wrapper");
         // show admin options when tools listed
         removeAllElements(cardContainer);
         registerToolsInSelectedCategory(snapshot, navBarCategories, user);
+        console.log(rememberedTools);
+        updateToolsVisibility(rememberedTools, user);
         registerToolsInSelectedSubcategory(snapshot, navBarSubcategories, user);
       } else {
         console.log("User logged out!");
         setupUi(null, loggedInLinks, loggedOutLinks);
         removeAllElements(cardContainer);
         registerToolsInSelectedCategory(snapshot, navBarCategories, null);
+        console.log(rememberedTools);
+        updateToolsVisibility(rememberedTools, null);
         registerToolsInSelectedSubcategory(snapshot, navBarSubcategories, null);
       }
     })

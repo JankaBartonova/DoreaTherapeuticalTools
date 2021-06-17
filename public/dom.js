@@ -124,7 +124,7 @@ const showSelectedTools = (tools, user) => {
 
 const updateToolsVisibility = (toolIds, user) => {
   removeAllElements(cardContainer);
-  
+
   if (toolIds) {
     displaySelectedTools(toolIds, user);
   }

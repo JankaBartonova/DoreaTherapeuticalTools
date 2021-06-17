@@ -23,8 +23,9 @@ const getDatabaseCategoriesAndSubcategories = async (collection) => {
 
 const downloadToolsFromDatabase = async (ids) => {
   let batches = [];
-  while (ids.length) {
-    const batchIds = ids.splice(0, 10);
+  let idsCopy = ids.slice();
+  while (idsCopy.length) {
+    const batchIds = idsCopy.splice(0, 10);
     batches.push(
       await db.collection("tools")
         .where(

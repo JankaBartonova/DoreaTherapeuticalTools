@@ -6,6 +6,7 @@ let onDisplayToolsInSelectedSubcategory = null;
 let onToolFormSubmit = null;
 let onCreateToolButtonClick = null;
 let onDisplayToolsInSelectedCategory = null;
+let rememberedTools = [];
 
 const addCategoriesToNavbar = (categories) => {
   categories.forEach((category, index) => {
@@ -43,10 +44,13 @@ const registerToolsInSelectedCategory = (snapshot, domElement, user) => {
     const toolIdsSet = getToolIdsSet(toolIdsArrays);
     const toolIds = convertSetToArray(toolIdsSet);;
 
+    rememberedTools = toolIds;
+    console.log(rememberedTools);
+    
     updateToolsVisibility(toolIds, user);
   }
   domElement.addEventListener("click", onDisplayToolsInSelectedCategory);
-  return snapshot;
+  return rememberedTools;
 }
 
 const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) => {
