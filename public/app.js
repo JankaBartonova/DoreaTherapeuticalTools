@@ -202,3 +202,10 @@ const handleImageSelect = async () => {
     return null;
   }
 }
+
+const registerDeleteTool = (domElement) => {
+  domElement.addEventListener("click", (e) => {
+    console.log("On delete tool click");
+
+  });
+}

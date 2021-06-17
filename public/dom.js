@@ -14,7 +14,7 @@ const addSubNavBar = (domElement, subcategory, categoryIndex, subcategoryIndex) 
 
 const updateSubnavigationVisibility = (domElement, category, subcategories, categoryIndex) => {
   removeAllElements(domElement);
-   
+
   if (category.classList.contains("active")) {
     subcategories.forEach((subcategory, subcategoryIndex) => {
       addSubNavBar(domElement, subcategory, categoryIndex, subcategoryIndex);
@@ -25,7 +25,7 @@ const updateSubnavigationVisibility = (domElement, category, subcategories, cate
 const removeAllElements = (container) => {
   container.querySelectorAll(":scope > *").forEach((element) => {
     container.removeChild(element);
-  });    
+  });
 }
 
 const toggleElement = (category, elements) => {
@@ -59,8 +59,8 @@ const addCard = (card) => {
         <li class="list-group-item">Orientační cena: <span>${card.price}</span>Kč</li>
         <div class="admin-options container d-none">
           <div class="row py-2 px-2 d-flex justify-content-center">
-            <a href="#" class="btn col-sm-5 mx-2 btn-primary">Upravit</a>
-            <a href="#" class="btn col-sm-5 mx-2 btn-danger">Smazat</a>
+            <a href="#" class="modify-tool btn col-sm-5 mx-2 btn-primary" data-id="${card.id}">Upravit</a>
+            <a href="#" class="delete-tool btn col-sm-5 mx-2 btn-danger" data-id="${card.id}">Smazat</a>
           </div>
         </div>
       </ul>
@@ -104,13 +104,8 @@ const addCategoriesMultiselect = (parent, _class, options, values, onChange) => 
   });
 }
 
-const showSelectedTools = (tools, user) => {
-  tools.forEach((tool) => {
-    addCard(tool);
-  });
-
+const displayAdminOptions = (user) => {
   const adminOptions = document.querySelectorAll(".admin-options");
-
   if (user) {
     adminOptions.forEach((option) => {
       option.classList.remove("d-none");
@@ -120,6 +115,23 @@ const showSelectedTools = (tools, user) => {
       option.classList.add("d-none");
     });
   }
+}
+
+const registerDeleteTools = () => {
+  const deleteTools = document.querySelectorAll(".delete-tool");
+  deleteTools.forEach((deleteTool) => {
+    console.log(deleteTool);
+    registerDeleteTool(deleteTool);
+  });
+}
+
+const showSelectedTools = (tools, user) => {
+  tools.forEach((tool) => {
+    addCard(tool);
+  });
+
+  displayAdminOptions(user);
+  registerDeleteTools();
 }
 
 const updateToolsVisibility = (toolIds, user) => {
