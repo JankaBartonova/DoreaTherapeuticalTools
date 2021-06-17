@@ -45,7 +45,6 @@ const registerToolsInSelectedCategory = (snapshot, domElement, user) => {
     const toolIds = convertSetToArray(toolIdsSet);;
 
     rememberedTools = toolIds;
-    console.log(rememberedTools);
     
     updateToolsVisibility(toolIds, user);
   }
@@ -87,10 +86,12 @@ const registerToolsInSelectedSubcategory = (snapshot, domElement, user) => {
     const subcategoryIndex = e.target.dataset.subcategoryIndex;
     const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
 
+    rememberedTools = toolIds;
+
     updateToolsVisibility(toolIds, user);
   };
   domElement.addEventListener("click", onDisplayToolsInSelectedSubcategory);
-  return snapshot;
+  return rememberedTools;
 }
 
 const getMultiSelectItems = (responseCategories) => {
