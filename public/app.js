@@ -26,6 +26,20 @@ const getToolIdsSet = (toolIdsArrays) => {
   return toolIdsSet;
 }
 
+const displayToolsInSelectedCategory = (target, snapshot, user) => {
+  const categoryIndex = target.dataset.index;
+  const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+  const toolIdsArrays = subcategories.map((subcategory) => {
+    return subcategory.tools;
+  });
+  const toolIdsSet = getToolIdsSet(toolIdsArrays);
+  const toolIds = convertSetToArray(toolIdsSet);;
+
+  rememberedTools = toolIds;
+  
+  updateToolsVisibility(toolIds, user);
+}
+
 const registerToolsInSelectedCategory = (snapshot, domElement, user) => {
   domElement.removeEventListener("click", onDisplayToolsInSelectedCategory);
   onDisplayToolsInSelectedCategory = (e) => {
@@ -36,40 +50,45 @@ const registerToolsInSelectedCategory = (snapshot, domElement, user) => {
       return false;
     }
 
-    const categoryIndex = e.target.dataset.index;
-    const subcategories = snapshot.docs[categoryIndex].data().subcategories;
-    const toolIdsArrays = subcategories.map((subcategory) => {
-      return subcategory.tools;
-    });
-    const toolIdsSet = getToolIdsSet(toolIdsArrays);
-    const toolIds = convertSetToArray(toolIdsSet);;
-
-    rememberedTools = toolIds;
-    
-    updateToolsVisibility(toolIds, user);
+    displayToolsInSelectedCategory(e.target, snapshot, user);
   }
   domElement.addEventListener("click", onDisplayToolsInSelectedCategory);
   return rememberedTools;
+}
+
+displaySubnavigationClick = (target, snapshot, domElementSibling) => {
+  const categoryIndex = target.dataset.index;
+  const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+  const buttonsNavBar = document.querySelectorAll(".btnNavBar");
+
+  toggleElement(target, buttonsNavBar);
+  updateSubnavigationVisibility(domElementSibling, target, subcategories, categoryIndex);
 }
 
 const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) => {
   domElement.removeEventListener("click", onDisplaySubnavigationClick);
   onDisplaySubnavigationClick = (e) => {
     console.log("on display subnavigation click")
+    
     // avoid event listener on container
     if (e.target == domElement) {
       return false;
     }
   
-    const categoryIndex = e.target.dataset.index;
-    const subcategories = snapshot.docs[categoryIndex].data().subcategories;
-    const buttonsNavBar = document.querySelectorAll(".btnNavBar");
-  
-    toggleElement(e.target, buttonsNavBar);
-    updateSubnavigationVisibility(domElementSibling, e.target, subcategories, categoryIndex);
+    displaySubnavigationClick(e.target, snapshot, domElementSibling);
   };      
   domElement.addEventListener("click", onDisplaySubnavigationClick);
   return snapshot;
+}
+
+displayToolsInSelectedSubcategory = (target, snapshot, user) => {
+  const categoryIndex = target.dataset.categoryIndex;
+  const subcategoryIndex = target.dataset.subcategoryIndex;
+  const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
+
+  rememberedTools = toolIds;
+
+  updateToolsVisibility(toolIds, user);
 }
 
 const registerToolsInSelectedSubcategory = (snapshot, domElement, user) => {
@@ -82,13 +101,7 @@ const registerToolsInSelectedSubcategory = (snapshot, domElement, user) => {
       return false;
     }
 
-    const categoryIndex = e.target.dataset.categoryIndex;
-    const subcategoryIndex = e.target.dataset.subcategoryIndex;
-    const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
-
-    rememberedTools = toolIds;
-
-    updateToolsVisibility(toolIds, user);
+    displayToolsInSelectedSubcategory(e.target, snapshot, user);
   };
   domElement.addEventListener("click", onDisplayToolsInSelectedSubcategory);
   return rememberedTools;
