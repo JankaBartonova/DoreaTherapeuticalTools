@@ -2,14 +2,51 @@ let categoriesSelect = null;
 let subcategoriesSelect = null;
 let rememberedSubcategories = [];
 let onDisplaySubnavigationClick = null;
-let onDisplayToolsInSelectedSubactegory = null;
+let onDisplayToolsInSelectedSubcategory = null;
 let onToolFormSubmit = null;
 let onCreateToolButtonClick = null;
+let onDisplayToolsInSelectedCategory = null;
 
 const addCategoriesToNavbar = (categories) => {
   categories.forEach((category, index) => {
     addNavBar(navBarCategories, category, index);
   });
+}
+
+const getToolIdsSet = (toolIdsArrays) => {
+  let toolIdsSet = new Set(); 
+  toolIdsArrays.forEach((toolIdsArray) => { 
+    if (toolIdsArray) {
+      toolIdsArray.forEach((toolId) => {
+        toolIdsSet.add(toolId);
+      });
+    }
+  });
+  return toolIdsSet;
+}
+
+const registerToolsInSelectedCategory = (snapshot, domElement, user) => {
+  domElement.removeEventListener("click", onDisplayToolsInSelectedCategory);
+  onDisplayToolsInSelectedCategory = (e) => {
+    console.log("on tools in selected category click");
+
+    // avoid event listener on container
+    if (e.target == domElement) {
+      return false;
+    }
+
+    const categoryIndex = e.target.dataset.index;
+    const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+    const toolIdsArrays = subcategories.map((subcategory) => {
+      return subcategory.tools;
+    });
+    const toolIdsSet = getToolIdsSet(toolIdsArrays);
+    const toolIds = convertSetToArray(toolIdsSet);;
+
+    updateToolsVisibility(toolIds, user);
+  }
+  domElement.addEventListener("click", onDisplayToolsInSelectedCategory);
+  return snapshot;
 }
 
 const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) => {
@@ -33,8 +70,8 @@ const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) =
 }
 
 const registerToolsInSelectedSubcategory = (snapshot, domElement, user) => {
-  domElement.removeEventListener("click", onDisplayToolsInSelectedSubactegory);
-  onDisplayToolsInSelectedSubactegory = (e) => {
+  domElement.removeEventListener("click", onDisplayToolsInSelectedSubcategory);
+  onDisplayToolsInSelectedSubcategory = (e) => {
     console.log("on tools in selected subcategory click")
 
     // avoid event listener on container
@@ -48,7 +85,7 @@ const registerToolsInSelectedSubcategory = (snapshot, domElement, user) => {
 
     updateToolsVisibility(toolIds, user);
   };
-  domElement.addEventListener("click", onDisplayToolsInSelectedSubactegory);
+  domElement.addEventListener("click", onDisplayToolsInSelectedSubcategory);
   return snapshot;
 }
 

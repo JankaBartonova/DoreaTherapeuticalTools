@@ -28,3 +28,7 @@ const loadFile = (file) => new Promise((resolve, reject) => {
 
   reader.readAsDataURL(file);
 });
+
+const convertSetToArray = (toolIdsSet) => {
+  return Array.from(toolIdsSet);
+};
