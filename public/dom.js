@@ -121,7 +121,7 @@ const registerDeleteTools = () => {
   const deleteTools = document.querySelectorAll(".delete-tool");
   deleteTools.forEach((deleteTool) => {
     console.log(deleteTool);
-    registerDeleteTool(deleteTool);
+    registerDeleteToolOnClick(deleteTool);
   });
 }
 

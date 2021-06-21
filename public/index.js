@@ -39,16 +39,16 @@ const admin = document.querySelector(".popup-admin-wrapper");
 
         // show admin options when tools listed
         removeAllElements(cardContainer);
-        registerToolsInSelectedCategory(snapshot, navBarCategories, user);
+        registerToolsInSelectedCategoryOnClick(snapshot, navBarCategories, user);
         updateToolsVisibility(rememberedTools, user);
-        registerToolsInSelectedSubcategory(snapshot, navBarSubcategories, user);
+        registerToolsInSelectedSubcategoryOnClick(snapshot, navBarSubcategories, user);
       } else {
         console.log("User logged out!");
         setupUi(null, loggedInLinks, loggedOutLinks);
         removeAllElements(cardContainer);
-        registerToolsInSelectedCategory(snapshot, navBarCategories, null);
+        registerToolsInSelectedCategoryOnClick(snapshot, navBarCategories, null);
         updateToolsVisibility(rememberedTools, null);
-        registerToolsInSelectedSubcategory(snapshot, navBarSubcategories, null);
+        registerToolsInSelectedSubcategoryOnClick(snapshot, navBarSubcategories, null);
       }
     })
   } catch (error) {
