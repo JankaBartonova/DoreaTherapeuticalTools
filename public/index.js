@@ -33,9 +33,17 @@ const admin = document.querySelector(".popup-admin-wrapper");
         onCreateToolButtonClick = (e) => {
           console.log("on create tool button click");
           e.preventDefault();
-          showAdminInterface(user, admin);
+          showAddToolForm(admin, null, user);
         };
         createTool.addEventListener("click", onCreateToolButtonClick);
+
+        // // Create new tool
+        // onCreateToolButtonClick = (e) => {
+        //   console.log("on create tool button click");
+        //   e.preventDefault();
+        //   showAdminInterface(user, admin);
+        // };
+        // createTool.addEventListener("click", onCreateToolButtonClick);
 
         // show admin options when tools listed
         removeAllElements(cardContainer);

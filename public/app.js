@@ -211,3 +211,11 @@ const registerDeleteToolOnClick = (domElement) => {
     deleteToolDatabase(toolId);    
   });
 }
+
+const registerModifyToolOnClick = (domElement, user) => {
+  domElement.addEventListener("click", (e) => {
+    console.log("On modify tool click");
+
+    
+  });
+}

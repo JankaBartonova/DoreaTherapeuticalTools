@@ -125,6 +125,14 @@ const registerDeleteTools = () => {
   });
 }
 
+const registerModifyTools = () => {
+  const modifyTools = document.querySelectorAll(".modify-tool");
+  modifyTools.forEach((modifyTool) => {
+    console.log(modifyTool);
+    registerModifyToolOnClick(modifyTool);
+  });
+}
+
 const showSelectedTools = (tools, user) => {
   tools.forEach((tool) => {
     addCard(tool);
@@ -132,6 +140,7 @@ const showSelectedTools = (tools, user) => {
 
   displayAdminOptions(user);
   registerDeleteTools();
+  registerModifyTools();
 }
 
 const updateToolsVisibility = (toolIds, user) => {
@@ -232,10 +241,23 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
   }
 }
 
-const showAdminInterface = (user, admin) => {
+const showAddToolForm = (domElement, edit, user) => {
   if (user) {
-    admin.classList.remove("d-none");
+    if (edit == null) {
+      domElement.classList.remove("d-none");
+    } else {
+      domElement.classList.remove("d-none");
+      toolNameElement.placeholder = "Nový placeholder";
+    }
   } else {
-    admin.classList.add("d-none");
+    domElement.classList.add("d-none");
   }
 }
+
+// const showAdminInterface = (user, admin) => {
+//   if (user) {
+//     admin.classList.remove("d-none");
+//   } else {
+//     admin.classList.add("d-none");
+//   }
+// }
