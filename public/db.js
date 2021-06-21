@@ -238,12 +238,12 @@ const getTool = (nameElement, priceElement, toolImage, imgType) => {
   }
 }
 
-// const deleteToolDatabase = (id) => {
-//   db.collection("tools").doc(`${id}`).delete()
-//     .then(() => {
-//       console.log("Tool succesfully deleted");
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//     })
-// }
+const deleteToolDatabase = (id) => {
+  db.collection("tools").doc(`${id}`).delete()
+    .then(() => {
+      console.log(`Tool number ${id} is successfully deleted from database`)
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+}
