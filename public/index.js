@@ -13,6 +13,10 @@ const closeIconLogin = document.querySelector(".popup-login-close");
 const loggedInLinks = document.querySelectorAll(".logged-in");
 const loggedOutLinks = document.querySelectorAll(".logged-out");
 const admin = document.querySelector(".popup-admin-wrapper");
+const toolName = document.getElementById("tool-name");
+const toolPrice = document.getElementById("tool-price");
+const select = document.getElementById("select");
+const form = document.getElementById("upload-form");
 
 (async () => {
   try {
@@ -33,7 +37,7 @@ const admin = document.querySelector(".popup-admin-wrapper");
         onCreateToolButtonClick = (e) => {
           console.log("on create tool button click");
           e.preventDefault();
-          showAddToolForm(admin, null, user);
+          showAddToolForm(admin, null, null, null, user, null);
         };
         createTool.addEventListener("click", onCreateToolButtonClick);
 
@@ -66,4 +70,4 @@ const admin = document.querySelector(".popup-admin-wrapper");
 
 showAndHidePopup(signup, popupSignup, closeIconSignup);
 showAndHidePopup(login, popupLogin, closeIconLogin);
-uploadingToolToDatabase();
+uploadingToolToDatabase(toolName, toolPrice, select, form);

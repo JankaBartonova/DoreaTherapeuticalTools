@@ -146,16 +146,12 @@ const displaySelectedTools = async (ids, user) => {
   await showSelectedTools(selectedTools, user);
 }
 
-const uploadingToolToDatabase = async () => {
-  const toolNameElement = document.getElementById("tool-name");
-  const toolPriceElement = document.getElementById("tool-price");
-  const select = document.getElementById("select");
-  const form = document.getElementById("upload-form");
-
+const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
+  
   let toolImage = null;
   let imgType = null;
 
-  form.removeEventListener("submit", onToolFormSubmit);
+  formElement.removeEventListener("submit", onToolFormSubmit);
   onToolFormSubmit = (e) => {
     console.log("on tool form submit");
     e.preventDefault();
@@ -163,15 +159,14 @@ const uploadingToolToDatabase = async () => {
     const tool = getTool(toolNameElement, toolPriceElement, toolImage, imgType);
 
     storeImageToDatabase({ tool });
-    resetForm(form, categoriesSelect, subcategoriesSelect);
-    
+    resetForm(formElement, categoriesSelect, subcategoriesSelect);
   };
-  form.addEventListener("submit", onToolFormSubmit);
+  formElement.addEventListener("submit", onToolFormSubmit);
 
   // Start infinite image file picking handling loop.
   (async () => {
     while (true) {
-      toolImage = await waitForImage(select);
+      toolImage = await waitForImage(selectElement);
       imgType = getFileTypeFrom64Url(toolImage);
     }
   })();
@@ -208,14 +203,21 @@ const registerDeleteToolOnClick = (domElement) => {
     console.log("On delete tool click");
     toolId = e.target.dataset.id;
 
-    deleteToolDatabase(toolId);    
+    if (user) {
+      deleteToolDatabase(toolId); 
+    }
   });
 }
 
 const registerModifyToolOnClick = (domElement, user) => {
-  domElement.addEventListener("click", (e) => {
-    console.log("On modify tool click");
+  domElement.addEventListener("click", async (e) => {
+    console.log("On modify tool button click");
+    toolId = e.target.dataset.id;
+    toolIdArray = [];
+    toolIdArray.push(parseInt(toolId));
 
-    
+    const modifiedTool = await downloadToolsFromDatabase(toolIdArray);
+      
+    showAddToolForm(admin, 1, toolName, toolPrice, user, modifiedTool[0]);
   });
 }

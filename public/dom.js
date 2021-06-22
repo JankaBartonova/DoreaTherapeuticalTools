@@ -117,19 +117,19 @@ const displayAdminOptions = (user) => {
   }
 }
 
-const registerDeleteTools = () => {
+const registerDeleteTools = (user) => {
   const deleteTools = document.querySelectorAll(".delete-tool");
   deleteTools.forEach((deleteTool) => {
     console.log(deleteTool);
-    registerDeleteToolOnClick(deleteTool);
+    registerDeleteToolOnClick(deleteTool, user);
   });
 }
 
-const registerModifyTools = () => {
+const registerModifyTools = (user) => {
   const modifyTools = document.querySelectorAll(".modify-tool");
   modifyTools.forEach((modifyTool) => {
     console.log(modifyTool);
-    registerModifyToolOnClick(modifyTool);
+    registerModifyToolOnClick(modifyTool, user);
   });
 }
 
@@ -139,8 +139,8 @@ const showSelectedTools = (tools, user) => {
   });
 
   displayAdminOptions(user);
-  registerDeleteTools();
-  registerModifyTools();
+  registerDeleteTools(user);
+  registerModifyTools(user);
 }
 
 const updateToolsVisibility = (toolIds, user) => {
@@ -241,13 +241,14 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
   }
 }
 
-const showAddToolForm = (domElement, edit, user) => {
+const showAddToolForm = (domElement, edit, toolNameElement, toolPriceElement, user, tool) => {
   if (user) {
     if (edit == null) {
       domElement.classList.remove("d-none");
     } else {
       domElement.classList.remove("d-none");
-      toolNameElement.placeholder = "Nový placeholder";
+      toolNameElement.value = `${tool.name}`;
+      toolPriceElement.value = `${tool.price}`;
     }
   } else {
     domElement.classList.add("d-none");
