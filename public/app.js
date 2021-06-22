@@ -198,7 +198,7 @@ const handleImageSelect = async () => {
   }
 }
 
-const registerDeleteToolOnClick = (domElement) => {
+const registerDeleteToolOnClick = (domElement, user) => {
   domElement.addEventListener("click", (e) => {
     console.log("On delete tool click");
     toolId = e.target.dataset.id;

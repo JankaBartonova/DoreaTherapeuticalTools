@@ -54,7 +54,7 @@ const getSelectedTools = async (ids) => {
   }
 }
 
-const setNewTool = (transaction, count, name, price, url) => {
+const setNewTool = (transaction, count, name, price, url, categories, subcategories) => {
   const toolsRef = db.collection("tools").doc(`${count}`);
   transaction.set(
     toolsRef,
@@ -62,7 +62,9 @@ const setNewTool = (transaction, count, name, price, url) => {
       id: count,
       name: name,
       image: url,
-      price: price
+      price: price,
+      categories: categories,
+      subcategories: subcategories
     },
     { merge: true }
   );
@@ -76,9 +78,9 @@ const incrementCounter = async (transaction, counterRef) => {
   return newCount;
 }
 
-const createNewTool = async (transaction, counterRef, name, price, url) => {
+const createNewTool = async (transaction, counterRef, name, price, url, categories, subcategories) => {
   const newCount = await incrementCounter(transaction, counterRef);
-  setNewTool(transaction, newCount, name, price, url);
+  setNewTool(transaction, newCount, name, price, url, categories, subcategories);
   return newCount;
 }
 
@@ -122,18 +124,18 @@ const findElementsById = (arrayOfObjects, id) => {
   })
 }
 
-const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesIds, toolName, toolPrice, toolUrl, selectedSubcategories) => {
+const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesIds, toolName, toolPrice, toolUrl, selectedSubcategoriesIds) => {
   return db.runTransaction(async (transaction) => {
     const oldCategories = await getFirebaseCollection("categories");
-    const toolId = await createNewTool(transaction, numberOfToolsRef, toolName, toolPrice, toolUrl);
+    const toolId = await createNewTool(transaction, numberOfToolsRef, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds);
 
     selectedCategoriesIds.forEach(async (selectedCategoryId) => {
       const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
-      const newSubcategories = await addToolToSubcategories(selectedOldCategories, toolId, selectedSubcategories);
+      const newSubcategories = await addToolToSubcategories(selectedOldCategories, toolId, selectedSubcategoriesIds);
       updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
     })
   }).then(() => {
-    console.log("Transaction successfully commited!");
+    console.log("Transaction create new tools is successfully commited!");
   }).catch((error) => {
     console.error("Transaction failed! ", error);
   });
@@ -227,7 +229,7 @@ const getTool = (nameElement, priceElement, toolImage, imgType) => {
   const categoriesAndSubcategories = getMultiselectValues();
   const categories = categoriesAndSubcategories.categories;
   const subcategories = categoriesAndSubcategories.subcategories
-
+  
   return {
     name: name,
     price: price,
@@ -238,12 +240,24 @@ const getTool = (nameElement, priceElement, toolImage, imgType) => {
   }
 }
 
-const deleteToolDatabase = (id) => {
-  db.collection("tools").doc(`${id}`).delete()
-    .then(() => {
-      console.log(`Tool number ${id} is successfully deleted from database`)
-    })
-    .catch((error) => {
-      console.log(error)
-    });
+// const deleteToolFromCategories = (transaction, id) => {
+  
+//   const deletedTool = db.collection()
+//   transaction.get()
+// }
+
+const deleteToolFromTools = (transaction, id) => {
+  const deletedTool = db.collection("tools").doc(`${id}`);
+  transaction.delete(deletedTool);
 }
+
+const deleteToolDatabase = (id) => {
+  return db.runTransaction(async (transaction) => {
+    // await deleteToolFromCategories(transaction, id, categories);
+    await deleteToolFromTools(transaction, id);
+  }).then(() => {
+    console.log("Transaction delete is successfully commited!");
+  }).catch((error) => {
+    console.log(error)
+  });
+} 
