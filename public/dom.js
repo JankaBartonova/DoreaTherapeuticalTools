@@ -120,7 +120,6 @@ const displayAdminOptions = (user) => {
 const registerDeleteTools = (user) => {
   const deleteTools = document.querySelectorAll(".delete-tool");
   deleteTools.forEach((deleteTool) => {
-    console.log(deleteTool);
     registerDeleteToolOnClick(deleteTool, user);
   });
 }
@@ -128,7 +127,6 @@ const registerDeleteTools = (user) => {
 const registerModifyTools = (user) => {
   const modifyTools = document.querySelectorAll(".modify-tool");
   modifyTools.forEach((modifyTool) => {
-    console.log(modifyTool);
     registerModifyToolOnClick(modifyTool, user);
   });
 }
