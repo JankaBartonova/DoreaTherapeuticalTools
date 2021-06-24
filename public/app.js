@@ -15,8 +15,8 @@ const addCategoriesToNavbar = (categories) => {
 }
 
 const getToolIdsSet = (toolIdsArrays) => {
-  let toolIdsSet = new Set(); 
-  toolIdsArrays.forEach((toolIdsArray) => { 
+  let toolIdsSet = new Set();
+  toolIdsArrays.forEach((toolIdsArray) => {
     if (toolIdsArray) {
       toolIdsArray.forEach((toolId) => {
         toolIdsSet.add(toolId);
@@ -36,7 +36,7 @@ const displayToolsInSelectedCategoryOnClick = (target, snapshot, user) => {
   const toolIds = convertSetToArray(toolIdsSet);;
 
   rememberedTools = toolIds;
-  
+
   updateToolsVisibility(toolIds, user);
 }
 
@@ -69,14 +69,14 @@ const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) =
   domElement.removeEventListener("click", onDisplaySubnavigatiOnClick);
   onDisplaySubnavigatiOnClick = (e) => {
     console.log("on display subnavigation click")
-    
+
     // avoid event listener on container
     if (e.target == domElement) {
       return false;
     }
-  
+
     displaySubnavigatiOnClick(e.target, snapshot, domElementSibling);
-  };      
+  };
   domElement.addEventListener("click", onDisplaySubnavigatiOnClick);
   return snapshot;
 }
@@ -128,7 +128,7 @@ const getSubcategories = (categories) => {
 }
 
 const createMultiselectCategories = async (snapshot) => {
-
+  console.log(snapshot);
   const categories = await getCategoriesAndSubcategories(snapshot);
   const multiSelectItems = await getMultiSelectItems(categories);
 
@@ -147,7 +147,7 @@ const displaySelectedTools = async (ids, user) => {
 }
 
 const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
-  
+
   let toolImage = null;
   let imgType = null;
 
@@ -204,9 +204,24 @@ const registerDeleteToolOnClick = (domElement, user) => {
     toolId = e.target.dataset.id;
 
     if (user) {
-      deleteToolDatabase(toolId); 
+      deleteToolDatabase(toolId);
     }
   });
+}
+
+const addRemeberedMultiselect = (databaseCategories, categories) => {
+  console.log("databaseCategories", databaseCategories)
+  console.log("categories", categories)
+
+  const filteredCategories = databaseCategories.filter((databaseCategory) => {
+    return categories.find((category) => {
+      return category == databaseCategory.id;
+    });
+  });
+  console.log("filteredCategories: ", filteredCategories)
+
+  const multiSelectItems = getMultiSelectItems(filteredCategories);
+  console.log(multiSelectItems);
 }
 
 const registerModifyToolOnClick = (domElement, user) => {
@@ -217,7 +232,15 @@ const registerModifyToolOnClick = (domElement, user) => {
     toolIdArray.push(parseInt(toolId));
 
     const modifiedTool = await downloadToolsFromDatabase(toolIdArray);
-    console.log(modifiedTool);
+    // console.log(modifiedTool);
+
+    categories = modifiedTool[0].categories;
+    subcategories = modifiedTool[0].subcategories;
+    // console.log("Categories: ", categories);
+    // console.log("Subcategories: ", subcategories);    
+    
+    const databaseCategoriesAndSubcategories = await getFirebaseCollection("categories");
+    addRemeberedMultiselect(databaseCategoriesAndSubcategories, categories);
 
     showAddToolForm(admin, 1, toolName, toolPrice, select, toolImage, user, modifiedTool[0]);
   });
