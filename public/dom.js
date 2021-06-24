@@ -149,7 +149,7 @@ const updateToolsVisibility = (toolIds, user) => {
   }
 }
 
-const loadMultiselectSubcategories = (values, categories, container) => {
+const loadMultiselectSubcategories = (values, categoriesAndSubcategories, container) => {
   removeAllElements(container);
 
   // if category is empty, do not show subcategories
@@ -157,7 +157,7 @@ const loadMultiselectSubcategories = (values, categories, container) => {
     return;
   }
 
-  const multiselectSubcategories = getSubcategories(categories);
+  const multiselectSubcategories = getSubcategories(categoriesAndSubcategories);
   console.log(multiselectSubcategories)
   const subItems = getMultiselectSubcategories(values, multiselectSubcategories);
   subcategoriesSelect = addCategoriesMultiselect(
@@ -240,7 +240,7 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
   }
 }
 
-const showAddToolForm = (domElement, edit, toolNameElement, toolPriceElement, selectElement, toolImageElement,  user, tool) => {
+const showAddToolForm = (domElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement,  user, tool) => {
   if (user) {
     if (edit == null) {
       domElement.classList.remove("d-none");
@@ -250,6 +250,27 @@ const showAddToolForm = (domElement, edit, toolNameElement, toolPriceElement, se
       toolPriceElement.value = `${tool.price}`;
       selectElement.innerHTML = "Změnit obrázek";
       toolImageElement.src = `${tool.image}`;
+      // set selected categories to multiselect
+      // rememberedCategories = tool.selectedCategories;
+      // categoriesSelect.values = tool.selectedCategories;
+      // categoriesSelect.setValues(tool.selectedCategories);
+      // categoriesSelect.update();
+
+      // remove existing multiselect instance
+      if (categoriesSelect) {
+        console.log(categoriesSelectContainer);
+        console.log(categoriesSelect);
+        const categoriesTagsElement = document.querySelector(".categoriesTags");
+        console.log(categoriesTagsElement);
+        categoriesSelectContainer.removeChild(categoriesTagsElement);
+      }
+      
+      // insert new multiselect instance and set remebered categories and subcategories
+      rememberedCategories = toolCategories;
+      console.log(rememberedCategories);
+      categoriesSelect = createMultiselectCategories(categoriesAndSubcategories, rememberedCategories);
+      // tool, který chci uložit
+      // domElement.data.toolId = tool.id
     }
   } else {
     domElement.classList.add("d-none");

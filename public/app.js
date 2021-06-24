@@ -7,6 +7,7 @@ let onToolFormSubmit = null;
 let onCreateToolButtonClick = null;
 let onDisplayToolsInSelectedCategory = null;
 let rememberedTools = [];
+let categoriesAndSubcategories = [];
 
 const addCategoriesToNavbar = (categories) => {
   categories.forEach((category, index) => {
@@ -107,8 +108,8 @@ const registerToolsInSelectedSubcategoryOnClick = (snapshot, domElement, user) =
   return rememberedTools;
 }
 
-const getMultiSelectItems = (responseCategories) => {
-  const items = responseCategories.map((category) => {
+const getMultiSelectItems = (categoriesAndSubcategories) => {
+  const items = categoriesAndSubcategories.map((category) => {
     const label = category.title;
 
     return {
@@ -127,18 +128,21 @@ const getSubcategories = (categories) => {
   return items;
 }
 
-const createMultiselectCategories = async (snapshot) => {
-  console.log(snapshot);
-  const categories = await getCategoriesAndSubcategories(snapshot);
-  const multiSelectItems = await getMultiSelectItems(categories);
-
+const createMultiselectCategoriesInstance = (multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
+  console.log("values: ", values)
   categoriesSelect = addCategoriesMultiselect(
     ".categories",
     "categoriesTags",
     multiSelectItems,
-    [],
-    (value) => loadMultiselectSubcategories(value, categories, subcategoriesSelectContainer)
+    values,
+    (value) => loadMultiselectSubcategories(value, categoriesAndSubcategories, subcategoriesSelectContainer)
   );
+}
+
+const createMultiselectCategories = async (categoriesAndSubcategories, values) => {
+  const multiSelectItems = await getMultiSelectItems(categoriesAndSubcategories);
+
+  createMultiselectCategoriesInstance(multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);
 }
 
 const displaySelectedTools = async (ids, user) => {
@@ -239,9 +243,9 @@ const registerModifyToolOnClick = (domElement, user) => {
     // console.log("Categories: ", categories);
     // console.log("Subcategories: ", subcategories);    
     
-    const databaseCategoriesAndSubcategories = await getFirebaseCollection("categories");
-    addRemeberedMultiselect(databaseCategoriesAndSubcategories, categories);
+    //const databaseCategoriesAndSubcategories = await getFirebaseCollection("categories");
+    //addRemeberedMultiselect(databaseCategoriesAndSubcategories, categories);
 
-    showAddToolForm(admin, 1, toolName, toolPrice, select, toolImage, user, modifiedTool[0]);
+    showAddToolForm(admin, 1, toolName, toolPrice, categories, subcategories, select, toolImage, user, modifiedTool[0]);
   });
 }

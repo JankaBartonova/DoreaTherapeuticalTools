@@ -2,6 +2,7 @@ const searchForm = document.querySelector(".form-search");
 const navBarCategories = document.querySelector(".navbar-categories");
 const navBarSubcategories = document.querySelector(".navbar-subcategories");
 const cardContainer = document.querySelector(".card-container");
+const categoriesSelectContainer = document.querySelector(".categories");
 const subcategoriesSelectContainer = document.querySelector(".subcategories");
 const toolCategories = document.querySelector(".tool-categories");
 const toolSubcategories = document.querySelector(".tool-subcategories");
@@ -23,10 +24,11 @@ const toolImage = document.querySelector(".tool-image");
 (async () => {
   try {
     const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
+    categoriesAndSubcategories = getCategoriesAndSubcategories(snapshot);
     const categories = getCategories(snapshot);
     addCategoriesToNavbar(categories);
     registerSubnavigationOnClick(snapshot, navBarCategories, navBarSubcategories);
-    createMultiselectCategories(snapshot);
+    createMultiselectCategories(categoriesAndSubcategories, []);
 
     auth.onAuthStateChanged((user) => {
       createTool.removeEventListener("click", onCreateToolButtonClick);
@@ -39,7 +41,7 @@ const toolImage = document.querySelector(".tool-image");
         onCreateToolButtonClick = (e) => {
           console.log("on create tool button click");
           e.preventDefault();
-          showAddToolForm(admin, null, null, null, null, null, user, null);
+          showAddToolForm(admin, null, null, null, null, null, null, null, user, null);
         };
         createTool.addEventListener("click", onCreateToolButtonClick);
 
