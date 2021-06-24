@@ -157,8 +157,8 @@ const loadMultiselectSubcategories = (values, categories, container) => {
     return;
   }
 
-  const multiselectSubCategories = getSubcategories(categories);
-  const subItems = getMultiselectSubcategories(values, multiselectSubCategories);
+  const multiselectSubcategories = getSubcategories(categories);
+  const subItems = getMultiselectSubcategories(values, multiselectSubcategories);
   subcategoriesSelect = addCategoriesMultiselect(
     ".subcategories",
     "subcategoriesTags",
@@ -239,7 +239,7 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
   }
 }
 
-const showAddToolForm = (domElement, edit, toolNameElement, toolPriceElement, user, tool) => {
+const showAddToolForm = (domElement, edit, toolNameElement, toolPriceElement, toolImageElement, user, tool) => {
   if (user) {
     if (edit == null) {
       domElement.classList.remove("d-none");
@@ -247,16 +247,9 @@ const showAddToolForm = (domElement, edit, toolNameElement, toolPriceElement, us
       domElement.classList.remove("d-none");
       toolNameElement.value = `${tool.name}`;
       toolPriceElement.value = `${tool.price}`;
+      toolImageElement.src = `${tool.image}`;
     }
   } else {
     domElement.classList.add("d-none");
   }
 }
-
-// const showAdminInterface = (user, admin) => {
-//   if (user) {
-//     admin.classList.remove("d-none");
-//   } else {
-//     admin.classList.add("d-none");
-//   }
-// }

@@ -3,6 +3,7 @@ const navBarCategories = document.querySelector(".navbar-categories");
 const navBarSubcategories = document.querySelector(".navbar-subcategories");
 const cardContainer = document.querySelector(".card-container");
 const subcategoriesSelectContainer = document.querySelector(".subcategories");
+const toolCategories = document.querySelector(".tool-categories");
 const toolSubcategories = document.querySelector(".tool-subcategories");
 const signup = document.querySelector(".sign");
 const popupSignup = document.querySelector(".popup-signup-wrapper");
@@ -17,6 +18,7 @@ const toolName = document.getElementById("tool-name");
 const toolPrice = document.getElementById("tool-price");
 const select = document.getElementById("select");
 const form = document.getElementById("upload-form");
+const toolImage = document.querySelector(".tool-image");
 
 (async () => {
   try {
@@ -37,17 +39,9 @@ const form = document.getElementById("upload-form");
         onCreateToolButtonClick = (e) => {
           console.log("on create tool button click");
           e.preventDefault();
-          showAddToolForm(admin, null, null, null, user, null);
+          showAddToolForm(admin, null, null, null, null, user, null);
         };
         createTool.addEventListener("click", onCreateToolButtonClick);
-
-        // // Create new tool
-        // onCreateToolButtonClick = (e) => {
-        //   console.log("on create tool button click");
-        //   e.preventDefault();
-        //   showAdminInterface(user, admin);
-        // };
-        // createTool.addEventListener("click", onCreateToolButtonClick);
 
         // show admin options when tools listed
         removeAllElements(cardContainer);
