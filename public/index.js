@@ -39,7 +39,7 @@ const toolImage = document.querySelector(".tool-image");
         onCreateToolButtonClick = (e) => {
           console.log("on create tool button click");
           e.preventDefault();
-          showAddToolForm(admin, null, null, null, null, user, null);
+          showAddToolForm(admin, null, null, null, null, null, user, null);
         };
         createTool.addEventListener("click", onCreateToolButtonClick);
 

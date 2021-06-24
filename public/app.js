@@ -219,6 +219,6 @@ const registerModifyToolOnClick = (domElement, user) => {
     const modifiedTool = await downloadToolsFromDatabase(toolIdArray);
     console.log(modifiedTool);
 
-    showAddToolForm(admin, 1, toolName, toolPrice, toolImage, user, modifiedTool[0]);
+    showAddToolForm(admin, 1, toolName, toolPrice, select, toolImage, user, modifiedTool[0]);
   });
 }

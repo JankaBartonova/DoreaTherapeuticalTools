@@ -239,7 +239,7 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
   }
 }
 
-const showAddToolForm = (domElement, edit, toolNameElement, toolPriceElement, toolImageElement, user, tool) => {
+const showAddToolForm = (domElement, edit, toolNameElement, toolPriceElement, selectElement, toolImageElement,  user, tool) => {
   if (user) {
     if (edit == null) {
       domElement.classList.remove("d-none");
@@ -247,6 +247,7 @@ const showAddToolForm = (domElement, edit, toolNameElement, toolPriceElement, to
       domElement.classList.remove("d-none");
       toolNameElement.value = `${tool.name}`;
       toolPriceElement.value = `${tool.price}`;
+      selectElement.innerHTML = "Změnit obrázek";
       toolImageElement.src = `${tool.image}`;
     }
   } else {
