@@ -240,45 +240,44 @@ const getTool = (nameElement, priceElement, toolImage, imgType) => {
   }
 }
 
-const getNewTools = (oldCategoryDoc, subcategories, deletedToolId, category) => {
+const getNewTools = (oldCategoryDoc, subcategories, deletedToolId) => {
   return oldCategoryDoc.subcategories.map((subcategory) => {
-    console.log("Subcategory", subcategory);
-    console.log("Subcategories", subcategories);
-    console.log("deletedToolId", deletedToolId);
-    console.log("category", category);
-    
     if (subcategories.includes(subcategory.id)) {
-      console.log("je to tam");
       const tools = subcategory.tools.filter((tool) => {
         return tool != deletedToolId;
       })
-
-      console.log("tools", tools);
 
       const newSubcategoryDoc = {
         ...subcategory,
         tools: tools
       }
-      
-      console.log(newSubcategoryDoc)
       return newSubcategoryDoc;
     }
-    
     return subcategory;
   })
 }
 
-const deleteToolFromCategories = async (transaction, deletedToolId) => {
-  /*const testRef = db.collection("test").doc("01");
-  transaction.update(testRef, {
-    subcategories: [
-      {
-        id: "2:1",
-        tools: [1, 2]
-      }
-    ]
-  });*/
+const getDeletedCategoriesTransactionDocuments = async (transaction, categories) => {
+  let oldCategoriesDocs = categories.map(async (category) => {
+    const categoryRef = db.collection("categories").doc(`0${parseInt(category)}`);    
+    const oldCategoryDoc = await getFirebaseTransactionDocument(transaction, categoryRef);
+    return oldCategoryDoc;
+  });
+  oldCategoriesDocs = await Promise.all(oldCategoriesDocs);
+  return oldCategoriesDocs;
+}
 
+const updateCategory = (oldCategoryDoc, subcategories, deletedToolId) => {
+  const newTools = getNewTools(oldCategoryDoc, subcategories, deletedToolId, "0" + oldCategoryDoc.id);
+
+  const newCategoryDoc = {
+    ...oldCategoryDoc,
+    subcategories: newTools
+  }
+  return newCategoryDoc;
+}
+
+const deleteToolFromCategories = async (transaction, deletedToolId) => {
   const deletedToolRef = db.collection("tools").doc(`${deletedToolId}`);
   const deletedTool = await getFirebaseTransactionDocument(transaction, deletedToolRef);
   if (!deletedTool) {
@@ -287,30 +286,10 @@ const deleteToolFromCategories = async (transaction, deletedToolId) => {
   const categories = deletedTool.categories;
   const subcategories = deletedTool.subcategories;
 
-  console.log("categories", categories)
-  console.log("subcategories", subcategories)
-
-  let oldCategoriesDocs = categories.map(async (category) => {
-    const categoryRef = db.collection("categories").doc(`0${parseInt(category)}`);
-    console.log(`0${parseInt(category)}`)
-    
-    const oldCategoryDoc = await getFirebaseTransactionDocument(transaction, categoryRef);
-    console.log("CategoryDoc", oldCategoryDoc);
-    return oldCategoryDoc;
-  });
-  console.log(oldCategoriesDocs);
-  oldCategoriesDocs = await Promise.all(oldCategoriesDocs)
+  const oldCategoriesDocs = await getDeletedCategoriesTransactionDocuments(transaction, categories);
 
   oldCategoriesDocs.forEach((oldCategoryDoc) => {
-    const newTools = getNewTools(oldCategoryDoc, subcategories, deletedToolId, "0" + oldCategoryDoc.id);
-    console.log("newTools", newTools)
-
-    const newCategoryDoc = {
-      ...oldCategoryDoc,
-      subcategories: newTools
-    }
-    console.log("newCategoryDoc", newCategoryDoc);
-    console.log(transaction);
+    const newCategoryDoc = updateCategory(oldCategoryDoc, subcategories, deletedToolId);
 
     const categoryRef = db.collection("categories").doc("0" + oldCategoryDoc.id);
     transaction.update(categoryRef, newCategoryDoc);
@@ -325,7 +304,7 @@ const deleteToolFromTools = (transaction, id) => {
 const deleteToolDatabase = (id) => {
   return db.runTransaction(async (transaction) => {
     await deleteToolFromCategories(transaction, id);
-    // await deleteToolFromTools(transaction, id);
+    await deleteToolFromTools(transaction, id);
   }).then(() => {
     console.log("Transaction delete is successfully commited!");
   }).catch((error) => {
