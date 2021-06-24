@@ -102,3 +102,8 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   cursor: pointer;
   color: #2fa4e7;
 }
+
+.tool-image{
+  width: 350px;
+  border: 1px #ddd;
+}
