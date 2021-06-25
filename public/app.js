@@ -130,6 +130,7 @@ const getSubcategories = (categories) => {
 
 const createMultiselectCategoriesInstance = (multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
   console.log("values: ", values)
+  console.log("subcategoriesSelectContainer: ", subcategoriesSelectContainer)
   categoriesSelect = addCategoriesMultiselect(
     ".categories",
     "categoriesTags",
@@ -246,6 +247,6 @@ const registerModifyToolOnClick = (domElement, user) => {
     //const databaseCategoriesAndSubcategories = await getFirebaseCollection("categories");
     //addRemeberedMultiselect(databaseCategoriesAndSubcategories, categories);
 
-    showAddToolForm(admin, 1, toolName, toolPrice, categories, subcategories, select, toolImage, user, modifiedTool[0]);
+    showAddToolForm(admin, form, 1, toolName, toolPrice, categories, subcategories, select, toolImage, user, modifiedTool[0]);
   });
 }
