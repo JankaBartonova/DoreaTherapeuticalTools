@@ -242,7 +242,7 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
   }
 }
 
-const showAddToolForm = (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement,  user, tool) => {
+const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement,  user, tool) => {
   if (user) {
     if (edit == null) {
       adminElement.classList.remove("d-none");
@@ -266,10 +266,11 @@ const showAddToolForm = (adminElement, formElement, edit, toolNameElement, toolP
       }
       
       // insert new multiselect instance and set remebered categories and subcategories
-      rememberedSubcategories = toolSubcategories;
       categoriesSelect = createMultiselectCategories(categoriesAndSubcategories, toolCategories);
-      
 
+      const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
+      // categoriesSelect = createMultiselectCategories(categoriesAndSubcategories, toolSubcategories);
+    
       // když kliknu na uložit, musím zjisti, který tool, který chci uložit 
       formElement.dataset.toolid = `${tool.id}`;
     }

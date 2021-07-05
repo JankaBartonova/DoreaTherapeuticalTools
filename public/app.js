@@ -128,6 +128,38 @@ const getSubcategories = (categories) => {
   return items;
 }
 
+const createMultiselectSubcategoriesInstance = (multiselectSubItems, categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
+  console.log("values: ", values)
+  console.log("subcategoriesSelectContainer: ", subcategoriesSelectContainer)
+
+  removeAllElements(subcategoriesSelectContainer);
+
+  // if category is empty, do not show subcategories
+  if (values.length == 0) {
+    return;
+  }
+
+  categoriesSelect = addCategoriesMultiselect(
+    ".subcategories",
+    "subcategoriesTags",
+    multiselectSubItems,
+    rememberedSubcategories,
+    (values) => {
+      rememberedSubcategories = values;
+      console.log(rememberedSubcategories);
+    }
+  );
+} 
+
+const createMultiselectSubcategories = async (categoriesAndSubcategories, values) => {
+  const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
+  console.log(multiselectSubcategories);
+  const multiselectSubItems = await getMultiselectSubcategories(values, multiselectSubcategories);
+  console.log(multiselectSubItems)
+
+  createMultiselectSubcategoriesInstance(multiselectSubItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);
+}
+
 const createMultiselectCategoriesInstance = (multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
   console.log("values: ", values)
   console.log("subcategoriesSelectContainer: ", subcategoriesSelectContainer)
@@ -136,7 +168,10 @@ const createMultiselectCategoriesInstance = (multiSelectItems, categoriesAndSubc
     "categoriesTags",
     multiSelectItems,
     values,
-    (value) => loadMultiselectSubcategories(value, categoriesAndSubcategories, subcategoriesSelectContainer)
+    (value) => {
+      console.log("value inside callback: ", value);
+      createMultiselectSubcategories(categoriesAndSubcategories, value);
+    }
   );
 }
 
