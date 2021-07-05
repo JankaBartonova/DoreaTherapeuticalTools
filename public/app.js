@@ -154,18 +154,19 @@ const createMultiselectSubcategoriesInstance = (multiselectSubItems, categoriesA
 const createMultiselectSubcategories = async (categoriesAndSubcategories, values) => {
   const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
   console.log(multiselectSubcategories);
-  const multiselectSubItems = await getMultiselectSubcategories(values, multiselectSubcategories);
+  const multiselectSubItems = await getMultiselectSubItems(values, multiselectSubcategories);
   console.log(multiselectSubItems)
 
   createMultiselectSubcategoriesInstance(multiselectSubItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);
 }
 
-const createMultiselectCategoriesInstance = (multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
+const createMultiselectCategoriesInstance = (domClass, domClassTag, multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
   console.log("values: ", values)
-  console.log("subcategoriesSelectContainer: ", subcategoriesSelectContainer)
+  console.log("multiselectItems: ", multiSelectItems);
+  
   categoriesSelect = addCategoriesMultiselect(
-    ".categories",
-    "categoriesTags",
+    domClass,
+    domClassTag,
     multiSelectItems,
     values,
     (value) => {
@@ -175,10 +176,22 @@ const createMultiselectCategoriesInstance = (multiSelectItems, categoriesAndSubc
   );
 }
 
-const createMultiselectCategories = async (categoriesAndSubcategories, values) => {
-  const multiSelectItems = await getMultiSelectItems(categoriesAndSubcategories);
+const createMultiselectCategories = async (domClass, domClassTag, categoriesAndSubcategories, values) => {
+  console.log(values)
 
-  createMultiselectCategoriesInstance(multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);
+  // check if subcategories
+  if (values.length && values[0].includes(":")) {
+    console.log("these are subcategories");
+    const multiselectSubItems = await getMultiselectSubItems(values, categoriesAndSubcategories);
+    console.log(multiselectSubItems)
+
+    createMultiselectCategoriesInstance(domClass, domClassTag, multiselectSubItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);
+
+  } 
+    const multiSelectItems = await getMultiSelectItems(categoriesAndSubcategories);
+
+    createMultiselectCategoriesInstance(domClass, domClassTag, multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);
+
 }
 
 const displaySelectedTools = async (ids, user) => {

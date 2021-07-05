@@ -28,7 +28,7 @@ const toolImage = document.querySelector(".tool-image");
     const categories = getCategories(snapshot);
     addCategoriesToNavbar(categories);
     registerSubnavigationOnClick(snapshot, navBarCategories, navBarSubcategories);
-    createMultiselectCategories(categoriesAndSubcategories, []);
+    createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, []);
 
     auth.onAuthStateChanged((user) => {
       createTool.removeEventListener("click", onCreateToolButtonClick);

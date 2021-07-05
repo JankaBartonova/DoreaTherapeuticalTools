@@ -160,7 +160,7 @@ const loadMultiselectSubcategories = (values, categoriesAndSubcategories, contai
 
   const multiselectSubcategories = getSubcategories(categoriesAndSubcategories);
   console.log(multiselectSubcategories)
-  const subItems = getMultiselectSubcategories(values, multiselectSubcategories);
+  const subItems = getMultiselectSubItems(values, multiselectSubcategories);
   subcategoriesSelect = addCategoriesMultiselect(
     ".subcategories",
     "subcategoriesTags",
@@ -172,11 +172,32 @@ const loadMultiselectSubcategories = (values, categoriesAndSubcategories, contai
     });
 }
 
-const getMultiselectSubcategories = (values, multiselectSubcategories) => {
-  const categoryValues = values;
+const extractCategories = (values) => {
+  let categoryValues = new Set();
+  
+  if (values.length) {
+    values.forEach((value) => {
+      if (value.includes(":")) {
+        categoryValues.add(value.charAt(0));
+      } else {
+        categoryValues.add(value)
+      }
+    })
+  }
+
+  // QUESTION: is it confusing to assing to existing variable of type Set function that converts it info Array? Or is ot better to have another variable?
+  categoryValues = convertSetToArray(categoryValues);
+  return categoryValues;
+}
+
+const getMultiselectSubItems = (values, multiselectSubcategories) => {
+  const categoryValues = extractCategories(values);
+  
   let subItems = [];
   categoryValues.forEach((categoryValue) => {
+    console.log(categoryValue)
     const array = multiselectSubcategories[parseInt(categoryValue) - 1].map((subcategory) => {
+      console.log(subcategory)
       const sublabel = subcategory.title;
       return {
         label: sublabel,
@@ -258,18 +279,18 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
 
       // remove existing multiselect instance
       if (categoriesSelect) {
-        console.log(categoriesSelectContainer);
-        console.log(categoriesSelect);
-        const categoriesTagsElement = document.querySelector(".categoriesTags");
-        console.log(categoriesTagsElement);
-        categoriesSelectContainer.removeChild(categoriesTagsElement);
+        while (categoriesSelectContainer.firstChild) {
+          categoriesSelectContainer.firstChild.remove();
+        }
       }
       
       // insert new multiselect instance and set remebered categories and subcategories
-      categoriesSelect = createMultiselectCategories(categoriesAndSubcategories, toolCategories);
+      categoriesSelect = createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, toolCategories);
 
       const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
-      // categoriesSelect = createMultiselectCategories(categoriesAndSubcategories, toolSubcategories);
+      console.log("categories and subcategories: ", categoriesAndSubcategories)
+      console.log("toolsubcategores: ", toolSubcategories)
+      subcategoriesSelect = createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, toolSubcategories);
     
       // když kliknu na uložit, musím zjisti, který tool, který chci uložit 
       formElement.dataset.toolid = `${tool.id}`;
