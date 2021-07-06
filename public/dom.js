@@ -290,38 +290,49 @@ const removeMultiselectIntances = () => {
   }
 }
 
+const setDatabaseValues = (toolNameElement, toolPriceElement, toolImageElement, tool) => {
+  toolNameElement.value = `${tool.name}`;
+  toolPriceElement.value = `${tool.price}`;
+  toolImageElement.src = `${tool.image}`;
+};
+
+const insertMultiselectInstances = async (toolCategories, toolSubcategories) => {
+  categoriesSelect = createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, toolCategories);
+
+  if (toolSubcategories.length) {
+    rememberedSubcategories = toolSubcategories;
+  } else {
+    rememberedSubcategories = [];
+  }
+  
+  const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
+  subcategoriesSelect = createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, toolSubcategories);
+}
+
+const saveToolReferenceToDomElement = (formElement, tool) => {
+  formElement.dataset.toolid = `${tool.id}`;
+}
+
+const showAdminInterface = (adminElement) => {
+  adminElement.classList.remove("d-none");
+}
+
 const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement, user, tool) => {
   if (user) {
     if (edit == null) {
       resetAllFieldsForm(formElement);
-      categoriesSelect = createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, []);
-      const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
-      subcategoriesSelect = createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, []);
-      adminElement.classList.remove("d-none");
+      insertMultiselectInstances([], []);
+      showAdminInterface(adminElement);
     } else {
-      // show admin interface
-      adminElement.classList.remove("d-none");
-
-      // set remembered values 
-      toolNameElement.value = `${tool.name}`;
-      toolPriceElement.value = `${tool.price}`;
-      selectElement.innerHTML = "Změnit obrázek";
-      toolImageElement.src = `${tool.image}`;
-
+      showAdminInterface(adminElement);
+      setDatabaseValues(toolNameElement, toolPriceElement, toolImageElement, tool);
+      changeButtonName(selectElement, "Změnit obrázek");
       removeMultiselectIntances();
-      
-      // QUESTION promise fullfilled: undifined?
+      insertMultiselectInstances(toolCategories, toolSubcategories);
+      saveToolReferenceToDomElement(formElement, tool);
+
+      // QUESTION promise fullfilled: undefined?
       console.log(subcategoriesSelect)
-
-      // insert new multiselect instance and set remebered categories and subcategories
-      categoriesSelect = createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, toolCategories);
-
-      rememberedSubcategories = toolSubcategories;
-      const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
-      subcategoriesSelect = createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, toolSubcategories);
-
-      // když kliknu na uložit, musím zjisti, který tool, který chci uložit 
-      formElement.dataset.toolid = `${tool.id}`;
     }
   } else {
     adminElement.classList.add("d-none");

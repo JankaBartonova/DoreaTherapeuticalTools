@@ -32,3 +32,7 @@ const loadFile = (file) => new Promise((resolve, reject) => {
 const convertSetToArray = (toolIdsSet) => {
   return Array.from(toolIdsSet);
 };
+
+const changeButtonName = (selectElement, text) => {
+  selectElement.innerHTML = text;
+};
