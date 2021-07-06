@@ -286,16 +286,10 @@ const registerModifyToolOnClick = (domElement, user) => {
     toolIdArray.push(parseInt(toolId));
 
     const modifiedTool = await downloadToolsFromDatabase(toolIdArray);
-    // console.log(modifiedTool);
-
+   
     categories = modifiedTool[0].categories;
     subcategories = modifiedTool[0].subcategories;
-    // console.log("Categories: ", categories);
-    // console.log("Subcategories: ", subcategories);    
-    
-    //const databaseCategoriesAndSubcategories = await getFirebaseCollection("categories");
-    //addRemeberedMultiselect(databaseCategoriesAndSubcategories, categories);
-
+   
     showAddToolForm(admin, form, 1, toolName, toolPrice, categories, subcategories, select, toolImage, user, modifiedTool[0]);
   });
 }

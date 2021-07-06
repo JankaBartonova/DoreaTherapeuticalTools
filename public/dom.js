@@ -153,29 +153,6 @@ const updateToolsVisibility = (toolIds, user) => {
   }
 }
 
-// const loadMultiselectSubcategories = (values, categoriesAndSubcategories, container) => {
-//   removeAllElements(container);
-//   console.log(values);
-
-//   // if category is empty, do not show subcategories
-//   if (values.length == 0) {
-//     return;
-//   }
-
-//   const multiselectSubcategories = getSubcategories(categoriesAndSubcategories);
-//   console.log(multiselectSubcategories)
-//   const subItems = getMultiselectSubItems(values, multiselectSubcategories);
-//   subcategoriesSelect = addCategoriesMultiselect(
-//     ".subcategories",
-//     "subcategoriesTags",
-//     subItems,
-//     rememberedSubcategories,
-//     (values) => {
-//       rememberedSubcategories = values;
-//       console.log(rememberedSubcategories);
-//     });
-// }
-
 const extractCategories = (values) => {
   let categoryValues = new Set();
 
@@ -271,7 +248,7 @@ const removeMultiselectInstance = (container) => {
   }
 }
 
-const resetAllFieldsForm = (formElement) => {
+const resetAllFieldsForm = (formElement, selectElement, toolImageElement) => {
   formElement.reset();
   if (categoriesSelect) {
     removeMultiselectInstance(categoriesSelectContainer);
@@ -279,6 +256,8 @@ const resetAllFieldsForm = (formElement) => {
   if (subcategoriesSelect) {
     removeMultiselectInstance(subcategoriesSelectContainer);
   }
+  changeButtonName(selectElement, "Vyberte obrázek");
+  toolImageElement.src = "";
 }
 
 const removeMultiselectIntances = () => {
@@ -317,10 +296,10 @@ const showAdminInterface = (adminElement) => {
   adminElement.classList.remove("d-none");
 }
 
-const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement, user, tool) => {
+const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement, user, tool) => {  
   if (user) {
     if (edit == null) {
-      resetAllFieldsForm(formElement);
+      resetAllFieldsForm(formElement, selectElement, toolImageElement);
       insertMultiselectInstances([], []);
       showAdminInterface(adminElement);
     } else {
