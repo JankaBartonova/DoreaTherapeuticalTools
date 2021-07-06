@@ -172,16 +172,30 @@ const createMultiselectSubcategories = async (categoriesAndSubcategories, subcat
 const createMultiselectCategoriesInstance = (domClass, domClassTag, items, categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
   console.log("values inside createMultiselectCategoriesInstance: ", values)
   
-  categoriesSelect = addCategoriesMultiselect(
-    domClass,
-    domClassTag,
-    items,
-    values,
-    (value) => {
-      console.log("value inside callback: ", value);
-      createMultiselectSubcategories(categoriesAndSubcategories, subcategoriesSelectContainer, value);
-    }
-  );
+  if (domClass == ".categories") {
+    console.log("to je kategorie");
+    categoriesSelect = addCategoriesMultiselect(
+      domClass,
+      domClassTag,
+      items,
+      values,
+      (value) => {
+        console.log("value inside callback: ", value);
+        createMultiselectSubcategories(categoriesAndSubcategories, subcategoriesSelectContainer, value);
+      }
+    );
+  } else {
+    subcategoriesSelect = addCategoriesMultiselect(
+      domClass,
+      domClassTag,
+      items,
+      values,
+      (value) => {
+        console.log("value inside callback: ", value);
+        createMultiselectSubcategories(categoriesAndSubcategories, subcategoriesSelectContainer, value);
+      }
+    );
+  }
 }
 
 const createMultiselectCategories = async (domClass, domClassTag, categoriesAndSubcategories, values) => {
@@ -211,9 +225,9 @@ const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, select
     e.preventDefault();
 
     const tool = getTool(toolNameElement, toolPriceElement, toolImage, imgType);
+    storeToolToDatabase({ tool });
 
-    storeImageToDatabase({ tool });
-    resetForm(formElement, categoriesSelect, subcategoriesSelect);
+    resetForm(formElement);
   };
   formElement.addEventListener("submit", onToolFormSubmit);
 

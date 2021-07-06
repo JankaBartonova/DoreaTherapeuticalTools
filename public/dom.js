@@ -188,15 +188,11 @@ const getMultiselectSubItems = (values, multiselectSubcategories) => {
   return subItems;
 }
 
-const resetForm = (form, categoriesSelect, subcategoriesSelect) => {
+const resetForm = (form) => {
   form.reset();
+  removeMultiselectIntances();
+  insertMultiselectInstances([], []);
   document.querySelector(".tool-image").src = "";
-  if (categoriesSelect) {
-    categoriesSelect.reset();
-  }
-  if (subcategoriesSelect) {
-    subcategoriesSelect.reset();
-  }
 }
 
 const showImage = (image) => {

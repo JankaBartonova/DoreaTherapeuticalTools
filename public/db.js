@@ -183,7 +183,7 @@ const getFileTypeFrom64Url = (url) => {
   return type;
 }
 
-const storeImageToDatabase = ({ tool }) => {
+const storeToolToDatabase = ({ tool }) => {
   console.log(tool)
   const storageRef = storage.ref("images/" + tool.name + `.${tool.type}`);
   storageRef
