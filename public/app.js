@@ -263,21 +263,6 @@ const registerDeleteToolOnClick = (domElement, user) => {
   });
 }
 
-const addRemeberedMultiselect = (databaseCategories, categories) => {
-  console.log("databaseCategories", databaseCategories)
-  console.log("categories", categories)
-
-  const filteredCategories = databaseCategories.filter((databaseCategory) => {
-    return categories.find((category) => {
-      return category == databaseCategory.id;
-    });
-  });
-  console.log("filteredCategories: ", filteredCategories)
-
-  const multiSelectItems = getMultiSelectItems(filteredCategories);
-  console.log(multiSelectItems);
-}
-
 const registerModifyToolOnClick = (domElement, user) => {
   domElement.addEventListener("click", async (e) => {
     console.log("On modify tool button click");
