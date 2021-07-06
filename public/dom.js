@@ -72,6 +72,10 @@ const addCard = (card) => {
 
 const addCategoriesMultiselect = (parent, _class, options, values, onChange) => {
 
+  console.log("Values inside instance creation: ", values);
+  console.log("Options inside instance creation: ", options);
+
+
   values = values.filter((value) => {
     return options.find((option) => {
       return option.value == value;
@@ -149,32 +153,32 @@ const updateToolsVisibility = (toolIds, user) => {
   }
 }
 
-const loadMultiselectSubcategories = (values, categoriesAndSubcategories, container) => {
-  removeAllElements(container);
-  console.log(values);
+// const loadMultiselectSubcategories = (values, categoriesAndSubcategories, container) => {
+//   removeAllElements(container);
+//   console.log(values);
 
-  // if category is empty, do not show subcategories
-  if (values.length == 0) {
-    return;
-  }
+//   // if category is empty, do not show subcategories
+//   if (values.length == 0) {
+//     return;
+//   }
 
-  const multiselectSubcategories = getSubcategories(categoriesAndSubcategories);
-  console.log(multiselectSubcategories)
-  const subItems = getMultiselectSubItems(values, multiselectSubcategories);
-  subcategoriesSelect = addCategoriesMultiselect(
-    ".subcategories",
-    "subcategoriesTags",
-    subItems,
-    rememberedSubcategories,
-    (values) => {
-      rememberedSubcategories = values;
-      console.log(rememberedSubcategories);
-    });
-}
+//   const multiselectSubcategories = getSubcategories(categoriesAndSubcategories);
+//   console.log(multiselectSubcategories)
+//   const subItems = getMultiselectSubItems(values, multiselectSubcategories);
+//   subcategoriesSelect = addCategoriesMultiselect(
+//     ".subcategories",
+//     "subcategoriesTags",
+//     subItems,
+//     rememberedSubcategories,
+//     (values) => {
+//       rememberedSubcategories = values;
+//       console.log(rememberedSubcategories);
+//     });
+// }
 
 const extractCategories = (values) => {
   let categoryValues = new Set();
-  
+
   if (values.length) {
     values.forEach((value) => {
       if (value.includes(":")) {
@@ -192,12 +196,10 @@ const extractCategories = (values) => {
 
 const getMultiselectSubItems = (values, multiselectSubcategories) => {
   const categoryValues = extractCategories(values);
-  
+
   let subItems = [];
   categoryValues.forEach((categoryValue) => {
-    console.log(categoryValue)
     const array = multiselectSubcategories[parseInt(categoryValue) - 1].map((subcategory) => {
-      console.log(subcategory)
       const sublabel = subcategory.title;
       return {
         label: sublabel,
@@ -263,9 +265,38 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
   }
 }
 
-const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement,  user, tool) => {
+const removeMultiselectInstance = (container) => {
+  while (container.firstChild) {
+    container.firstChild.remove();
+  }
+}
+
+const resetAllFieldsForm = (formElement) => {
+  formElement.reset();
+  if (categoriesSelect) {
+    removeMultiselectInstance(categoriesSelectContainer);
+  }
+  if (subcategoriesSelect) {
+    removeMultiselectInstance(subcategoriesSelectContainer);
+  }
+}
+
+const removeMultiselectIntances = () => {
+  if (categoriesSelect) {
+    removeMultiselectInstance(categoriesSelectContainer);
+  }
+  if (subcategoriesSelect) {
+    removeMultiselectInstance(subcategoriesSelectContainer);
+  }
+}
+
+const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement, user, tool) => {
   if (user) {
     if (edit == null) {
+      resetAllFieldsForm(formElement);
+      categoriesSelect = createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, []);
+      const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
+      subcategoriesSelect = createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, []);
       adminElement.classList.remove("d-none");
     } else {
       // show admin interface
@@ -277,21 +308,18 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
       selectElement.innerHTML = "Změnit obrázek";
       toolImageElement.src = `${tool.image}`;
 
-      // remove existing multiselect instance
-      if (categoriesSelect) {
-        while (categoriesSelectContainer.firstChild) {
-          categoriesSelectContainer.firstChild.remove();
-        }
-      }
+      removeMultiselectIntances();
       
+      // QUESTION promise fullfilled: undifined?
+      console.log(subcategoriesSelect)
+
       // insert new multiselect instance and set remebered categories and subcategories
       categoriesSelect = createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, toolCategories);
 
+      rememberedSubcategories = toolSubcategories;
       const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
-      console.log("categories and subcategories: ", categoriesAndSubcategories)
-      console.log("toolsubcategores: ", toolSubcategories)
       subcategoriesSelect = createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, toolSubcategories);
-    
+
       // když kliknu na uložit, musím zjisti, který tool, který chci uložit 
       formElement.dataset.toolid = `${tool.id}`;
     }

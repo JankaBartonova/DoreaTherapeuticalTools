@@ -28,7 +28,10 @@ const toolImage = document.querySelector(".tool-image");
     const categories = getCategories(snapshot);
     addCategoriesToNavbar(categories);
     registerSubnavigationOnClick(snapshot, navBarCategories, navBarSubcategories);
-    createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, []);
+    rememberedSubcategories = [];
+    categoriesSelect = createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, []);
+    const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
+    subcategoriesSelect = createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, []);
 
     auth.onAuthStateChanged((user) => {
       createTool.removeEventListener("click", onCreateToolButtonClick);
@@ -41,7 +44,7 @@ const toolImage = document.querySelector(".tool-image");
         onCreateToolButtonClick = (e) => {
           console.log("on create tool button click");
           e.preventDefault();
-          showAddToolForm(admin, null, null, null, null, null, null, null, null, user, null);
+          showAddToolForm(admin, form, null, null, null, null, null, null, null, user, null);
         };
         createTool.addEventListener("click", onCreateToolButtonClick);
 
