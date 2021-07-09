@@ -129,8 +129,6 @@ const getSubcategories = (categories) => {
 }
 
 const createMultiselectSubcategoriesInstance = (multiselectSubItems, subcategoriesSelectContainer, values) => {
-  console.log("values inside createMultiselectSubcategoriesInstance: ", values);
-
   removeAllElements(subcategoriesSelectContainer);
 
   // if category is empty, do not show subcategories
@@ -151,36 +149,24 @@ const createMultiselectSubcategoriesInstance = (multiselectSubItems, subcategori
     rememberedSubcategories,
     (values) => {
       rememberedSubcategories = values;
-      console.log("rememberedSubcategories: ", rememberedSubcategories);
     }
   );
-} 
+}
 
 const createMultiselectSubcategories = async (categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
-  console.log(categoriesAndSubcategories)
-  console.log("values inside createMultiselectSubcategories: ", values)
-  
-  if (values.length && values[0].includes(":")) {
-    console.log("tady něco udělej");
-  } else {
-    const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
-    const multiselectSubItems = await getMultiselectSubItems(values, multiselectSubcategories);
-    createMultiselectSubcategoriesInstance(multiselectSubItems, subcategoriesSelectContainer, values);
-  }
+  const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
+  const multiselectSubItems = await getMultiselectSubItems(values, multiselectSubcategories);
+  createMultiselectSubcategoriesInstance(multiselectSubItems, subcategoriesSelectContainer, values);
 }
 
 const createMultiselectCategoriesInstance = (domClass, domClassTag, items, categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
-  console.log("values inside createMultiselectCategoriesInstance: ", values)
-  
   if (domClass == ".categories") {
-    console.log("to je kategorie");
     categoriesSelect = addCategoriesMultiselect(
       domClass,
       domClassTag,
       items,
       values,
       (value) => {
-        console.log("value inside callback: ", value);
         createMultiselectSubcategories(categoriesAndSubcategories, subcategoriesSelectContainer, value);
       }
     );
@@ -191,7 +177,6 @@ const createMultiselectCategoriesInstance = (domClass, domClassTag, items, categ
       items,
       values,
       (value) => {
-        console.log("value inside callback: ", value);
         createMultiselectSubcategories(categoriesAndSubcategories, subcategoriesSelectContainer, value);
       }
     );
@@ -199,10 +184,9 @@ const createMultiselectCategoriesInstance = (domClass, domClassTag, items, categ
 }
 
 const createMultiselectCategories = async (domClass, domClassTag, categoriesAndSubcategories, values) => {
-  console.log("values inside createMultiselectCategories: ", values)
   if (domClass == ".categories") {
     const multiSelectItems = await getMultiSelectItems(categoriesAndSubcategories);
-    createMultiselectCategoriesInstance(domClass, domClassTag, multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);  
+    createMultiselectCategoriesInstance(domClass, domClassTag, multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);
   } else {
     const multiselectSubItems = await getMultiselectSubItems(values, categoriesAndSubcategories);
     createMultiselectCategoriesInstance(domClass, domClassTag, multiselectSubItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);
@@ -223,11 +207,33 @@ const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, select
   onToolFormSubmit = (e) => {
     console.log("on tool form submit");
     e.preventDefault();
+    console.log(formElement)
 
-    const tool = getTool(toolNameElement, toolPriceElement, toolImage, imgType);
-    storeToolToDatabase({ tool });
+    const modifiedToolId = formElement.dataset.toolid;
 
-    resetForm(formElement);
+    if (modifiedToolId) {
+      // get reference on tool from DOM
+      console.log(modifiedToolId);
+      
+      // Get tool from user
+      const toolImage = document.querySelector(".tool-image").src;
+      const tool = getTool(toolNameElement, toolPriceElement, toolImage);
+      console.log(tool);
+      
+      // Change info info in database Tools collection
+      //storeToolToDatabase({ tool }); 
+
+      // Compare with info in database Categories collection
+
+      // Change info in database Categories collection
+    } else {
+      console.log("new tool");
+      const tool = getTool(toolNameElement, toolPriceElement, toolImage);
+      console.log(tool)
+      storeToolToDatabase({ tool }); 
+    }
+
+    resetForm(formElement, modifiedToolId);
   };
   formElement.addEventListener("submit", onToolFormSubmit);
 
@@ -255,6 +261,7 @@ const handleImageSelect = async () => {
   try {
     const selectedFile = await pickFile();
     const loadedImg = await loadFile(selectedFile);
+    selectedImage.value = true;
     showImage(loadedImg);
 
     if (loadedImg) {
@@ -279,16 +286,16 @@ const registerDeleteToolOnClick = (domElement, user) => {
 
 const registerModifyToolOnClick = (domElement, user) => {
   domElement.addEventListener("click", async (e) => {
-    console.log("On modify tool button click");
+    console.log("on modify tool button click");
     toolId = e.target.dataset.id;
     toolIdArray = [];
     toolIdArray.push(parseInt(toolId));
 
     const modifiedTool = await downloadToolsFromDatabase(toolIdArray);
-   
+
     categories = modifiedTool[0].categories;
     subcategories = modifiedTool[0].subcategories;
-   
+
     showAddToolForm(admin, form, 1, toolName, toolPrice, categories, subcategories, select, toolImage, user, modifiedTool[0]);
   });
 }

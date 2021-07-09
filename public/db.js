@@ -185,7 +185,7 @@ const getFileTypeFrom64Url = (url) => {
 
 const storeToolToDatabase = ({ tool }) => {
   console.log(tool)
-  const storageRef = storage.ref("images/" + tool.name + `.${tool.type}`);
+  const storageRef = storage.ref("images/" + tool.name);
   storageRef
     .putString(tool.image, 'data_url')
     .then(() => {
@@ -222,7 +222,7 @@ const getMultiselectValues = () => {
   }
 }
 
-const getTool = (nameElement, priceElement, toolImage, imgType) => {
+const getTool = (nameElement, priceElement, toolImage) => {
   const name = getToolValue(nameElement);
   const price = getToolValue(priceElement);
 
@@ -235,8 +235,7 @@ const getTool = (nameElement, priceElement, toolImage, imgType) => {
     price: price,
     categories: categories,
     subcategories: subcategories,
-    image: toolImage,
-    type: imgType
+    image: toolImage
   }
 }
 

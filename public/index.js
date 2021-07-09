@@ -20,6 +20,7 @@ const toolPrice = document.getElementById("tool-price");
 const select = document.getElementById("select");
 const form = document.getElementById("upload-form");
 const toolImage = document.querySelector(".tool-image");
+const selectedImage = document.getElementById("selected-image");
 
 (async () => {
   try {

@@ -71,11 +71,6 @@ const addCard = (card) => {
 }
 
 const addCategoriesMultiselect = (parent, _class, options, values, onChange) => {
-
-  console.log("Values inside instance creation: ", values);
-  console.log("Options inside instance creation: ", options);
-
-
   values = values.filter((value) => {
     return options.find((option) => {
       return option.value == value;
@@ -244,7 +239,7 @@ const removeMultiselectInstance = (container) => {
   }
 }
 
-const resetAllFieldsForm = (formElement, selectElement, toolImageElement) => {
+const resetAllFieldsForm = (formElement, selectElement, toolImageElement, modifiedTool) => {
   formElement.reset();
   if (categoriesSelect) {
     removeMultiselectInstance(categoriesSelectContainer);
@@ -254,6 +249,12 @@ const resetAllFieldsForm = (formElement, selectElement, toolImageElement) => {
   }
   changeButtonName(selectElement, "Vyberte obrázek");
   toolImageElement.src = "";
+
+  if (!modifiedTool) {
+    delete formElement.dataset.toolid;
+  }
+
+  selectedImage.value = false;
 }
 
 const removeMultiselectIntances = () => {
@@ -295,7 +296,7 @@ const showAdminInterface = (adminElement) => {
 const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement, user, tool) => {  
   if (user) {
     if (edit == null) {
-      resetAllFieldsForm(formElement, selectElement, toolImageElement);
+      resetAllFieldsForm(formElement, selectElement, toolImageElement, edit);
       insertMultiselectInstances([], []);
       showAdminInterface(adminElement);
     } else {
@@ -305,9 +306,6 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
       removeMultiselectIntances();
       insertMultiselectInstances(toolCategories, toolSubcategories);
       saveToolReferenceToDomElement(formElement, tool);
-
-      // QUESTION promise fullfilled: undefined?
-      console.log(subcategoriesSelect)
     }
   } else {
     adminElement.classList.add("d-none");
