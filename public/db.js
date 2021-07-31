@@ -28,6 +28,7 @@ const downloadToolsFromDatabase = async (ids) => {
   let idsCopy = ids.slice();
   while (idsCopy.length) {
     const batchIds = idsCopy.splice(0, 10);
+    console.log("batchIds", batchIds);
     batches.push(
       await db.collection("tools")
         .where(
@@ -39,7 +40,7 @@ const downloadToolsFromDatabase = async (ids) => {
         .then(results => results.docs.map(result => ({ ...result.data() })))
     )
   }
-  return batches.flat();
+  return batches.flat().sort((first, second) => first.id - second.id);
 }
 
 const getSelectedTools = async (ids) => {
@@ -49,6 +50,7 @@ const getSelectedTools = async (ids) => {
     }
 
     const selectedTools = await downloadToolsFromDatabase(ids);
+    console.log(selectedTools);
     return selectedTools;
 
   } catch (error) {
@@ -93,9 +95,11 @@ const addToolToSubcategories = (selectedOldCategory, toolId, selectedSubcategori
     let newTools = [...(oldSubcategory.tools || [])];
     if (selectedSubcategories.includes(oldSubcategory.id) && !newTools.includes(toolId)) {
       newTools = [...newTools, toolId];
+      console.log("Type of tools in subcategories", newTools[0], typeof(newTools[0]));
+      console.log(newTools.sort((first, second) => first - second));
       return {
         ...oldSubcategory,
-        tools: newTools
+        tools: newTools.sort((first, second) => first - second)
       }
     } else {
       return oldSubcategory;

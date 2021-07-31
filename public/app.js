@@ -289,6 +289,7 @@ const registerModifyToolOnClick = (domElement, user) => {
     toolIdArray.push(parseInt(toolId));
 
     const modifiedTool = await downloadToolsFromDatabase(toolIdArray);
+    console.log(modifiedTool);
 
     categories = modifiedTool[0].categories;
     subcategories = modifiedTool[0].subcategories;
