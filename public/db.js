@@ -56,7 +56,7 @@ const getSelectedTools = async (ids) => {
   }
 }
 
-const setNewTool = (transaction, count, name, price, url, categories, subcategories) => {
+const setToolTransaction = (transaction, count, name, price, url, categories, subcategories) => {
   const toolsRef = db.collection("tools").doc(`${count}`);
   transaction.set(
     toolsRef,
@@ -82,15 +82,17 @@ const incrementCounter = async (transaction, counterRef) => {
 
 const createNewTool = async (transaction, counterRef, name, price, url, categories, subcategories) => {
   const newCount = await incrementCounter(transaction, counterRef);
-  setNewTool(transaction, newCount, name, price, url, categories, subcategories);
+  setToolTransaction(transaction, newCount, name, price, url, categories, subcategories);
   return newCount;
 }
 
-const addToolToSubcategories = (selectedOldCategory, newCount, selectedSubcategories) => {
+const addToolToSubcategories = (selectedOldCategory, toolId, selectedSubcategories) => {
+  console.log("addToolToSubcategories()");
+  console.log("selectedOldCategory, toolId, selectedSubcategories: ", selectedOldCategory, toolId, typeof(toolId), selectedSubcategories)
   return selectedOldCategory.subcategories.map((oldSubcategory) => {
     let newTools = [...(oldSubcategory.tools || [])];
-    if (selectedSubcategories.includes(oldSubcategory.id) && !newTools.includes(newCount)) {
-      newTools = [...newTools, newCount];
+    if (selectedSubcategories.includes(oldSubcategory.id) && !newTools.includes(toolId)) {
+      newTools = [...newTools, toolId];
       return {
         ...oldSubcategory,
         tools: newTools
@@ -127,6 +129,7 @@ const findElementsById = (arrayOfObjects, id) => {
 }
 
 const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesIds, toolName, toolPrice, toolUrl, selectedSubcategoriesIds) => {
+  console.log("createToolAndSaveUrlToCategories()");
   return db.runTransaction(async (transaction) => {
     const oldCategories = await getFirebaseCollection("categories");
     const toolId = await createNewTool(transaction, numberOfToolsRef, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds);
@@ -144,17 +147,21 @@ const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesId
 }
 
 const modifyToolAndSaveUrlToCategories = (modifiedToolId, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds) => {
+  console.log("modifyToolAndSaveUrlToCategories()");
   return db.runTransaction(async (transaction) => {
     const oldCategories = await getFirebaseCollection("categories");
-    console.log(oldCategories);
-    console.log(selectedCategoriesIds);
-    const toolId = await setNewTool(transaction, modifiedToolId, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds);
 
-    // selectedCategoriesIds.forEach(async (selectedCategoryId) => {
-    //   const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
-    //   const newSubcategories = await addToolToSubcategories(selectedOldCategories, toolId, selectedSubcategoriesIds);
-    //   updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
-    // })
+    await deleteToolFromCategoriesTransaction(transaction, modifiedToolId);
+    await setToolTransaction(transaction, modifiedToolId, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds);
+    
+    selectedCategoriesIds.forEach(async (selectedCategoryId) => {
+      const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
+      console.log(selectedOldCategories);
+      console.log(modifiedToolId, typeof(modifiedToolId));
+      const newSubcategories = await addToolToSubcategories(selectedOldCategories, modifiedToolId, selectedSubcategoriesIds);
+      console.log(newSubcategories);
+      updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
+    });
   }).then(() => {
     console.log("Transaction modify new tools is successfully commited!");
   }).catch((error) => {
@@ -169,12 +176,15 @@ const getFirebaseCollection = async (collection) => {
 }
 
 const saveTool = (imageUrl, toolName, toolPrice, toolCategories, selectedSubcategories, modifiedToolId) => {
+  console.log("saveTool()");
   if (modifiedToolId !== -1) {
-    console.log(modifiedToolId);
-    console.log("Modified tool. Save it to database tool collection");
+    console.log("Modified tool.");
+    console.log("modifiedToolId", modifiedToolId);
     //const modifiedToolRef = db.collection("tools").doc("modifiedToolId");
     modifyToolAndSaveUrlToCategories(modifiedToolId, toolName, toolPrice, imageUrl, toolCategories, selectedSubcategories);
   } else {
+    console.log("New tool.");
+    console.log("modifiedToolId", modifiedToolId);
     const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
     createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, imageUrl, selectedSubcategories);
   }
@@ -217,7 +227,7 @@ const saveImage = async (tool) => {
 
 const storeToolToDatabase = async (tool, imageChanged, modifiedToolId) => {
   console.log("storeToolToDatabase()");
-  console.log("tool, imageChanged, modifiedToolId", tool, imageChanged, modifiedToolId);
+  console.log("tool, imageChanged, modifiedToolId", tool, imageChanged, modifiedToolId, typeof(modifiedToolId));
 
   let imageUrl = null;
   if (imageChanged) {
@@ -312,7 +322,7 @@ const updateCategory = (oldCategoryDoc, subcategories, deletedToolId) => {
   return newCategoryDoc;
 }
 
-const deleteToolFromCategories = async (transaction, deletedToolId) => {
+const deleteToolFromCategoriesTransaction = async (transaction, deletedToolId) => {
   const deletedToolRef = db.collection("tools").doc(`${deletedToolId}`);
   const deletedTool = await getFirebaseTransactionDocument(transaction, deletedToolRef);
   if (!deletedTool) {
@@ -338,7 +348,7 @@ const deleteToolFromTools = (transaction, id) => {
 
 const deleteToolDatabase = (id) => {
   return db.runTransaction(async (transaction) => {
-    await deleteToolFromCategories(transaction, id);
+    await deleteToolFromCategoriesTransaction(transaction, id);
     await deleteToolFromTools(transaction, id);
   }).then(() => {
     console.log("Transaction delete is successfully commited!");
