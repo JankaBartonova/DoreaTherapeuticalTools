@@ -36,3 +36,14 @@ const convertSetToArray = (toolIdsSet) => {
 const changeButtonName = (selectElement, text) => {
   selectElement.innerHTML = text;
 };
+
+const convertStringToBoolean = (string) => {
+  switch (string.trim().toLowerCase()) {
+    case "true":
+      return true;
+    case "false":
+      return false;
+    default:
+      throw new Error ("ConvertStringToBoolean: Cannot convert string to boolean.");
+  }
+};

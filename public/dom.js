@@ -140,11 +140,11 @@ const showSelectedTools = (tools, user) => {
   registerModifyTools(user);
 }
 
-const updateToolsVisibility = (toolIds, user) => {
+const updateToolsVisibility = async (toolIds, user) => {
   removeAllElements(cardContainer);
 
   if (toolIds) {
-    displaySelectedTools(toolIds, user);
+    await displaySelectedTools(toolIds, user);
   }
 }
 
@@ -184,6 +184,8 @@ const getMultiselectSubItems = (values, multiselectSubcategories) => {
 }
 
 const resetForm = (form) => {
+  console.log("resetForm()")
+
   form.reset();
   removeMultiselectIntances();
   insertMultiselectInstances([], []);
@@ -273,7 +275,9 @@ const setDatabaseValues = (toolNameElement, toolPriceElement, toolImageElement, 
 };
 
 const insertMultiselectInstances = async (toolCategories, toolSubcategories) => {
-  categoriesSelect = createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, toolCategories);
+  console.log("insertMultiselectInstances()")
+
+  await createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, toolCategories);
 
   if (toolSubcategories.length) {
     rememberedSubcategories = toolSubcategories;
@@ -281,8 +285,8 @@ const insertMultiselectInstances = async (toolCategories, toolSubcategories) => 
     rememberedSubcategories = [];
   }
   
-  const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
-  subcategoriesSelect = createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, toolSubcategories);
+  const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);  
+  await createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, toolSubcategories);
 }
 
 const saveToolReferenceToDomElement = (formElement, tool) => {
@@ -294,6 +298,8 @@ const showAdminInterface = (adminElement) => {
 }
 
 const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement, user, tool) => {  
+  console.log("showAddToolForm()");
+
   if (user) {
     if (edit == null) {
       resetAllFieldsForm(formElement, selectElement, toolImageElement, edit);

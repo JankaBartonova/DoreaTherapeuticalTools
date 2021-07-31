@@ -24,6 +24,8 @@ const selectedImage = document.getElementById("selected-image");
 
 (async () => {
   try {
+    console.log("index.js")
+
     const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
     categoriesAndSubcategories = getCategoriesAndSubcategories(snapshot);
     const categories = getCategories(snapshot);
@@ -31,7 +33,7 @@ const selectedImage = document.getElementById("selected-image");
     registerSubnavigationOnClick(snapshot, navBarCategories, navBarSubcategories);
     insertMultiselectInstances([], []);
     
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
       createTool.removeEventListener("click", onCreateToolButtonClick);
       
       if (user) {
@@ -40,7 +42,7 @@ const selectedImage = document.getElementById("selected-image");
 
         // Create new tool
         onCreateToolButtonClick = (e) => {
-          console.log("on create tool button click");
+          console.log("<create tool button click");
           e.preventDefault();
           showAddToolForm(admin, form, null, null, null, null, null, select, toolImage, user, null);
         };
@@ -49,14 +51,14 @@ const selectedImage = document.getElementById("selected-image");
         // show admin options when tools listed
         removeAllElements(cardContainer);
         registerToolsInSelectedCategoryOnClick(snapshot, navBarCategories, user);
-        updateToolsVisibility(rememberedTools, user);
+        await updateToolsVisibility(rememberedTools, user);
         registerToolsInSelectedSubcategoryOnClick(snapshot, navBarSubcategories, user);
       } else {
         console.log("User logged out!");
         setupUi(null, loggedInLinks, loggedOutLinks);
         removeAllElements(cardContainer);
         registerToolsInSelectedCategoryOnClick(snapshot, navBarCategories, null);
-        updateToolsVisibility(rememberedTools, null);
+        await updateToolsVisibility(rememberedTools, null);
         registerToolsInSelectedSubcategoryOnClick(snapshot, navBarSubcategories, null);
       }
     })
