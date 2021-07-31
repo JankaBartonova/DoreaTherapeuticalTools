@@ -219,18 +219,16 @@ const storeToolToDatabase = async (tool, imageChanged, modifiedToolId) => {
   console.log("storeToolToDatabase()");
   console.log("tool, imageChanged, modifiedToolId", tool, imageChanged, modifiedToolId);
 
+  let imageUrl = null;
   if (imageChanged) {
-    console.log("the image was changed, save it to storage")
-    const imageUrl = await saveImage(tool);
-    const toolSubcategories = [...tool.subcategories]
-    await saveTool(imageUrl, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories, modifiedToolId);
-  } 
-  //else {
-  //   console.log("the image was not changed, save it to firestore")
-  //   const toolSubcategories = [...tool.subcategories];
-  //   console.log(toolSubcategories);
-  //   await saveTool(storageRef, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories, modifiedToolId);
-  // }
+    console.log("the image was changed, save it to storage");
+    imageUrl = await saveImage(tool);
+    await saveTool(imageUrl, tool.name, tool.price, tool.categories, tool.subcategories, modifiedToolId);
+  } else {
+    console.log("the image was not changed, save it to firestore");
+    imageUrl = tool.image;
+    await saveTool(imageUrl, tool.name, tool.price, tool.categories, tool.subcategories, modifiedToolId);
+  }
 }
 
 const getToolValue = (element) => {
@@ -270,9 +268,9 @@ const getTool = (nameElement, priceElement, toolImage) => {
 
   return {
     name: name,
-    price: price,
-    categories: categories,
-    subcategories: subcategories,
+    price: parseInt(price),
+    categories: [...categories],
+    subcategories: [...subcategories],
     image: toolImage
   }
 }

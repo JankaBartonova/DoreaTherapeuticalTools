@@ -224,6 +224,7 @@ const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, select
     const imageChanged = convertStringToBoolean(selectedImage.value);
 
     const tool = getTool(toolNameElement, toolPriceElement, toolImage.src);
+    console.log(tool);
     await storeToolToDatabase(tool, imageChanged, modifiedToolId); 
 
     resetForm(formElement, modifiedToolId);
