@@ -215,36 +215,16 @@ const displaySelectedTools = async (ids, user) => {
 const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
   console.log("uploadingToolToDatabase()");
 
-  let toolImage = null;
-  let imgType = null;
-
   formElement.removeEventListener("submit", onToolFormSubmit);
   onToolFormSubmit = (e) => {
     console.log("onToolFormSubmit()");
     e.preventDefault();
 
-    const modifiedToolId = parseInt(formElement.dataset.toolid);
+    const modifiedToolId = parseInt(formElement.dataset.toolid) || -1;
+    const imageChanged = convertStringToBoolean(selectedImage.value);
 
-    if (modifiedToolId) {
-      // Get tool from user
-      const toolImage = document.querySelector(".tool-image").src;
-      const tool = getTool(toolNameElement, toolPriceElement, toolImage);
-      console.log(tool);
-
-      // was image selected?
-      const imageChanged = convertStringToBoolean(selectedImage.value);
-      console.log(imageChanged, typeof(imageChanged));
-
-      // Change info info in database Tools collection, Compare with info in database Categories collection, Change info in database Categories collection
-      storeToolToDatabase({ tool }, imageChanged, modifiedToolId); 
-
-    } else {
-      console.log("new tool");
-      const tool = getTool(toolNameElement, toolPriceElement, toolImage);
-      console.log(tool)
-      console.log(selectedImage.value);
-      storeToolToDatabase({ tool }, selectedImage.value); 
-    }
+    const tool = getTool(toolNameElement, toolPriceElement, toolImage.src);
+    storeToolToDatabase({ tool }, imageChanged, modifiedToolId); 
 
     resetForm(formElement, modifiedToolId);
   };
@@ -253,8 +233,11 @@ const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, select
   // Start infinite image file picking handling loop.
   (async () => {
     while (true) {
-      toolImage = await waitForImage(selectElement);
-      imgType = getFileTypeFrom64Url(toolImage);
+      const pickedImage = await waitForImage(selectElement);
+
+      console.log(pickedImage)
+
+      imgType = getFileTypeFrom64Url(pickedImage);
     }
   })();
 }

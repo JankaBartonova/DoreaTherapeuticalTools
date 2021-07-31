@@ -173,7 +173,7 @@ const saveTool = (storageRef, toolName, toolPrice, toolCategories, selectedSubca
   storageRef
     .getDownloadURL()
     .then((url) => {
-      if (modifiedToolId) {
+      if (modifiedToolId !== -1) {
         console.log(modifiedToolId);
         console.log("Modified tool. Save it to database tool collection");
         //const modifiedToolRef = db.collection("tools").doc("modifiedToolId");
