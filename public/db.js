@@ -168,21 +168,16 @@ const getFirebaseCollection = async (collection) => {
   return databaseSnapshot;
 }
 
-
-const saveTool = (storageRef, toolName, toolPrice, toolCategories, selectedSubcategories, modifiedToolId) => {
-  storageRef
-    .getDownloadURL()
-    .then((url) => {
-      if (modifiedToolId !== -1) {
-        console.log(modifiedToolId);
-        console.log("Modified tool. Save it to database tool collection");
-        //const modifiedToolRef = db.collection("tools").doc("modifiedToolId");
-        modifyToolAndSaveUrlToCategories(modifiedToolId, toolName, toolPrice, url, toolCategories, selectedSubcategories);
-      } else {
-        const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
-        createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, url, selectedSubcategories);
-      }
-    });
+const saveTool = (imageUrl, toolName, toolPrice, toolCategories, selectedSubcategories, modifiedToolId) => {
+  if (modifiedToolId !== -1) {
+    console.log(modifiedToolId);
+    console.log("Modified tool. Save it to database tool collection");
+    //const modifiedToolRef = db.collection("tools").doc("modifiedToolId");
+    modifyToolAndSaveUrlToCategories(modifiedToolId, toolName, toolPrice, imageUrl, toolCategories, selectedSubcategories);
+  } else {
+    const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
+    createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, imageUrl, selectedSubcategories);
+  }
 }
 
 const pickFile = () => {
@@ -211,22 +206,31 @@ const getFileTypeFrom64Url = (url) => {
   return type;
 }
 
-const storeToolToDatabase = ({ tool }, imageChanged, modifiedToolId) => {
+const saveImage = async (tool) => {
+  const storageRef = storage.ref("images/" + tool.name);
+  await storageRef.putString(tool.image, 'data_url');
+   
+  console.log('Uploaded file to Firebase Storage!');
+  const imageUrl = await storageRef.getDownloadURL();
+  return imageUrl;
+}
+
+const storeToolToDatabase = async (tool, imageChanged, modifiedToolId) => {
   console.log("storeToolToDatabase()");
+  console.log("tool, imageChanged, modifiedToolId", tool, imageChanged, modifiedToolId);
 
   if (imageChanged) {
     console.log("the image was changed, save it to storage")
-    const storageRef = storage.ref("images/" + tool.name);
-    storageRef
-      .putString(tool.image, 'data_url')
-      .then(() => {
-        console.log('Uploaded file to Firebase Storage!');
-        const toolSubcategories = [...tool.subcategories]
-        saveTool(storageRef, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories, modifiedToolId);
-      });
-  } else {
-    console.log("Image was not changed, make some code here!")    
-  }
+    const imageUrl = await saveImage(tool);
+    const toolSubcategories = [...tool.subcategories]
+    await saveTool(imageUrl, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories, modifiedToolId);
+  } 
+  //else {
+  //   console.log("the image was not changed, save it to firestore")
+  //   const toolSubcategories = [...tool.subcategories];
+  //   console.log(toolSubcategories);
+  //   await saveTool(storageRef, tool.name, parseInt(tool.price), [...tool.categories], toolSubcategories, modifiedToolId);
+  // }
 }
 
 const getToolValue = (element) => {

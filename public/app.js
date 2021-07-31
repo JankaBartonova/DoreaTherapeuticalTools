@@ -216,7 +216,7 @@ const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, select
   console.log("uploadingToolToDatabase()");
 
   formElement.removeEventListener("submit", onToolFormSubmit);
-  onToolFormSubmit = (e) => {
+  onToolFormSubmit = async (e) => {
     console.log("onToolFormSubmit()");
     e.preventDefault();
 
@@ -224,7 +224,7 @@ const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, select
     const imageChanged = convertStringToBoolean(selectedImage.value);
 
     const tool = getTool(toolNameElement, toolPriceElement, toolImage.src);
-    storeToolToDatabase({ tool }, imageChanged, modifiedToolId); 
+    await storeToolToDatabase(tool, imageChanged, modifiedToolId); 
 
     resetForm(formElement, modifiedToolId);
   };
