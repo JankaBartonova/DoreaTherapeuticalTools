@@ -1,3 +1,5 @@
+"use strict";
+
 const addNavBar = (domElement, category, index) => {
   let html = `
     <label class="btn btnNavBar btn-outline-primary" data-index="${index}">${category}</label>
@@ -70,7 +72,7 @@ const addCard = (card) => {
   cardContainer.innerHTML += html;
 }
 
-const addCategoriesMultiselect = (parent, _class, options, values, onChange) => {
+const addMultiselect = (parent, _class, options, values, onChange) => {
   values = values.filter((value) => {
     return options.find((option) => {
       return option.value == value;
@@ -166,12 +168,12 @@ const extractCategories = (values) => {
   return categoryValues;
 }
 
-const getMultiselectSubItems = (values, multiselectSubcategories) => {
+const getMultiselectSubItems = (values, subcategories) => {
   const categoryValues = extractCategories(values);
 
   let subItems = [];
   categoryValues.forEach((categoryValue) => {
-    const array = multiselectSubcategories[parseInt(categoryValue) - 1].map((subcategory) => {
+    const array = subcategories[parseInt(categoryValue) - 1].map((subcategory) => {
       const sublabel = subcategory.title;
       return {
         label: sublabel,
@@ -275,19 +277,18 @@ const setDatabaseValues = (toolNameElement, toolPriceElement, toolImageElement, 
   toolImageElement.src = `${tool.image}`;
 };
 
-const insertMultiselectInstances = async (toolCategories, toolSubcategories) => {
+const insertMultiselectInstances = async (selectedCategories, selectedSubcategories) => {
   console.log("insertMultiselectInstances()")
 
-  await createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, toolCategories);
+  await createCategoriesSelect(selectedCategories);
 
-  if (toolSubcategories.length) {
-    rememberedSubcategories = toolSubcategories;
+  if (selectedSubcategories.length) {
+    rememberedSubcategories = selectedSubcategories;
   } else {
     rememberedSubcategories = [];
   }
-  
-  const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);  
-  await createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, toolSubcategories);
+   
+  await createSubcategoriesSelect(selectedCategories, rememberedSubcategories);
 }
 
 const saveToolReferenceToDomElement = (formElement, tool) => {
@@ -298,7 +299,7 @@ const showAdminInterface = (adminElement) => {
   adminElement.classList.remove("d-none");
 }
 
-const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement, user, tool) => {  
+const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, selectedCategories, selectedSubcategories, selectElement, toolImageElement, user, tool) => {  
   console.log("showAddToolForm()");
 
   if (user) {
@@ -311,7 +312,7 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
       setDatabaseValues(toolNameElement, toolPriceElement, toolImageElement, tool);
       changeButtonName(selectElement, "Změnit obrázek");
       removeMultiselectIntances();
-      insertMultiselectInstances(toolCategories, toolSubcategories);
+      insertMultiselectInstances(selectedCategories, selectedSubcategories);
       saveToolReferenceToDomElement(formElement, tool);
     }
   } else {
