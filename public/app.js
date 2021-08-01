@@ -32,7 +32,6 @@ const getToolIdsSet = (toolIdsArrays) => {
   return toolIdsSet;
 }
 
-
 const getToolIds = (snapshot, categoryIndex, subcategoryIndex) => {
   if (subcategoryIndex) {
     const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
@@ -102,12 +101,14 @@ const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) =
 }
 
 const displayToolsInSelectedSubcategoryOnClick = async (target, snapshot, user) => {
-
+  console.log("displayToolsInSelectedSubcategoryOnClick()");
   subcategoryIndexGlobal = target.dataset.subcategoryIndex;
 
   const toolIds = getToolIds(snapshot, categoryIndexGlobal, subcategoryIndexGlobal);
-
   rememberedTools = toolIds;
+
+  const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
+  toggleElement(target, buttonsSubNavBar);
 
   await updateToolsVisibility(toolIds, user);
 }
