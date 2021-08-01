@@ -21,6 +21,17 @@ const getDatabaseCategoriesAndSubcategories = async (collection) => {
   return databaseCategoriesAndSubcategoriesSnapshot;
 }
 
+const getDatabaseDocument = async (reference) => {
+  const snapshot = await reference.get()
+  return snapshot;
+}
+
+const getDatabaseTool = async (id) => {
+  const reference = db.collection("tools").doc(`${id}`);
+  const snapshot = await getDatabaseDocument(reference);
+  return snapshot;
+}
+
 const downloadToolsFromDatabase = async (ids) => {
   console.log("downloadToolsFromDatabase()");
 
@@ -28,7 +39,6 @@ const downloadToolsFromDatabase = async (ids) => {
   let idsCopy = ids.slice();
   while (idsCopy.length) {
     const batchIds = idsCopy.splice(0, 10);
-    console.log("batchIds", batchIds);
     batches.push(
       await db.collection("tools")
         .where(
@@ -50,7 +60,6 @@ const getSelectedTools = async (ids) => {
     }
 
     const selectedTools = await downloadToolsFromDatabase(ids);
-    console.log(selectedTools);
     return selectedTools;
 
   } catch (error) {
@@ -160,10 +169,7 @@ const modifyToolAndSaveUrlToCategories = (modifiedToolId, toolName, toolPrice, t
     
     selectedCategoriesIds.forEach(async (selectedCategoryId) => {
       const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
-      console.log(selectedOldCategories);
-      console.log(modifiedToolId, typeof(modifiedToolId));
       const newSubcategories = await addToolToSubcategories(selectedOldCategories, modifiedToolId, selectedSubcategoriesIds);
-      console.log(newSubcategories);
       updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
     });
   }).then(() => {
@@ -179,18 +185,15 @@ const getFirebaseCollection = async (collection) => {
   return databaseSnapshot;
 }
 
-const saveTool = (imageUrl, toolName, toolPrice, toolCategories, selectedSubcategories, modifiedToolId) => {
+const saveTool = async (imageUrl, toolName, toolPrice, toolCategories, selectedSubcategories, modifiedToolId) => {
   console.log("saveTool()");
   if (modifiedToolId !== -1) {
     console.log("Modified tool.");
-    console.log("modifiedToolId", modifiedToolId);
-    //const modifiedToolRef = db.collection("tools").doc("modifiedToolId");
-    modifyToolAndSaveUrlToCategories(modifiedToolId, toolName, toolPrice, imageUrl, toolCategories, selectedSubcategories);
+    await modifyToolAndSaveUrlToCategories(modifiedToolId, toolName, toolPrice, imageUrl, toolCategories, selectedSubcategories);
   } else {
     console.log("New tool.");
-    console.log("modifiedToolId", modifiedToolId);
     const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
-    createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, imageUrl, selectedSubcategories);
+    await createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, imageUrl, selectedSubcategories);
   }
 }
 
@@ -231,8 +234,7 @@ const saveImage = async (tool) => {
 
 const storeToolToDatabase = async (tool, imageChanged, modifiedToolId) => {
   console.log("storeToolToDatabase()");
-  console.log("tool, imageChanged, modifiedToolId", tool, imageChanged, modifiedToolId, typeof(modifiedToolId));
-
+  
   let imageUrl = null;
   if (imageChanged) {
     console.log("the image was changed, save it to storage");

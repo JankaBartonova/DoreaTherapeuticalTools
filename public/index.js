@@ -36,6 +36,8 @@ const selectedImage = document.getElementById("selected-image");
     auth.onAuthStateChanged(async (user) => {
       createTool.removeEventListener("click", onCreateToolButtonClick);
       
+      authenticatedUser = user;
+
       if (user) {
         console.log("User logged in: ", user);
         setupUi(user, loggedInLinks, loggedOutLinks);

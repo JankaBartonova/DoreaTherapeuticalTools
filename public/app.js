@@ -8,6 +8,9 @@ let onCreateToolButtonClick = null;
 let onDisplayToolsInSelectedCategoryOnClick = null;
 let rememberedTools = [];
 let categoriesAndSubcategories = [];
+let authenticatedUser = null;
+let categoryIndexGlobal = null;
+let subcategoryIndexGlobal = null;
 
 const addCategoriesToNavbar = (categories) => {
   categories.forEach((category, index) => {
@@ -27,16 +30,29 @@ const getToolIdsSet = (toolIdsArrays) => {
   return toolIdsSet;
 }
 
+
+const getToolIds = (snapshot, categoryIndex, subcategoryIndex) => {
+  if (subcategoryIndex) {
+    const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
+    console.log("toolIds if subcategory selected", toolIds);
+    return toolIds;
+  } else {
+    const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+    const toolIdsArrays = subcategories.map((subcategory) => {
+      return subcategory.tools;
+    });
+    const toolIdsSet = getToolIdsSet(toolIdsArrays);
+    const toolIds = convertSetToArray(toolIdsSet);
+    console.log("toolIds if only category selected", toolIds);
+    return toolIds;
+  }
+}
+
 const displayToolsInSelectedCategoryOnClick = async (target, snapshot, user) => {
   console.log("displayToolsInSelectedCategoryOnClick()");
 
-  const categoryIndex = target.dataset.index;
-  const subcategories = snapshot.docs[categoryIndex].data().subcategories;
-  const toolIdsArrays = subcategories.map((subcategory) => {
-    return subcategory.tools;
-  });
-  const toolIdsSet = getToolIdsSet(toolIdsArrays);
-  const toolIds = convertSetToArray(toolIdsSet);
+  categoryIndexGlobal = target.dataset.index;
+  const toolIds = getToolIds(snapshot, categoryIndexGlobal, null);
 
   rememberedTools = toolIds;
 
@@ -56,18 +72,20 @@ const registerToolsInSelectedCategoryOnClick = (snapshot, domElement, user) => {
     await displayToolsInSelectedCategoryOnClick(e.target, snapshot, user);
   }
   domElement.addEventListener("click", onDisplayToolsInSelectedCategoryOnClick);
-  return rememberedTools;
 }
 
 const displaySubnavigatiOnClick = (target, snapshot, domElementSibling) => {
   console.log("displaySubnavigatiOnClick()");
 
-  const categoryIndex = target.dataset.index;
-  const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+  console.log("categoryIndexGlobal", categoryIndexGlobal)
+  categoryIndexGlobal = target.dataset.index;
+  console.log("categoryIndexGlobal", categoryIndexGlobal)
+
+  const subcategories = snapshot.docs[categoryIndexGlobal].data().subcategories;
   const buttonsNavBar = document.querySelectorAll(".btnNavBar");
 
   toggleElement(target, buttonsNavBar);
-  updateSubnavigationVisibility(domElementSibling, target, subcategories, categoryIndex);
+  updateSubnavigationVisibility(domElementSibling, target, subcategories, categoryIndexGlobal);
 }
 
 const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) => {
@@ -87,9 +105,12 @@ const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) =
 }
 
 const displayToolsInSelectedSubcategoryOnClick = async (target, snapshot, user) => {
-  const categoryIndex = target.dataset.categoryIndex;
-  const subcategoryIndex = target.dataset.subcategoryIndex;
-  const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
+
+  console.log("categoryIndexGlobal", categoryIndexGlobal)
+  subcategoryIndexGlobal = target.dataset.subcategoryIndex;
+  console.log("subcategoryIndexGlobal", subcategoryIndexGlobal);
+
+  const toolIds = getToolIds(snapshot, categoryIndexGlobal, subcategoryIndexGlobal);
 
   rememberedTools = toolIds;
 
@@ -109,7 +130,6 @@ const registerToolsInSelectedSubcategoryOnClick = (snapshot, domElement, user) =
     await displayToolsInSelectedSubcategoryOnClick(e.target, snapshot, user);
   };
   domElement.addEventListener("click", onDisplayToolsInSelectedSubcategoryOnClick);
-  return rememberedTools;
 }
 
 const getMultiSelectItems = (categoriesAndSubcategories) => {
@@ -212,6 +232,19 @@ const displaySelectedTools = async (ids, user) => {
   await showSelectedTools(selectedTools, user);
 }
 
+const refreshTools = async () => {
+  const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
+  const categoriesAndSubcategoriesDoc = getCategoriesAndSubcategories(snapshot);
+  console.log(categoriesAndSubcategoriesDoc);
+
+  console.log("categoryIndexGlobal, subcategoryIndexGlobal after create/update", categoryIndexGlobal, subcategoryIndexGlobal)
+  const toolIds = getToolIds(snapshot, categoryIndexGlobal, subcategoryIndexGlobal);
+
+  rememberedTools = toolIds;
+
+  await updateToolsVisibility(toolIds, authenticatedUser);
+}
+
 const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
   console.log("uploadingToolToDatabase()");
 
@@ -224,21 +257,17 @@ const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, select
     const imageChanged = convertStringToBoolean(selectedImage.value);
 
     const tool = getTool(toolNameElement, toolPriceElement, toolImage.src);
-    console.log(tool);
-    await storeToolToDatabase(tool, imageChanged, modifiedToolId); 
-
+    await storeToolToDatabase(tool, imageChanged, modifiedToolId);
+    
     resetForm(formElement, modifiedToolId);
+    await refreshTools();
   };
   formElement.addEventListener("submit", onToolFormSubmit);
 
   // Start infinite image file picking handling loop.
   (async () => {
     while (true) {
-      const pickedImage = await waitForImage(selectElement);
-
-      console.log(pickedImage)
-
-      imgType = getFileTypeFrom64Url(pickedImage);
+      await waitForImage(selectElement);
     }
   })();
 }
@@ -271,13 +300,15 @@ const handleImageSelect = async () => {
 }
 
 const registerDeleteToolOnClick = (domElement, user) => {
-  domElement.addEventListener("click", (e) => {
+  domElement.addEventListener("click", async (e) => {
     console.log("On delete tool click");
     toolId = e.target.dataset.id;
 
     if (user) {
-      deleteToolDatabase(toolId);
+      await deleteToolDatabase(toolId);
     }
+    
+    await refreshTools();    
   });
 }
 
@@ -289,7 +320,6 @@ const registerModifyToolOnClick = (domElement, user) => {
     toolIdArray.push(parseInt(toolId));
 
     const modifiedTool = await downloadToolsFromDatabase(toolIdArray);
-    console.log(modifiedTool);
 
     categories = modifiedTool[0].categories;
     subcategories = modifiedTool[0].subcategories;
