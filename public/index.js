@@ -31,7 +31,6 @@ const selectedImage = document.getElementById("selected-image");
     const categories = getCategories(snapshot);
     addCategoriesToNavbar(categories);
     registerSubnavigationOnClick(snapshot, navBarCategories, navBarSubcategories);
-    insertMultiselectInstances([], []);
     
     auth.onAuthStateChanged(async (user) => {
       createTool.removeEventListener("click", onCreateToolButtonClick);
@@ -39,12 +38,12 @@ const selectedImage = document.getElementById("selected-image");
       authenticatedUser = user;
 
       if (user) {
-        console.log("User logged in: ", user);
+        console.log("User logged in: ", user.uid);
         setupUi(user, loggedInLinks, loggedOutLinks);
 
         // Create new tool
         onCreateToolButtonClick = (e) => {
-          console.log("<create tool button click");
+          console.log("onCreateToolButtonClick()");
           e.preventDefault();
           showAddToolForm(admin, form, null, null, null, null, null, select, toolImage, user, null);
         };

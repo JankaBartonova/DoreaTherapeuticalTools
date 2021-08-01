@@ -36,7 +36,6 @@ const getToolIdsSet = (toolIdsArrays) => {
 const getToolIds = (snapshot, categoryIndex, subcategoryIndex) => {
   if (subcategoryIndex) {
     const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
-    console.log("toolIds if subcategory selected", toolIds);
     return toolIds;
   } else {
     const subcategories = snapshot.docs[categoryIndex].data().subcategories;
@@ -104,9 +103,7 @@ const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) =
 
 const displayToolsInSelectedSubcategoryOnClick = async (target, snapshot, user) => {
 
-  console.log("categoryIndexGlobal", categoryIndexGlobal)
   subcategoryIndexGlobal = target.dataset.subcategoryIndex;
-  console.log("subcategoryIndexGlobal", subcategoryIndexGlobal);
 
   const toolIds = getToolIds(snapshot, categoryIndexGlobal, subcategoryIndexGlobal);
 
