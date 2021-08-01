@@ -260,6 +260,7 @@ const resetAllFieldsForm = (formElement, selectElement, toolImageElement, modifi
 }
 
 const removeMultiselectIntances = () => {
+  console.log("removeMultiselectInstances()");
   if (categoriesSelect) {
     removeMultiselectInstance(categoriesSelectContainer);
   }

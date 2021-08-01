@@ -43,7 +43,6 @@ const getToolIds = (snapshot, categoryIndex, subcategoryIndex) => {
     });
     const toolIdsSet = getToolIdsSet(toolIdsArrays);
     const toolIds = convertSetToArray(toolIdsSet);
-    console.log("toolIds if only category selected", toolIds);
     return toolIds;
   }
 }
@@ -76,10 +75,7 @@ const registerToolsInSelectedCategoryOnClick = (snapshot, domElement, user) => {
 
 const displaySubnavigatiOnClick = (target, snapshot, domElementSibling) => {
   console.log("displaySubnavigatiOnClick()");
-
-  console.log("categoryIndexGlobal", categoryIndexGlobal)
   categoryIndexGlobal = target.dataset.index;
-  console.log("categoryIndexGlobal", categoryIndexGlobal)
 
   const subcategories = snapshot.docs[categoryIndexGlobal].data().subcategories;
   const buttonsNavBar = document.querySelectorAll(".btnNavBar");
@@ -145,10 +141,13 @@ const getMultiSelectItems = (categoriesAndSubcategories) => {
 }
 
 const getSubcategories = (categories) => {
+  console.log(categories);
   const items = categories.map((category) => {
     const subcategories = category.subcategories;
+    console.log(category)
     return subcategories;
   });
+  console.log(items);
   return items;
 }
 
@@ -181,15 +180,16 @@ const createMultiselectSubcategoriesInstance = (multiselectSubItems, subcategori
 const createMultiselectSubcategories = async (categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
   console.log("createMultiselectSubcategories()")
 
-  console.log(categoriesAndSubcategories)
-  console.log(values)
+  console.log("categroriesAndSubcategories inside createMultiselectSubcategories", categoriesAndSubcategories)
+  console.log("values inside createMultiselectSubcategories", values)
   const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
-  console.log(multiselectSubcategories)
+  console.log("multiselectSubcategories inside createMultiselectSubcategories", multiselectSubcategories)
   const multiselectSubItems = await getMultiselectSubItems(values, multiselectSubcategories);
   createMultiselectSubcategoriesInstance(multiselectSubItems, subcategoriesSelectContainer, values);
 }
 
 const createMultiselectCategoriesInstance = (domClass, domClassTag, items, categoriesAndSubcategories, subcategoriesSelectContainer, values) => {
+  console.log("createMultiselectCategoriesInstance()", categoriesAndSubcategories);
   if (domClass == ".categories") {
     categoriesSelect = addCategoriesMultiselect(
       domClass,
@@ -197,7 +197,8 @@ const createMultiselectCategoriesInstance = (domClass, domClassTag, items, categ
       items,
       values,
       (value) => {
-        console.log(value)
+        console.log("value inside CATEGORIES createMultiselectCategoriesInstance", value)
+        console.log("categoriesAndSubcategories inside CATEGORIES createMultiselectCategoriesInstance", categoriesAndSubcategories);
         createMultiselectSubcategories(categoriesAndSubcategories, subcategoriesSelectContainer, value);
       }
     );
@@ -208,9 +209,11 @@ const createMultiselectCategoriesInstance = (domClass, domClassTag, items, categ
       items,
       values,
       (value) => {
-        console.log(value)
+        console.log("value inside SUBCATEGORIES createMultiselectCategoriesInstance before extractCategories", value)
         value = extractCategories(value);
-        console.log(value)
+        // categoriesAndSubcategories = snapshot
+        console.log("value inside SUBCATEGORIES createMultiselectCategoriesInstance after extractCategories", value)
+        console.log("categoriesAndSubcategories inside SUBCATEGORIES createMultiselectCategoriesInstance", categoriesAndSubcategories);
         createMultiselectSubcategories(categoriesAndSubcategories, subcategoriesSelectContainer, value);
       }
     );
@@ -218,11 +221,14 @@ const createMultiselectCategoriesInstance = (domClass, domClassTag, items, categ
 }
 
 const createMultiselectCategories = async (domClass, domClassTag, categoriesAndSubcategories, values) => {
+  console.log("createMultiselectCategories(), categoriesAndSubactegories", categoriesAndSubcategories);
   if (domClass == ".categories") {
     const multiSelectItems = await getMultiSelectItems(categoriesAndSubcategories);
+    console.log("multiselectItems", multiSelectItems);
     createMultiselectCategoriesInstance(domClass, domClassTag, multiSelectItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);
   } else {
     const multiselectSubItems = await getMultiselectSubItems(values, categoriesAndSubcategories);
+    console.log("multiselectSubItems", multiselectSubItems);
     createMultiselectCategoriesInstance(domClass, domClassTag, multiselectSubItems, categoriesAndSubcategories, subcategoriesSelectContainer, values);
   }
 }
@@ -233,11 +239,9 @@ const displaySelectedTools = async (ids, user) => {
 }
 
 const refreshTools = async () => {
+  console.log("refreshTools()");
   const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
-  const categoriesAndSubcategoriesDoc = getCategoriesAndSubcategories(snapshot);
-  console.log(categoriesAndSubcategoriesDoc);
-
-  console.log("categoryIndexGlobal, subcategoryIndexGlobal after create/update", categoryIndexGlobal, subcategoryIndexGlobal)
+  getCategoriesAndSubcategories(snapshot);
   const toolIds = getToolIds(snapshot, categoryIndexGlobal, subcategoryIndexGlobal);
 
   rememberedTools = toolIds;
@@ -307,14 +311,14 @@ const registerDeleteToolOnClick = (domElement, user) => {
     if (user) {
       await deleteToolDatabase(toolId);
     }
-    
+
     await refreshTools();    
   });
 }
 
 const registerModifyToolOnClick = (domElement, user) => {
   domElement.addEventListener("click", async (e) => {
-    console.log("on modify tool button click");
+    console.log("registerModifyToolOnClick()");
     toolId = e.target.dataset.id;
     toolIdArray = [];
     toolIdArray.push(parseInt(toolId));

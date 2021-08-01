@@ -99,13 +99,10 @@ const createNewTool = async (transaction, counterRef, name, price, url, categori
 
 const addToolToSubcategories = (selectedOldCategory, toolId, selectedSubcategories) => {
   console.log("addToolToSubcategories()");
-  console.log("selectedOldCategory, toolId, selectedSubcategories: ", selectedOldCategory, toolId, typeof(toolId), selectedSubcategories)
   return selectedOldCategory.subcategories.map((oldSubcategory) => {
     let newTools = [...(oldSubcategory.tools || [])];
     if (selectedSubcategories.includes(oldSubcategory.id) && !newTools.includes(toolId)) {
       newTools = [...newTools, toolId];
-      console.log("Type of tools in subcategories", newTools[0], typeof(newTools[0]));
-      console.log(newTools.sort((first, second) => first - second));
       return {
         ...oldSubcategory,
         tools: newTools.sort((first, second) => first - second)
@@ -123,7 +120,6 @@ const updateSubcategories = (transaction, selectedCategoryId, newSubcategories, 
     ...selectedOldCategory,
     subcategories: newSubcategories
   }
-  console.log(newCategory)
   transaction.update(categoryRef, newCategory);
 }
 
@@ -151,9 +147,10 @@ const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesId
       const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
       const newSubcategories = await addToolToSubcategories(selectedOldCategories, toolId, selectedSubcategoriesIds);
       updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
+      console.log(`Tool of ID ${toolId} saved in Firebase Firestore categories collection`);
     })
   }).then(() => {
-    console.log("Transaction create new tools is successfully commited!");
+    console.log("Transaction createToolAndSaveUrlToCategories() new tools is successfully commited!");
   }).catch((error) => {
     console.error("Transaction failed! ", error);
   });
@@ -171,9 +168,10 @@ const modifyToolAndSaveUrlToCategories = (modifiedToolId, toolName, toolPrice, t
       const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
       const newSubcategories = await addToolToSubcategories(selectedOldCategories, modifiedToolId, selectedSubcategoriesIds);
       updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
+      console.log(`Tool of ID ${modifiedToolId} updated in Firebase Firestore categories collection`);
     });
   }).then(() => {
-    console.log("Transaction modify new tools is successfully commited!");
+    console.log("Transaction modifyToolAndSaveUrlToCategories() is successfully commited!");
   }).catch((error) => {
     console.error("Transaction failed! ", error);
   });
@@ -188,10 +186,8 @@ const getFirebaseCollection = async (collection) => {
 const saveTool = async (imageUrl, toolName, toolPrice, toolCategories, selectedSubcategories, modifiedToolId) => {
   console.log("saveTool()");
   if (modifiedToolId !== -1) {
-    console.log("Modified tool.");
     await modifyToolAndSaveUrlToCategories(modifiedToolId, toolName, toolPrice, imageUrl, toolCategories, selectedSubcategories);
   } else {
-    console.log("New tool.");
     const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
     await createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, imageUrl, selectedSubcategories);
   }
@@ -224,10 +220,11 @@ const getFileTypeFrom64Url = (url) => {
 }
 
 const saveImage = async (tool) => {
+  console.log("saveImage()");
   const storageRef = storage.ref("images/" + tool.name);
   await storageRef.putString(tool.image, 'data_url');
    
-  console.log('Uploaded file to Firebase Storage!');
+  console.log('Image uploaded to Firebase Storage!');
   const imageUrl = await storageRef.getDownloadURL();
   return imageUrl;
 }
@@ -237,11 +234,9 @@ const storeToolToDatabase = async (tool, imageChanged, modifiedToolId) => {
   
   let imageUrl = null;
   if (imageChanged) {
-    console.log("the image was changed, save it to storage");
     imageUrl = await saveImage(tool);
     await saveTool(imageUrl, tool.name, tool.price, tool.categories, tool.subcategories, modifiedToolId);
   } else {
-    console.log("the image was not changed, save it to firestore");
     imageUrl = tool.image;
     await saveTool(imageUrl, tool.name, tool.price, tool.categories, tool.subcategories, modifiedToolId);
   }
