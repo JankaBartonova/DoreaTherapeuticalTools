@@ -68,3 +68,7 @@ node_modules/
 credentials.js
 
 .idea/
+
+.vscode/
+
+callgraph.txt

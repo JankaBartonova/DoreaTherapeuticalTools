@@ -1,3 +1,5 @@
+"use strict";
+
 const addNavBar = (domElement, category, index) => {
   let html = `
     <label class="btn btnNavBar btn-outline-primary" data-index="${index}">${category}</label>
@@ -70,12 +72,7 @@ const addCard = (card) => {
   cardContainer.innerHTML += html;
 }
 
-const addCategoriesMultiselect = (parent, _class, options, values, onChange) => {
-
-  console.log("Values inside instance creation: ", values);
-  console.log("Options inside instance creation: ", options);
-
-
+const addMultiselect = (parent, _class, options, values, onChange) => {
   values = values.filter((value) => {
     return options.find((option) => {
       return option.value == value;
@@ -145,11 +142,12 @@ const showSelectedTools = (tools, user) => {
   registerModifyTools(user);
 }
 
-const updateToolsVisibility = (toolIds, user) => {
+const updateToolsVisibility = async (toolIds, user) => {
+  console.log("updateToolsVisibility()");
   removeAllElements(cardContainer);
 
   if (toolIds) {
-    displaySelectedTools(toolIds, user);
+    await displaySelectedTools(toolIds, user);
   }
 }
 
@@ -171,12 +169,12 @@ const extractCategories = (values) => {
   return categoryValues;
 }
 
-const getMultiselectSubItems = (values, multiselectSubcategories) => {
+const getMultiselectSubItems = (values, subcategories) => {
   const categoryValues = extractCategories(values);
 
   let subItems = [];
   categoryValues.forEach((categoryValue) => {
-    const array = multiselectSubcategories[parseInt(categoryValue) - 1].map((subcategory) => {
+    const array = subcategories[parseInt(categoryValue) - 1].map((subcategory) => {
       const sublabel = subcategory.title;
       return {
         label: sublabel,
@@ -188,15 +186,13 @@ const getMultiselectSubItems = (values, multiselectSubcategories) => {
   return subItems;
 }
 
-const resetForm = (form, categoriesSelect, subcategoriesSelect) => {
+const resetForm = (form) => {
+  console.log("resetForm()")
+
   form.reset();
+  removeMultiselectIntances();
+  insertMultiselectInstances([], []);
   document.querySelector(".tool-image").src = "";
-  if (categoriesSelect) {
-    categoriesSelect.reset();
-  }
-  if (subcategoriesSelect) {
-    subcategoriesSelect.reset();
-  }
 }
 
 const showImage = (image) => {
@@ -212,15 +208,6 @@ const waitForClick = (element) => {
     }
     element.addEventListener("click", handler);
   })
-}
-
-const showAndHidePopup = (action, popup, close) => {
-  action.addEventListener("click", (e) => {
-    popup.classList.remove("d-none");
-  });
-  close.addEventListener("click", (e) => {
-    popup.classList.add("d-none");
-  });
 }
 
 const setupUi = (user, loggedInLinks, loggedOutLinks) => {
@@ -248,7 +235,7 @@ const removeMultiselectInstance = (container) => {
   }
 }
 
-const resetAllFieldsForm = (formElement, selectElement, toolImageElement) => {
+const resetAllFieldsForm = (formElement, selectElement, toolImageElement, modifiedTool) => {
   formElement.reset();
   if (categoriesSelect) {
     removeMultiselectInstance(categoriesSelectContainer);
@@ -258,9 +245,16 @@ const resetAllFieldsForm = (formElement, selectElement, toolImageElement) => {
   }
   changeButtonName(selectElement, "Vyberte obrázek");
   toolImageElement.src = "";
+
+  if (!modifiedTool) {
+    delete formElement.dataset.toolid;
+  }
+
+  selectedImage.value = false;
 }
 
 const removeMultiselectIntances = () => {
+  console.log("removeMultiselectInstances()");
   if (categoriesSelect) {
     removeMultiselectInstance(categoriesSelectContainer);
   }
@@ -275,17 +269,18 @@ const setDatabaseValues = (toolNameElement, toolPriceElement, toolImageElement, 
   toolImageElement.src = `${tool.image}`;
 };
 
-const insertMultiselectInstances = async (toolCategories, toolSubcategories) => {
-  categoriesSelect = createMultiselectCategories(".categories", ".categoriesTags", categoriesAndSubcategories, toolCategories);
+const insertMultiselectInstances = async (selectedCategories, selectedSubcategories) => {
+  console.log("insertMultiselectInstances()")
 
-  if (toolSubcategories.length) {
-    rememberedSubcategories = toolSubcategories;
+  await createCategoriesSelect(selectedCategories);
+
+  if (selectedSubcategories.length) {
+    rememberedSubcategories = selectedSubcategories;
   } else {
     rememberedSubcategories = [];
   }
-  
-  const multiselectSubcategories = await getSubcategories(categoriesAndSubcategories);
-  subcategoriesSelect = createMultiselectCategories(".subcategories", ".subcategoriesTags", multiselectSubcategories, toolSubcategories);
+   
+  await createSubcategoriesSelect(selectedCategories, rememberedSubcategories);
 }
 
 const saveToolReferenceToDomElement = (formElement, tool) => {
@@ -296,10 +291,12 @@ const showAdminInterface = (adminElement) => {
   adminElement.classList.remove("d-none");
 }
 
-const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, toolCategories, toolSubcategories, selectElement, toolImageElement, user, tool) => {  
+const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, selectedCategories, selectedSubcategories, selectElement, toolImageElement, user, tool) => {  
+  console.log("showAddToolForm()");
+
   if (user) {
     if (edit == null) {
-      resetAllFieldsForm(formElement, selectElement, toolImageElement);
+      resetAllFieldsForm(formElement, selectElement, toolImageElement, edit);
       insertMultiselectInstances([], []);
       showAdminInterface(adminElement);
     } else {
@@ -307,11 +304,8 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
       setDatabaseValues(toolNameElement, toolPriceElement, toolImageElement, tool);
       changeButtonName(selectElement, "Změnit obrázek");
       removeMultiselectIntances();
-      insertMultiselectInstances(toolCategories, toolSubcategories);
+      insertMultiselectInstances(selectedCategories, selectedSubcategories);
       saveToolReferenceToDomElement(formElement, tool);
-
-      // QUESTION promise fullfilled: undefined?
-      console.log(subcategoriesSelect)
     }
   } else {
     adminElement.classList.add("d-none");
