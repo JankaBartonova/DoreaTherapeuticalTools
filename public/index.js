@@ -70,3 +70,4 @@ const selectedImage = document.getElementById("selected-image");
 })();
 
 registerUploadToolToDatabaseOnSubmit(toolName, toolPrice, select, form);
+registerFindToolById(searchForm);

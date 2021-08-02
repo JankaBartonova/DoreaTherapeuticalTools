@@ -342,7 +342,7 @@ const deleteToolFromCategoriesTransaction = async (transaction, deletedToolId) =
   });
 }
 
-const deleteToolFromTools = (transaction, id) => {
+const deleteToolFromToolsTransaction = (transaction, id) => {
   const deletedTool = db.collection("tools").doc(`${id}`);
   transaction.delete(deletedTool);
 }
@@ -350,7 +350,7 @@ const deleteToolFromTools = (transaction, id) => {
 const deleteToolDatabase = (id) => {
   return db.runTransaction(async (transaction) => {
     await deleteToolFromCategoriesTransaction(transaction, id);
-    await deleteToolFromTools(transaction, id);
+    await deleteToolFromToolsTransaction(transaction, id);
   }).then(() => {
     console.log("Transaction delete is successfully commited!");
   }).catch((error) => {

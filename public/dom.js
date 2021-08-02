@@ -40,7 +40,7 @@ const toggleElement = (category, elements) => {
   });
 }
 
-const addCard = (card) => {
+const addToolsToDom = (card) => {
   // let cardId = card.id;
   let cardId = card.id.toString();
   if (cardId.length == 1) {
@@ -134,7 +134,7 @@ const registerModifyTools = (user) => {
 
 const showSelectedTools = (tools, user) => {
   tools.forEach((tool) => {
-    addCard(tool);
+    addToolsToDom(tool);
   });
 
   displayAdminOptions(user);

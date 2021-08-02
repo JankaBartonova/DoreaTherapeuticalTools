@@ -5,6 +5,7 @@ let onDisplayToolsInSelectedSubcategoryOnClick = null;
 let onUploadToolToDatabaseOnSubmit = null;
 let onCreateToolButtonClick = null;
 let onDisplayToolsInSelectedCategoryOnClick = null;
+let onFindToolById = null;
 let categoriesSelect = null;
 let subcategoriesSelect = null;
 let rememberedSubcategories = [];
@@ -300,4 +301,44 @@ const registerModifyToolOnClick = (domElement, user) => {
 
     showAddToolForm(admin, form, 1, toolName, toolPrice, categories, subcategories, select, toolImage, user, modifiedTool[0]);
   });
+}
+
+const getToolIdFromUser = () => {
+  const search = document.querySelector("#search");
+  const toolId = search.value;
+  return toolId;
+};
+
+const validateUserToolId = (toolId) => {
+  const toolIdPattern = /^[0-9]+$/;
+  if (toolId.toString().match(toolIdPattern)) {
+    console.log(`The toolId ${toolId} is a number`); 
+    return true;
+  } else {
+    console.log("The toolId is not a number");
+    return false;
+  }
+}
+
+const registerFindToolById = (domElement) => {
+  domElement.removeEventListener("submit", onFindToolById);
+  onFindToolById = async (e) => {
+    e.preventDefault();
+    console.log("onFindToolById()");
+
+    const toolId = getToolIdFromUser(); 
+    const validatedId = validateUserToolId(toolId);
+
+    if (validatedId) {
+      const tool = await getDatabaseTool(toolId);
+
+      if (tool.data() !== undefined) {
+        console.log(tool.data());
+        addToolsToDom(tool.data());
+      } else {
+        console.log("tool does not exist")
+      }
+    }  
+  }
+  domElement.addEventListener("submit", onFindToolById);
 }
