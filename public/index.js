@@ -69,4 +69,4 @@ const selectedImage = document.getElementById("selected-image");
   }
 })();
 
-uploadingToolToDatabase(toolName, toolPrice, select, form);
+registerUploadToolToDatabaseOnSubmit(toolName, toolPrice, select, form);

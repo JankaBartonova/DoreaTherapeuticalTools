@@ -1,18 +1,18 @@
 "use strict";
 
+let onDisplaySubnavigatiOnClick = null;
+let onDisplayToolsInSelectedSubcategoryOnClick = null;
+let onUploadToolToDatabaseOnSubmit = null;
+let onCreateToolButtonClick = null;
+let onDisplayToolsInSelectedCategoryOnClick = null;
 let categoriesSelect = null;
 let subcategoriesSelect = null;
 let rememberedSubcategories = [];
-let onDisplaySubnavigatiOnClick = null;
-let onDisplayToolsInSelectedSubcategoryOnClick = null;
-let onToolFormSubmit = null;
-let onCreateToolButtonClick = null;
-let onDisplayToolsInSelectedCategoryOnClick = null;
 let rememberedTools = [];
 let categoriesAndSubcategories = [];
 let authenticatedUser = null;
-let categoryIndexGlobal = null;
-let subcategoryIndexGlobal = null;
+let categoryIndex = null;
+let subcategoryIndex = null;
 
 const addCategoriesToNavbar = (categories) => {
   categories.forEach((category, index) => {
@@ -50,8 +50,8 @@ const getToolIds = (snapshot, categoryIndex, subcategoryIndex) => {
 const displayToolsInSelectedCategoryOnClick = async (target, snapshot, user) => {
   console.log("displayToolsInSelectedCategoryOnClick()");
 
-  categoryIndexGlobal = target.dataset.index;
-  const toolIds = getToolIds(snapshot, categoryIndexGlobal, null);
+  categoryIndex = target.dataset.index;
+  const toolIds = getToolIds(snapshot, categoryIndex, null);
 
   rememberedTools = toolIds;
 
@@ -75,13 +75,13 @@ const registerToolsInSelectedCategoryOnClick = (snapshot, domElement, user) => {
 
 const displaySubnavigatiOnClick = (target, snapshot, domElementSibling) => {
   console.log("displaySubnavigatiOnClick()");
-  categoryIndexGlobal = target.dataset.index;
+  categoryIndex = target.dataset.index;
 
-  const subcategories = snapshot.docs[categoryIndexGlobal].data().subcategories;
+  const subcategories = snapshot.docs[categoryIndex].data().subcategories;
   const buttonsNavBar = document.querySelectorAll(".btnNavBar");
 
   toggleElement(target, buttonsNavBar);
-  updateSubnavigationVisibility(domElementSibling, target, subcategories, categoryIndexGlobal);
+  updateSubnavigationVisibility(domElementSibling, target, subcategories, categoryIndex);
 }
 
 const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) => {
@@ -102,9 +102,9 @@ const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) =
 
 const displayToolsInSelectedSubcategoryOnClick = async (target, snapshot, user) => {
   console.log("displayToolsInSelectedSubcategoryOnClick()");
-  subcategoryIndexGlobal = target.dataset.subcategoryIndex;
+  subcategoryIndex = target.dataset.subcategoryIndex;
 
-  const toolIds = getToolIds(snapshot, categoryIndexGlobal, subcategoryIndexGlobal);
+  const toolIds = getToolIds(snapshot, categoryIndex, subcategoryIndex);
   rememberedTools = toolIds;
 
   const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
@@ -212,19 +212,19 @@ const refreshTools = async () => {
   console.log("refreshTools()");
   const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
   getCategoriesAndSubcategories(snapshot);
-  const toolIds = getToolIds(snapshot, categoryIndexGlobal, subcategoryIndexGlobal);
+  const toolIds = getToolIds(snapshot, categoryIndex, subcategoryIndex);
 
   rememberedTools = toolIds;
 
   await updateToolsVisibility(toolIds, authenticatedUser);
 }
 
-const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
-  console.log("uploadingToolToDatabase()");
+const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
+  console.log("registerUploadToolToDatabaseOnSubmit()");
 
-  formElement.removeEventListener("submit", onToolFormSubmit);
-  onToolFormSubmit = async (e) => {
-    console.log("onToolFormSubmit()");
+  formElement.removeEventListener("submit", onUploadToolToDatabaseOnSubmit);
+  onUploadToolToDatabaseOnSubmit = async (e) => {
+    console.log("onUploadToolToDatabaseOnSubmit()");
     e.preventDefault();
 
     const modifiedToolId = parseInt(formElement.dataset.toolid) || -1;
@@ -236,7 +236,7 @@ const uploadingToolToDatabase = async (toolNameElement, toolPriceElement, select
     resetForm(formElement, modifiedToolId);
     await refreshTools();
   };
-  formElement.addEventListener("submit", onToolFormSubmit);
+  formElement.addEventListener("submit", onUploadToolToDatabaseOnSubmit);
 
   // Start infinite image file picking handling loop.
   (async () => {
