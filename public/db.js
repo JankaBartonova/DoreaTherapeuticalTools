@@ -1,3 +1,5 @@
+"use strict";
+
 const getCategoriesAndSubcategories = (snapshot) => {
   const categoriesAndSubcategories = new Array();
 
@@ -33,8 +35,6 @@ const getDatabaseTool = async (id) => {
 }
 
 const downloadToolsFromDatabase = async (ids) => {
-  console.log("downloadToolsFromDatabase()");
-
   let batches = [];
   let idsCopy = ids.slice();
   while (idsCopy.length) {
@@ -198,7 +198,7 @@ const pickFile = () => {
     const input = document.createElement("input");
     input.type = "file";
     const onFileInputChange = (e) => {
-      console.log("on file input change");
+      console.log("onFileInputChange()");
       const selectedFile = input.files[0];
       input.removeEventListener("change", onFileInputChange);
       if (selectedFile) {

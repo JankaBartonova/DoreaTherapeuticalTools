@@ -70,3 +70,5 @@ credentials.js
 .idea/
 
 .vscode/
+
+callgraph.txt

@@ -143,6 +143,7 @@ const showSelectedTools = (tools, user) => {
 }
 
 const updateToolsVisibility = async (toolIds, user) => {
+  console.log("updateToolsVisibility()");
   removeAllElements(cardContainer);
 
   if (toolIds) {
@@ -207,15 +208,6 @@ const waitForClick = (element) => {
     }
     element.addEventListener("click", handler);
   })
-}
-
-const showAndHidePopup = (action, popup, close) => {
-  action.addEventListener("click", (e) => {
-    popup.classList.remove("d-none");
-  });
-  close.addEventListener("click", (e) => {
-    popup.classList.add("d-none");
-  });
 }
 
 const setupUi = (user, loggedInLinks, loggedOutLinks) => {
