@@ -206,7 +206,10 @@ const addSubcategoriesMultiselect = (subcategories, selectedSubcategories) => {
 
 const displaySelectedTools = async (ids, user) => {
   const selectedTools = await getSelectedTools(ids);
-  await showSelectedTools(selectedTools, user);
+  if (selectedTools) {
+    await showSelectedTools(selectedTools, user);
+  }
+    console.log("The tool with given ID does not exist in database");
 }
 
 const refreshTools = async () => {
@@ -233,7 +236,7 @@ const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceEl
 
     const tool = getTool(toolNameElement, toolPriceElement, toolImage.src);
     await storeToolToDatabase(tool, imageChanged, modifiedToolId);
-    
+
     resetForm(formElement, modifiedToolId);
     await refreshTools();
   };
@@ -283,7 +286,7 @@ const registerDeleteToolOnClick = (domElement, user) => {
       await deleteToolDatabase(toolId);
     }
 
-    await refreshTools();    
+    await refreshTools();
   });
 }
 
@@ -312,7 +315,7 @@ const getToolIdFromUser = () => {
 const validateUserToolId = (toolId) => {
   const toolIdPattern = /^[0-9]+$/;
   if (toolId.toString().match(toolIdPattern)) {
-    console.log(`The toolId ${toolId} is a number`); 
+    console.log(`The toolId ${toolId} is a number`);
     return true;
   } else {
     console.log("The toolId is not a number");
@@ -326,19 +329,15 @@ const registerFindToolById = (domElement) => {
     e.preventDefault();
     console.log("onFindToolById()");
 
-    const toolId = getToolIdFromUser(); 
+    let toolId = getToolIdFromUser();
     const validatedId = validateUserToolId(toolId);
+    toolId = parseInt(toolId);
 
     if (validatedId) {
-      const tool = await getDatabaseTool(toolId);
+      await updateToolsVisibility([toolId], authenticatedUser);
+    }
 
-      if (tool.data() !== undefined) {
-        console.log(tool.data());
-        addToolsToDom(tool.data());
-      } else {
-        console.log("tool does not exist")
-      }
-    }  
+    domElement.reset();
   }
   domElement.addEventListener("submit", onFindToolById);
 }

@@ -54,6 +54,7 @@ const downloadToolsFromDatabase = async (ids) => {
 }
 
 const getSelectedTools = async (ids) => {
+  console.log("getSelectedTools()");
   try {
     if (!ids || !ids.length) {
       return [];

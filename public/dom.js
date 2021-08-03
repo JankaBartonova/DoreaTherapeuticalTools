@@ -210,7 +210,7 @@ const waitForClick = (element) => {
   })
 }
 
-const setupUi = (user, loggedInLinks, loggedOutLinks) => {
+const setupUi = (user, loggedInLinks, loggedOutLinks, searchContainer) => {
   if (user) {
     loggedInLinks.forEach((link) => {
       link.classList.remove("d-none");
@@ -218,6 +218,7 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
     loggedOutLinks.forEach((link) => {
       link.classList.add("d-none");
     });
+    searchContainer.classList.remove("d-none");
   } else {
     loggedInLinks.forEach((link) => {
       link.classList.add("d-none");
@@ -226,6 +227,7 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
       link.classList.remove("d-none");
     });
     admin.classList.add("d-none");
+    searchContainer.classList.add("d-none");
   }
 }
 

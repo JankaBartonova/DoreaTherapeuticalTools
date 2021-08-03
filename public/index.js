@@ -22,6 +22,7 @@ const select = document.getElementById("select");
 const form = document.getElementById("upload-form");
 const toolImage = document.querySelector(".tool-image");
 const selectedImage = document.getElementById("selected-image");
+const searchContainer = document.querySelector("#navbar-search");
 
 (async () => {
   try {
@@ -40,7 +41,7 @@ const selectedImage = document.getElementById("selected-image");
 
       if (user) {
         console.log("User logged in: ", user.uid);
-        setupUi(user, loggedInLinks, loggedOutLinks);
+        setupUi(user, loggedInLinks, loggedOutLinks, searchContainer);
 
         // Create new tool
         onCreateToolButtonClick = (e) => {
@@ -57,7 +58,7 @@ const selectedImage = document.getElementById("selected-image");
         registerToolsInSelectedSubcategoryOnClick(snapshot, navBarSubcategories, user);
       } else {
         console.log("User logged out!");
-        setupUi(null, loggedInLinks, loggedOutLinks);
+        setupUi(null, loggedInLinks, loggedOutLinks, searchContainer);
         removeAllElements(cardContainer);
         registerToolsInSelectedCategoryOnClick(snapshot, navBarCategories, null);
         await updateToolsVisibility(rememberedTools, null);
