@@ -76,6 +76,9 @@ const registerToolsInSelectedCategoryOnClick = (snapshot, domElement, user) => {
 
 const displaySubnavigatiOnClick = (target, snapshot, domElementSibling) => {
   console.log("displaySubnavigatiOnClick()");
+
+  searchErrorContainer.innerHTML = "";
+
   categoryIndex = target.dataset.index;
 
   const subcategories = snapshot.docs[categoryIndex].data().subcategories;
@@ -208,8 +211,9 @@ const displaySelectedTools = async (ids, user) => {
   const selectedTools = await getSelectedTools(ids);
   if (selectedTools) {
     await showSelectedTools(selectedTools, user);
-  }
+  } else {
     console.log("The tool with given ID does not exist in database");
+  }
 }
 
 const refreshTools = async () => {
@@ -315,27 +319,47 @@ const getToolIdFromUser = () => {
 const validateUserToolId = (toolId) => {
   const toolIdPattern = /^[0-9]+$/;
   if (toolId.toString().match(toolIdPattern)) {
-    console.log(`The toolId ${toolId} is a number`);
     return true;
   } else {
-    console.log("The toolId is not a number");
+    console.log(`The toolId ${toolId} is not a number`);
+    showInputValidationError(searchErrorContainer)
     return false;
+  }
+}
+
+const clearResult = (errorContainer, cardContainer) => {
+  errorContainer.innerHTML = "";
+  removeAllElements(cardContainer);
+}
+
+const showTool = (tool, toolId) => {
+  if (tool.data() !== undefined) {
+    if (authenticatedUser) {
+      addToolsToDom(tool.data());
+      displayAdminOptions(authenticatedUser); 
+    }
+  } else {
+    console.log("Tool does not exist");
+    showErrorToolDoesNotExist(searchErrorContainer, toolId);
   }
 }
 
 const registerFindToolById = (domElement) => {
   domElement.removeEventListener("submit", onFindToolById);
   onFindToolById = async (e) => {
-    e.preventDefault();
     console.log("onFindToolById()");
+    e.preventDefault();
+
+    clearResult(searchErrorContainer, cardContainer);
 
     let toolId = getToolIdFromUser();
     const validatedId = validateUserToolId(toolId);
     toolId = parseInt(toolId);
 
     if (validatedId) {
-      await updateToolsVisibility([toolId], authenticatedUser);
-    }
+      const tool = await getDatabaseTool(toolId);
+      showTool(tool, toolId);
+    }  
 
     domElement.reset();
   }

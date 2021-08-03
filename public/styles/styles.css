@@ -107,3 +107,8 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   width: 350px;
   border: 1px #ddd;
 }
+
+.search-error-display-message{
+  margin-top: 20px;
+  color: red;
+}

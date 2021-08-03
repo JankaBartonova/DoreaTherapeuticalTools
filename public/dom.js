@@ -313,3 +313,17 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
     adminElement.classList.add("d-none");
   }
 }
+
+const showErrorToolDoesNotExist = (container, id) => {
+  let html = `
+  <h4 class="search-error-display-message">Pomůcka s pořadovým číslem ${id} v databázi neexistuje</h4> 
+  `
+  container.innerHTML += html;
+}
+
+const showInputValidationError = (container) => {
+  let html = `
+  <h4 class="search-error-display-message">Pořadové číslo pomůcky musí být číslo. Nejsou povolená písmena a speciální znaky.</h4> 
+  `
+  container.innerHTML += html;
+}

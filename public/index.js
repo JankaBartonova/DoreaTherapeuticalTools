@@ -23,6 +23,7 @@ const form = document.getElementById("upload-form");
 const toolImage = document.querySelector(".tool-image");
 const selectedImage = document.getElementById("selected-image");
 const searchContainer = document.querySelector("#navbar-search");
+const searchErrorContainer = document.querySelector("#search-error-display");
 
 (async () => {
   try {
