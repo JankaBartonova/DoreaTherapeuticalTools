@@ -306,7 +306,7 @@ const registerModifyToolOnClick = (domElement, user) => {
     const categories = modifiedTool[0].categories;
     const subcategories = modifiedTool[0].subcategories;
 
-    showAddToolForm(admin, form, 1, toolName, toolPrice, categories, subcategories, select, toolImage, user, modifiedTool[0]);
+    showAddToolForm(admin, form, 1, toolName, toolPrice, categories, subcategories, toolSelect, toolImage, user, modifiedTool[0]);
   });
 }
 
