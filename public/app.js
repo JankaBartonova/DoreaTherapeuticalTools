@@ -10,7 +10,7 @@ let categoriesSelect = null;
 let subcategoriesSelect = null;
 let rememberedSubcategories = [];
 let rememberedTools = [];
-let categoriesAndSubcategories = [];
+let categoriesAndSubcategoriesGlobal = [];
 let authenticatedUser = null;
 let categoryIndex = null;
 let subcategoryIndex = null;
@@ -33,12 +33,12 @@ const getToolIdsSet = (toolIdsArrays) => {
   return toolIdsSet;
 }
 
-const getToolIds = (snapshot, categoryIndex, subcategoryIndex) => {
+const getToolIds = (categoriesAndSubcategories, categoryIndex, subcategoryIndex) => {
   if (subcategoryIndex) {
-    const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
+    const toolIds = categoriesAndSubcategories[categoryIndex].subcategories[subcategoryIndex].tools;
     return toolIds;
   } else {
-    const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+    const subcategories = categoriesAndSubcategories[categoryIndex].subcategories;
     const toolIdsArrays = subcategories.map((subcategory) => {
       return subcategory.tools;
     });
@@ -48,18 +48,21 @@ const getToolIds = (snapshot, categoryIndex, subcategoryIndex) => {
   }
 }
 
-const displayToolsInSelectedCategoryOnClick = async (target, snapshot, user) => {
+const displayToolsInSelectedCategoryOnClick = async (target, categoriesAndSubcategories, user) => {
   console.log("displayToolsInSelectedCategoryOnClick()");
 
   categoryIndex = target.dataset.index;
-  const toolIds = getToolIds(snapshot, categoryIndex, null);
 
+  // TODO: bug here, I need new categoriesAndSubcategories  
+  console.log(categoriesAndSubcategoriesGlobal, categoriesAndSubcategories)
+
+  const toolIds = getToolIds(categoriesAndSubcategories, categoryIndex, null);
   rememberedTools = toolIds;
 
   await updateToolsVisibility(toolIds, user);
 }
 
-const registerToolsInSelectedCategoryOnClick = (snapshot, domElement, user) => {
+const registerToolsInSelectedCategoryOnClick = (categoriesAndSubcategories, domElement, user) => {
   domElement.removeEventListener("click", onDisplayToolsInSelectedCategoryOnClick);
   onDisplayToolsInSelectedCategoryOnClick = async (e) => {
     console.log("onDisplayToolsInSelectedCategoryOnClick()");
@@ -69,7 +72,7 @@ const registerToolsInSelectedCategoryOnClick = (snapshot, domElement, user) => {
       return false;
     }
 
-    await displayToolsInSelectedCategoryOnClick(e.target, snapshot, user);
+    await displayToolsInSelectedCategoryOnClick(e.target, categoriesAndSubcategories, user);
   }
   domElement.addEventListener("click", onDisplayToolsInSelectedCategoryOnClick);
 }
@@ -104,11 +107,11 @@ const registerSubnavigationOnClick = (categoriesAndSubcategories, domElement, do
   return categoriesAndSubcategories;
 }
 
-const displayToolsInSelectedSubcategoryOnClick = async (target, snapshot, user) => {
+const displayToolsInSelectedSubcategoryOnClick = async (target, categoriesAndSubcategories, user) => {
   console.log("displayToolsInSelectedSubcategoryOnClick()");
   subcategoryIndex = target.dataset.subcategoryIndex;
 
-  const toolIds = getToolIds(snapshot, categoryIndex, subcategoryIndex);
+  const toolIds = getToolIds(categoriesAndSubcategories, categoryIndex, subcategoryIndex);
   rememberedTools = toolIds;
 
   const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
@@ -117,7 +120,7 @@ const displayToolsInSelectedSubcategoryOnClick = async (target, snapshot, user) 
   await updateToolsVisibility(toolIds, user);
 }
 
-const registerToolsInSelectedSubcategoryOnClick = (snapshot, domElement, user) => {
+const registerToolsInSelectedSubcategoryOnClick = (categoriesAndSubcategories, domElement, user) => {
   domElement.removeEventListener("click", onDisplayToolsInSelectedSubcategoryOnClick);
   onDisplayToolsInSelectedSubcategoryOnClick = async (e) => {
     console.log("onDisplayToolsInSelectedSubcategoryOnClick()")
@@ -127,12 +130,13 @@ const registerToolsInSelectedSubcategoryOnClick = (snapshot, domElement, user) =
       return false;
     }
 
-    await displayToolsInSelectedSubcategoryOnClick(e.target, snapshot, user);
+    await displayToolsInSelectedSubcategoryOnClick(e.target, categoriesAndSubcategories, user);
   };
   domElement.addEventListener("click", onDisplayToolsInSelectedSubcategoryOnClick);
 }
 
 const getMultiSelectItems = (categoriesAndSubcategories) => {
+  console.log(categoriesAndSubcategories)
   const items = categoriesAndSubcategories.map((category) => {
     const label = category.title;
 
@@ -164,12 +168,12 @@ const removeSubcategoriesOfRemovedCategories = (selectedCategories, rememberedSu
 }
 
 const createCategoriesSelect = async (selectedCategories) => {
-  const categories = await getMultiSelectItems(categoriesAndSubcategories);
+  const categories = await getMultiSelectItems(categoriesAndSubcategoriesGlobal);
   categoriesSelect = addCategoriesMultiselect(categories, selectedCategories);
 }
 
 const createSubcategoriesSelect = async (selectedCategories, selectedSubcategories) => {
-  const allSubcategories = await getAllSubcategories(categoriesAndSubcategories);
+  const allSubcategories = await getAllSubcategories(categoriesAndSubcategoriesGlobal);
 
   rememberedSubcategories = removeSubcategoriesOfRemovedCategories(selectedCategories, rememberedSubcategories);
 
@@ -208,6 +212,8 @@ const addSubcategoriesMultiselect = (subcategories, selectedSubcategories) => {
 }
 
 const displaySelectedTools = async (ids, user) => {
+  console.log("displaySelectedTools()");
+  console.log("ids: ", ids);
   const selectedTools = await getSelectedTools(ids);
   if (selectedTools) {
     await showSelectedTools(selectedTools, user);
@@ -219,9 +225,9 @@ const displaySelectedTools = async (ids, user) => {
 const refreshTools = async () => {
   console.log("refreshTools()");
   const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
-  getCategoriesAndSubcategories(snapshot);
-  const toolIds = getToolIds(snapshot, categoryIndex, subcategoryIndex);
-
+  categoriesAndSubcategoriesGlobal = getCategoriesAndSubcategories(snapshot);
+  
+  const toolIds = getToolIds(categoriesAndSubcategoriesGlobal, categoryIndex, subcategoryIndex);
   rememberedTools = toolIds;
 
   await updateToolsVisibility(toolIds, authenticatedUser);

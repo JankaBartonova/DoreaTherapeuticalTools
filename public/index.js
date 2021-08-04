@@ -26,10 +26,11 @@ const searchErrorContainer = document.querySelector("#search-error-display");
     console.log("index.js")
 
     const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
-    categoriesAndSubcategories = getCategoriesAndSubcategories(snapshot);
-    const categories = getCategories(categoriesAndSubcategories);
+    categoriesAndSubcategoriesGlobal = getCategoriesAndSubcategories(snapshot);
+    console.log(categoriesAndSubcategoriesGlobal)
+    const categories = getCategories(categoriesAndSubcategoriesGlobal);
     addCategoriesToNavbar(categories);
-    registerSubnavigationOnClick(categoriesAndSubcategories, navBarCategories, navBarSubcategories);
+    registerSubnavigationOnClick(categoriesAndSubcategoriesGlobal, navBarCategories, navBarSubcategories);
     
     auth.onAuthStateChanged(async (user) => {
       createTool.removeEventListener("click", onCreateToolButtonClick);
@@ -50,16 +51,16 @@ const searchErrorContainer = document.querySelector("#search-error-display");
 
         // show admin options when tools listed
         removeAllElements(cardContainer);
-        registerToolsInSelectedCategoryOnClick(snapshot, navBarCategories, user);
+        registerToolsInSelectedCategoryOnClick(categoriesAndSubcategoriesGlobal, navBarCategories, user);
         await updateToolsVisibility(rememberedTools, user);
-        registerToolsInSelectedSubcategoryOnClick(snapshot, navBarSubcategories, user);
+        registerToolsInSelectedSubcategoryOnClick(categoriesAndSubcategoriesGlobal, navBarSubcategories, user);
       } else {
         console.log("User logged out!");
         setupUi(null, loggedInLinks, loggedOutLinks, searchContainer);
         removeAllElements(cardContainer);
-        registerToolsInSelectedCategoryOnClick(snapshot, navBarCategories, null);
+        registerToolsInSelectedCategoryOnClick(categoriesAndSubcategoriesGlobal, navBarCategories, null);
         await updateToolsVisibility(rememberedTools, null);
-        registerToolsInSelectedSubcategoryOnClick(snapshot, navBarSubcategories, null);
+        registerToolsInSelectedSubcategoryOnClick(categoriesAndSubcategoriesGlobal, navBarSubcategories, null);
       }
     })
   } catch (error) {

@@ -273,7 +273,7 @@ const setDatabaseValues = (toolNameElement, toolPriceElement, toolImageElement, 
 
 const insertMultiselectInstances = async (selectedCategories, selectedSubcategories) => {
   console.log("insertMultiselectInstances()")
-
+  
   await createCategoriesSelect(selectedCategories);
 
   if (selectedSubcategories.length) {
