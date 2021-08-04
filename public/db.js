@@ -187,9 +187,14 @@ const saveTool = async (imageUrl, toolName, toolPrice, toolCategories, selectedS
   console.log("saveTool()");
   if (modifiedToolId !== -1) {
     await modifyToolAndSaveUrlToCategories(modifiedToolId, toolName, toolPrice, imageUrl, toolCategories, selectedSubcategories);
+    const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
+    categoriesAndSubcategoriesGlobal = getCategoriesAndSubcategories(snapshot);
+    console.log(categoriesAndSubcategoriesGlobal);
   } else {
     const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
     await createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, imageUrl, selectedSubcategories);
+    const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
+    categoriesAndSubcategoriesGlobal = getCategoriesAndSubcategories(snapshot);
   }
 }
 

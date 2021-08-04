@@ -53,10 +53,7 @@ const displayToolsInSelectedCategoryOnClick = async (target, categoriesAndSubcat
 
   categoryIndex = target.dataset.index;
 
-  // TODO: bug here, I need new categoriesAndSubcategories  
-  console.log(categoriesAndSubcategoriesGlobal, categoriesAndSubcategories)
-
-  const toolIds = getToolIds(categoriesAndSubcategories, categoryIndex, null);
+  const toolIds = getToolIds(categoriesAndSubcategoriesGlobal, categoryIndex, null);
   rememberedTools = toolIds;
 
   await updateToolsVisibility(toolIds, user);
