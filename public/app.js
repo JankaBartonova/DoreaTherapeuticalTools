@@ -38,13 +38,15 @@ const getToolIds = (categoriesAndSubcategories, categoryIndex, subcategoryIndex)
     const toolIds = categoriesAndSubcategories[categoryIndex].subcategories[subcategoryIndex].tools;
     return toolIds;
   } else {
-    const subcategories = categoriesAndSubcategories[categoryIndex].subcategories;
-    const toolIdsArrays = subcategories.map((subcategory) => {
-      return subcategory.tools;
-    });
-    const toolIdsSet = getToolIdsSet(toolIdsArrays);
-    const toolIds = convertSetToArray(toolIdsSet);
-    return toolIds;
+    if (categoryIndex) {
+      const subcategories = categoriesAndSubcategories[categoryIndex].subcategories;
+      const toolIdsArrays = subcategories.map((subcategory) => {
+        return subcategory.tools;
+      });
+      const toolIdsSet = getToolIdsSet(toolIdsArrays);
+      const toolIds = convertSetToArray(toolIdsSet);
+      return toolIds;
+    }
   }
 }
 
@@ -340,6 +342,8 @@ const showTool = (tool, toolId) => {
     if (authenticatedUser) {
       addToolsToDom(tool.data());
       displayAdminOptions(authenticatedUser); 
+      registerDeleteTools(authenticatedUser);
+      registerModifyTools(authenticatedUser);
     }
   } else {
     console.log("Tool does not exist");
