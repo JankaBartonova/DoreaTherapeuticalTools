@@ -135,7 +135,6 @@ const registerToolsInSelectedSubcategoryOnClick = (categoriesAndSubcategories, d
 }
 
 const getMultiSelectItems = (categoriesAndSubcategories) => {
-  console.log(categoriesAndSubcategories)
   const items = categoriesAndSubcategories.map((category) => {
     const label = category.title;
 
@@ -210,20 +209,32 @@ const addSubcategoriesMultiselect = (subcategories, selectedSubcategories) => {
   return multiselect;
 }
 
+// CHECK: moved from db to app?
+const getSelectedTools = async (ids) => {
+  try {
+    if (!ids || !ids.length) {
+      return [];
+    }
+
+    const selectedTools = await downloadToolsFromDatabase(ids);
+    return selectedTools;
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 const displaySelectedTools = async (ids, user) => {
-  console.log("displaySelectedTools()");
-  console.log("ids: ", ids);
   const selectedTools = await getSelectedTools(ids);
   if (selectedTools) {
     await showSelectedTools(selectedTools, user);
-  } else {
-    console.log("The tool with given ID does not exist in database");
   }
 }
 
 const refreshTools = async () => {
   console.log("refreshTools()");
-  const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
+  
+  const snapshot = await downloadDatabaseSnapshot("categories");
   categoriesAndSubcategoriesGlobal = getCategoriesAndSubcategories(snapshot);
   
   const toolIds = getToolIds(categoriesAndSubcategoriesGlobal, categoryIndex, subcategoryIndex);
@@ -338,15 +349,15 @@ const clearResult = (errorContainer, cardContainer) => {
 }
 
 const showTool = (tool, toolId) => {
-  if (tool.data() !== undefined) {
+  if (tool) {
     if (authenticatedUser) {
-      addToolsToDom(tool.data());
+      addToolsToDom(tool);
       displayAdminOptions(authenticatedUser); 
       registerDeleteTools(authenticatedUser);
       registerModifyTools(authenticatedUser);
     }
   } else {
-    console.log("Tool does not exist");
+    console.log(`Tool ${toolId} does not exist in the database`);
     showErrorToolDoesNotExist(searchErrorContainer, toolId);
   }
 }
@@ -371,4 +382,12 @@ const registerFindToolById = (domElement) => {
     domElement.reset();
   }
   domElement.addEventListener("submit", onFindToolById);
+}
+
+// CHECK: moved from db to app?
+const getCategories = (categoriesAndSubcategories) => {
+  const categories = categoriesAndSubcategories.map((category) => {
+    return category.title;
+  })
+  return categories;
 }

@@ -25,9 +25,8 @@ const searchErrorContainer = document.querySelector("#search-error-display");
   try {
     console.log("index.js")
 
-    const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
+    const snapshot = await downloadDatabaseSnapshot("categories");
     categoriesAndSubcategoriesGlobal = getCategoriesAndSubcategories(snapshot);
-    console.log(categoriesAndSubcategoriesGlobal)
     const categories = getCategories(categoriesAndSubcategoriesGlobal);
     addCategoriesToNavbar(categories);
     registerSubnavigationOnClick(categoriesAndSubcategoriesGlobal, navBarCategories, navBarSubcategories);
