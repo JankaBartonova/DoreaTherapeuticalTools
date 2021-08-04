@@ -9,8 +9,7 @@ const getCategoriesAndSubcategories = (snapshot) => {
   return categoriesAndSubcategories;
 }
 
-const getCategories = (snapshot) => {
-  const categoriesAndSubcategories = getCategoriesAndSubcategories(snapshot);
+const getCategories = (categoriesAndSubcategories) => {
   const categories = categoriesAndSubcategories.map((category) => {
     return category.title;
   })

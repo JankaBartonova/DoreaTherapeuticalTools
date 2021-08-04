@@ -27,9 +27,9 @@ const searchErrorContainer = document.querySelector("#search-error-display");
 
     const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
     categoriesAndSubcategories = getCategoriesAndSubcategories(snapshot);
-    const categories = getCategories(snapshot);
+    const categories = getCategories(categoriesAndSubcategories);
     addCategoriesToNavbar(categories);
-    registerSubnavigationOnClick(snapshot, navBarCategories, navBarSubcategories);
+    registerSubnavigationOnClick(categoriesAndSubcategories, navBarCategories, navBarSubcategories);
     
     auth.onAuthStateChanged(async (user) => {
       createTool.removeEventListener("click", onCreateToolButtonClick);

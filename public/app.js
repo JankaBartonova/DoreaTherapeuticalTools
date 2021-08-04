@@ -74,21 +74,21 @@ const registerToolsInSelectedCategoryOnClick = (snapshot, domElement, user) => {
   domElement.addEventListener("click", onDisplayToolsInSelectedCategoryOnClick);
 }
 
-const displaySubnavigatiOnClick = (target, snapshot, domElementSibling) => {
+const displaySubnavigatiOnClick = (target, categoriesAndSubcategories, domElementSibling) => {
   console.log("displaySubnavigatiOnClick()");
 
   searchErrorContainer.innerHTML = "";
 
   categoryIndex = target.dataset.index;
 
-  const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+  const subcategories = categoriesAndSubcategories[categoryIndex].subcategories;
   const buttonsNavBar = document.querySelectorAll(".btnNavBar");
 
   toggleElement(target, buttonsNavBar);
   updateSubnavigationVisibility(domElementSibling, target, subcategories, categoryIndex);
 }
 
-const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) => {
+const registerSubnavigationOnClick = (categoriesAndSubcategories, domElement, domElementSibling) => {
   domElement.removeEventListener("click", onDisplaySubnavigatiOnClick);
   onDisplaySubnavigatiOnClick = (e) => {
     console.log("onDisplaySubnavigatiOnClick()")
@@ -98,10 +98,10 @@ const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) =
       return false;
     }
 
-    displaySubnavigatiOnClick(e.target, snapshot, domElementSibling);
+    displaySubnavigatiOnClick(e.target, categoriesAndSubcategories, domElementSibling);
   };
   domElement.addEventListener("click", onDisplaySubnavigatiOnClick);
-  return snapshot;
+  return categoriesAndSubcategories;
 }
 
 const displayToolsInSelectedSubcategoryOnClick = async (target, snapshot, user) => {
