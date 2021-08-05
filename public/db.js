@@ -2,7 +2,6 @@
 
 // SECTION: Manipulation with snapshot
 
-// TODO: move to app? It does not work with database, but work with snapshot. Better name: convertSnapshotToCategoriesAndSubcategories() or getCategoriesAndSubcategoriesFromSnapshot(), but it is too long
 const getCategoriesAndSubcategories = (snapshot) => {
   const categoriesAndSubcategories = new Array();
 
@@ -12,25 +11,26 @@ const getCategoriesAndSubcategories = (snapshot) => {
   return categoriesAndSubcategories;
 }
 
-// TODO: move to app?
-const getToolFromSnapshot = (snapshot) => {
-  return snapshot.data();
-}
+// SECTION: Database queries and data modeling
 
-
-// SECTION: Database queries
-
-const downloadDatabaseSnapshot = async (collection) => {
+const downloadDatabaseCollection = async (collection) => {
   const snapshot = await db.collection(collection.toString()).get()
-  return snapshot;
+  collection = getCategoriesAndSubcategories(snapshot);
+  return collection;
 }
 
 const downloadDatabaseDocument = async (reference) => {
   const snapshot = await reference.get()
-  return snapshot;
+  return snapshot.data();
 }
 
-const downloadToolsFromDatabase = async (ids) => {
+const downloadDatabaseTool = async (id) => {
+  const reference = db.collection("tools").doc(`${id}`);
+  const tool = await downloadDatabaseDocument(reference);
+  return tool;
+}
+
+const downloadDatabaseTools = async (ids) => {
   let batches = [];
   let idsCopy = ids.slice();
   while (idsCopy.length) {
@@ -50,7 +50,7 @@ const downloadToolsFromDatabase = async (ids) => {
 }
 
 // SECTION: Transactions
-// make 2 functions? downloadDatabaseDocument() and getToolFromSnapshot()?
+
 const getDatabaseDocumentTransaction = (transaction, reference) => {
   return transaction
     .get(reference)
@@ -89,16 +89,26 @@ const createNewToolTransaction = async (transaction, counterRef, name, price, ur
   return newCount;
 }
 
+const updateSubcategoriesTransactions = (transaction, selectedCategoryId, newSubcategories, selectedOldCategory) => {
+  const categoryRef = db.collection("categories").doc(`0${selectedCategoryId}`);
+
+  const newCategory = {
+    ...selectedOldCategory,
+    subcategories: newSubcategories
+  }
+  transaction.update(categoryRef, newCategory);
+}
+
 const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesIds, toolName, toolPrice, toolUrl, selectedSubcategoriesIds) => {
   console.log("createToolAndSaveUrlToCategories()");
   return db.runTransaction(async (transaction) => {
-    const oldCategories = await getDatabaseCollection("categories");
+    const oldCategories = await downloadDatabaseCollection("categories");
     const toolId = await createNewToolTransaction(transaction, numberOfToolsRef, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds);
 
     selectedCategoriesIds.forEach(async (selectedCategoryId) => {
       const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
       const newSubcategories = await addToolToSubcategories(selectedOldCategories, toolId, selectedSubcategoriesIds);
-      updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
+      updateSubcategoriesTransactions(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
       console.log(`Tool of ID ${toolId} saved in Firebase Firestore categories collection`);
     })
   }).then(() => {
@@ -111,7 +121,7 @@ const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesId
 const modifyToolAndSaveUrlToCategories = (modifiedToolId, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds) => {
   console.log("modifyToolAndSaveUrlToCategories()");
   return db.runTransaction(async (transaction) => {
-    const oldCategories = await getDatabaseCollection("categories");
+    const oldCategories = await downloadDatabaseCollection("categories");
 
     await deleteToolFromCategoriesTransaction(transaction, modifiedToolId);
     await setToolTransaction(transaction, modifiedToolId, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds);
@@ -119,7 +129,7 @@ const modifyToolAndSaveUrlToCategories = (modifiedToolId, toolName, toolPrice, t
     selectedCategoriesIds.forEach(async (selectedCategoryId) => {
       const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
       const newSubcategories = await addToolToSubcategories(selectedOldCategories, modifiedToolId, selectedSubcategoriesIds);
-      updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
+      updateSubcategoriesTransactions(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
       console.log(`Tool of ID ${modifiedToolId} updated in Firebase Firestore categories collection`);
     });
   }).then(() => {
@@ -129,7 +139,7 @@ const modifyToolAndSaveUrlToCategories = (modifiedToolId, toolName, toolPrice, t
   });
 }
 
-const getDeletedCategoriesTransactionDocuments = async (transaction, categories) => {
+const getDeletedCategoriesDocumentsTransaction = async (transaction, categories) => {
   let oldCategoriesDocs = categories.map(async (category) => {
     const categoryRef = db.collection("categories").doc(`0${parseInt(category)}`);
     const oldCategoryDoc = await getDatabaseDocumentTransaction(transaction, categoryRef);
@@ -148,7 +158,7 @@ const deleteToolFromCategoriesTransaction = async (transaction, deletedToolId) =
   const categories = deletedTool.categories;
   const subcategories = deletedTool.subcategories;
 
-  const oldCategoriesDocs = await getDeletedCategoriesTransactionDocuments(transaction, categories);
+  const oldCategoriesDocs = await getDeletedCategoriesDocumentsTransaction(transaction, categories);
 
   oldCategoriesDocs.forEach((oldCategoryDoc) => {
     const newCategoryDoc = updateCategory(oldCategoryDoc, subcategories, deletedToolId);
@@ -163,7 +173,7 @@ const deleteToolFromToolsTransaction = (transaction, id) => {
   transaction.delete(deletedTool);
 }
 
-const deleteToolDatabase = (id) => {
+const deleteDatabaseTool = (id) => {
   return db.runTransaction(async (transaction) => {
     await deleteToolFromCategoriesTransaction(transaction, id);
     await deleteToolFromToolsTransaction(transaction, id);
@@ -180,13 +190,11 @@ const saveTool = async (imageUrl, toolName, toolPrice, toolCategories, selectedS
   console.log("saveTool()");
   if (modifiedToolId !== -1) {
     await modifyToolAndSaveUrlToCategories(modifiedToolId, toolName, toolPrice, imageUrl, toolCategories, selectedSubcategories);
-    const snapshot = await downloadDatabaseSnapshot("categories");
-    categoriesAndSubcategoriesGlobal = getCategoriesAndSubcategories(snapshot);
+    state.categoriesAndSubcategories = await downloadDatabaseCollection("categories");
   } else {
     const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
     await createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, imageUrl, selectedSubcategories);
-    const snapshot = await downloadDatabaseSnapshot("categories");
-    categoriesAndSubcategoriesGlobal = getCategoriesAndSubcategories(snapshot);
+    state.categoriesAndSubcategories = await downloadDatabaseCollection("categories");
   }
 }
 
@@ -200,23 +208,14 @@ const saveImage = async (tool) => {
   return imageUrl;
 }
 
-// SECTION: TODO!
+// SECTION: TODO: name?
 
-// Here or app?
-const getDatabaseTool = async (id) => {
-  const reference = db.collection("tools").doc(`${id}`);
-  const snapshot = await downloadDatabaseDocument(reference);
-  if (snapshot) {
-    const tool = getToolFromSnapshot(snapshot);
-    return tool;
-  } else {
-    console.log(`The tool ${id} does not exist in database`);
-    //TODO display error message to user
-    return false;
-  }
+const downloadCategoriesAndSubcategories = async () => {
+  const categoriesAndSubcategories = await downloadDatabaseCollection("categories");
+  return categoriesAndSubcategories;
 }
 
-// Here or app?
+// Theoretically better place is in app.js but it is used only from db.js -> here for now ( create/modify/deleteToolAndSaveUrlToCategories contains too much business logic)
 const addToolToSubcategories = (selectedOldCategory, toolId, selectedSubcategories) => {
   console.log("addToolToSubcategories()");
   return selectedOldCategory.subcategories.map((oldSubcategory) => {
@@ -231,140 +230,4 @@ const addToolToSubcategories = (selectedOldCategory, toolId, selectedSubcategori
       return oldSubcategory;
     }
   })
-}
-
-// Here or app?
-const updateSubcategories = (transaction, selectedCategoryId, newSubcategories, selectedOldCategory) => {
-  const categoryRef = db.collection("categories").doc(`0${selectedCategoryId}`);
-
-  const newCategory = {
-    ...selectedOldCategory,
-    subcategories: newSubcategories
-  }
-  transaction.update(categoryRef, newCategory);
-}
-
-// here or app?
-const getDatabaseCollection = async (collection) => {
-  const categories = await downloadDatabaseSnapshot(collection);
-  const categoriesAndSubcategories = await getCategoriesAndSubcategories(categories);
-  return categoriesAndSubcategories;
-}
-
-// here or app?
-const pickFile = () => {
-  return new Promise((resolve, reject) => {
-    const input = document.createElement("input");
-    input.type = "file";
-    const onFileInputChange = (e) => {
-      console.log("onFileInputChange()");
-      const selectedFile = input.files[0];
-      input.removeEventListener("change", onFileInputChange);
-      if (selectedFile) {
-        resolve(selectedFile);
-      } else {
-        reject("No file selected");
-      }
-    };
-    input.addEventListener("change", onFileInputChange);
-    input.click();
-  });
-}
-
-// here or app?
-const getFileTypeFrom64Url = (url) => {
-  const firstPosition = url.indexOf("/");
-  const lastPosition = url.indexOf(";");
-  const type = url.slice(firstPosition + 1, lastPosition);
-  return type;
-}
-
-// here or app?
-const storeToolToDatabase = async (tool, imageChanged, modifiedToolId) => {
-  console.log("storeToolToDatabase()");
-  
-  let imageUrl = null;
-  if (imageChanged) {
-    imageUrl = await saveImage(tool);
-    await saveTool(imageUrl, tool.name, tool.price, tool.categories, tool.subcategories, modifiedToolId);
-  } else {
-    imageUrl = tool.image;
-    await saveTool(imageUrl, tool.name, tool.price, tool.categories, tool.subcategories, modifiedToolId);
-  }
-}
-
-// app?
-const getToolValue = (element) => {
-  return element.value;
-}
-
-// app?
-const getMultiselectValues = () => {
-  const toolMultiselectElements = document.querySelectorAll(".select-pure__option--selected");
-  const toolCategoriesAndSubcategories = Array.from(toolMultiselectElements).map((toolCategory) => {
-    return toolCategory.dataset.value;
-  });
-
-  const categories = new Set();
-  const subCategories = new Set();
-
-  toolCategoriesAndSubcategories.forEach((value) => {
-    if (value.includes(":")) {
-      subCategories.add(value);
-    } else {
-      categories.add(value);
-    }
-  })
-
-  return {
-    categories: categories,
-    subcategories: subCategories
-  }
-}
-
-// app? change name to setTool(), inside 2 functions getUserValues() and createTool()
-const getTool = (nameElement, priceElement, toolImage) => {
-  const name = getToolValue(nameElement);
-  const price = getToolValue(priceElement);
-
-  const categoriesAndSubcategories = getMultiselectValues();
-  const categories = categoriesAndSubcategories.categories;
-  const subcategories = categoriesAndSubcategories.subcategories
-
-  return {
-    name: name,
-    price: parseInt(price),
-    categories: [...categories],
-    subcategories: [...subcategories],
-    image: toolImage
-  }
-}
-
-// app?
-const getNewTools = (oldCategoryDoc, subcategories, deletedToolId) => {
-  return oldCategoryDoc.subcategories.map((subcategory) => {
-    if (subcategories.includes(subcategory.id)) {
-      const tools = subcategory.tools.filter((tool) => {
-        return tool != deletedToolId;
-      })
-
-      const newSubcategoryDoc = {
-        ...subcategory,
-        tools: tools
-      }
-      return newSubcategoryDoc;
-    }
-    return subcategory;
-  })
-}
-
-//app?
-const updateCategory = (oldCategoryDoc, subcategories, deletedToolId) => {
-  const newTools = getNewTools(oldCategoryDoc, subcategories, deletedToolId, "0" + oldCategoryDoc.id);
-
-  const newCategoryDoc = {
-    ...oldCategoryDoc,
-    subcategories: newTools
-  }
-  return newCategoryDoc;
 }
