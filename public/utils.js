@@ -47,3 +47,9 @@ const convertStringToBoolean = (string) => {
       throw new Error ("ConvertStringToBoolean: Cannot convert string to boolean.");
   }
 };
+
+const findElementsById = (arrayOfObjects, id) => {
+  return arrayOfObjects.find((object) => {
+    return object.id == id;
+  })
+}
