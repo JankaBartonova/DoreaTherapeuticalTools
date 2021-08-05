@@ -11,7 +11,7 @@ const getCategoriesAndSubcategories = (snapshot) => {
   return categoriesAndSubcategories;
 }
 
-// SECTION: Database queries and data modeling
+// SECTION: Database queries and data modeling - generic functions
 
 const downloadDatabaseCollection = async (collection) => {
   const snapshot = await db.collection(collection.toString()).get()
@@ -23,6 +23,8 @@ const downloadDatabaseDocument = async (reference) => {
   const snapshot = await reference.get()
   return snapshot.data();
 }
+
+// SECTION: Database queries and data modeling - aplication functions
 
 const downloadDatabaseTool = async (id) => {
   const reference = db.collection("tools").doc(`${id}`);
@@ -47,6 +49,11 @@ const downloadDatabaseTools = async (ids) => {
     )
   }
   return batches.flat().sort((first, second) => first.id - second.id);
+}
+
+const downloadCategoriesAndSubcategories = async () => {
+  const categoriesAndSubcategories = await downloadDatabaseCollection("categories");
+  return categoriesAndSubcategories;
 }
 
 // SECTION: Transactions
@@ -206,13 +213,6 @@ const saveImage = async (tool) => {
   console.log('Image uploaded to Firebase Storage!');
   const imageUrl = await storageRef.getDownloadURL();
   return imageUrl;
-}
-
-// SECTION: TODO: name?
-
-const downloadCategoriesAndSubcategories = async () => {
-  const categoriesAndSubcategories = await downloadDatabaseCollection("categories");
-  return categoriesAndSubcategories;
 }
 
 // Theoretically better place is in app.js but it is used only from db.js -> here for now ( create/modify/deleteToolAndSaveUrlToCategories contains too much business logic)

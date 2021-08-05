@@ -300,7 +300,7 @@ const handleImageSelect = async () => {
 
 const registerDeleteToolOnClick = (domElement, user) => {
   domElement.addEventListener("click", async (e) => {
-    console.log("On delete tool click");
+    console.log("registerDeleteToolOnClick()");
     const toolId = e.target.dataset.id;
 
     if (user) {
@@ -350,12 +350,6 @@ const clearResult = (errorContainer, cardContainer) => {
 }
 
 const showTool = (tool, toolId) => {
-  if (!tool) {
-    console.log(`Tool ${toolId} does not exist in the database`);
-    showErrorToolDoesNotExist(searchErrorContainer, toolId);
-    return;
-  }
-
   if (state.authenticatedUser) {
     addToolToDom(tool);
     displayAdminOptions(state.authenticatedUser);
@@ -384,8 +378,9 @@ const registerFindToolById = (domElement) => {
     if (tool) {
       showTool(tool, toolId);
     } else {
-      console.log(`The tool ${id} does not exist in database`);
-      //TODO display error message to user
+      console.log(`The tool ${toolId} does not exist in database`);
+      //TODO: bootsrap alert to div error message element
+      showErrorToolDoesNotExist(searchErrorContainer, toolId);
     }
 
     domElement.reset();
@@ -426,7 +421,6 @@ const getFileTypeFrom64Url = (url) => {
   return type;
 }
 
-// here or app?
 const storeToolToDatabase = async (tool, imageChanged, modifiedToolId) => {
   console.log("storeToolToDatabase()");
 
