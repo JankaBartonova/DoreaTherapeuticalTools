@@ -20,6 +20,7 @@ const selectedImage = document.getElementById("selected-image");
 const searchContainer = document.querySelector("#navbar-search");
 const searchForm = document.querySelector(".form-search");
 const searchErrorContainer = document.querySelector("#search-error-display");
+const categoryErrorContainer = document.querySelector(".category-input-error-display");
 
 (async () => {
   try {

@@ -248,6 +248,28 @@ const refreshTools = async () => {
   await updateToolsVisibility(toolIds, state.authenticatedUser);
 }
 
+const validateUserTool = (tool) => {
+  console.log("ValidateUserTool()");
+
+  if (!tool.categories.length) {
+    console.log("categories are not chosen")
+     //TODO showErrorMessage(message);
+    return false;
+  }
+  if (!tool.subcategories.length) {
+    console.log("subcategories are not chosen")
+    //TODO showErrorMessage(message);
+    return false;
+  }
+  if (!tool.image) {
+    console.log("image was not chosen")
+    //TODO showErrorMessage(message);
+    return false;
+  }
+
+  return true;
+}
+
 const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
   console.log("registerUploadToolToDatabaseOnSubmit()");
 
@@ -258,6 +280,11 @@ const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceEl
 
     const toolData = getToolDataFromUser(formElement, toolNameElement, toolPriceElement);
     const tool = setTool(toolData.name, toolData.price, toolImage.src);
+
+    if (!validateUserTool(tool)) {
+      return;
+    };
+
     await storeToolToDatabase(tool, toolData.imageChanged, toolData.modifiedToolId);
 
     resetForm(formElement, toolData.modifiedToolId);
@@ -294,6 +321,7 @@ const handleImageSelect = async () => {
     if (loadedImg) {
       return loadedImg;
     }
+
   } catch (e) {
     console.log(e);
     return null;
@@ -460,6 +488,8 @@ const getMultiselectValues = () => {
 }
 
 const setTool = (name, price, image) => {
+  console.log("setTool()");
+
   const categoriesAndSubcategories = getMultiselectValues();
   const categories = categoriesAndSubcategories.categories;
   const subcategories = categoriesAndSubcategories.subcategories

@@ -193,7 +193,7 @@ const resetForm = (form) => {
   form.reset();
   removeMultiselectIntances();
   insertMultiselectInstances([], []);
-  document.querySelector(".tool-image").src = "";
+  toolImage.removeAttribute("src");
 }
 
 const showImage = (image) => {
@@ -247,7 +247,7 @@ const resetAllFieldsForm = (formElement, selectElement, toolImageElement, modifi
     removeMultiselectInstance(subcategoriesSelectContainer);
   }
   changeButtonName(selectElement, "Vyberte obrázek");
-  toolImageElement.src = "";
+  toolImageElement.removeAttribute("src");
 
   if (!modifiedTool) {
     delete formElement.dataset.toolid;
@@ -269,7 +269,11 @@ const removeMultiselectIntances = () => {
 const setDatabaseValues = (toolNameElement, toolPriceElement, toolImageElement, tool) => {
   toolNameElement.value = `${tool.name}`;
   toolPriceElement.value = `${tool.price}`;
-  toolImageElement.src = `${tool.image}`;
+  if (tool.image) {
+    toolImageElement.src =  `${tool.image}`
+  } else {
+    toolImageElement.removeAttribute("src");
+  }
 };
 
 const insertMultiselectInstances = async (selectedCategories, selectedSubcategories) => {
