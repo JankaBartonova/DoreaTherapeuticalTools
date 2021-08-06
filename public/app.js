@@ -88,6 +88,8 @@ const registerSubnavigationOnClick = (domElement, domElementSibling) => {
 const displayToolsInSelectedCategoryOnClick = async (target, user) => {
   console.log("displayToolsInSelectedCategoryOnClick()");
 
+  searchErrorContainer.classList.add("d-none");
+
   state.categoryIndex = target.dataset.index;
 
   const toolIds = getToolIds(state.categoriesAndSubcategories, state.categoryIndex, null);
@@ -333,13 +335,14 @@ const getToolIdFromUser = () => {
   return toolId;
 };
 
-const validateUserToolId = (toolId) => {
+const validateUserToolId = (toolId, domElement) => {
   const toolIdPattern = /^[0-9]+$/;
   if (toolId.toString().match(toolIdPattern)) {
     return true;
   } else {
     console.log(`The toolId ${toolId} is not a number`);
-    showInputValidationError(searchErrorContainer)
+    showInputValidationError();
+    domElement.reset();
     return false;
   }
 }
@@ -347,9 +350,16 @@ const validateUserToolId = (toolId) => {
 const clearResult = (errorContainer, cardContainer) => {
   errorContainer.innerHTML = "";
   removeAllElements(cardContainer);
+  errorContainer.classList.add("d-none");
 }
 
 const showTool = (tool, toolId) => {
+  if (!tool) {
+    console.log(`The tool ${toolId} does not exist in database`);
+    showErrorToolDoesNotExist(toolId);
+    return;
+  }
+
   if (state.authenticatedUser) {
     addToolToDom(tool);
     displayAdminOptions(state.authenticatedUser);
@@ -365,7 +375,7 @@ const registerFindToolById = (domElement) => {
     clearResult(searchErrorContainer, cardContainer);
 
     let toolId = getToolIdFromUser();
-    const validatedId = validateUserToolId(toolId);
+    const validatedId = validateUserToolId(toolId, domElement);
     toolId = parseInt(toolId);
 
     if (!validatedId) {
@@ -373,15 +383,7 @@ const registerFindToolById = (domElement) => {
     }
 
     const tool = await downloadDatabaseTool(toolId);
-
-    // TODO: where handle error (tool does not exist in database), here or inside showTool()?
-    if (tool) {
-      showTool(tool, toolId);
-    } else {
-      console.log(`The tool ${toolId} does not exist in database`);
-      //TODO: bootsrap alert to div error message element
-      showErrorToolDoesNotExist(searchErrorContainer, toolId);
-    }
+    showTool(tool, toolId);
 
     domElement.reset();
   }

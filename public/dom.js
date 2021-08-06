@@ -315,18 +315,20 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
   }
 }
 
-const showErrorToolDoesNotExist = (container, id) => {
+const showErrorToolDoesNotExist = (id) => {
   let html = `
-  <h4 class="search-error-display-message">Pomůcka s pořadovým číslem ${id} v databázi neexistuje</h4> 
+  <h4 class="search-error-display-message">Pomůcka s pořadovým číslem ${id} v databázi neexistuje!</h4> 
   `
-  container.innerHTML += html;
+  searchErrorContainer.innerHTML += html;
+  searchErrorContainer.classList.remove("d-none");
 }
 
-const showInputValidationError = (container) => {
+const showInputValidationError = () => {
   let html = `
   <h4 class="search-error-display-message">Pořadové číslo pomůcky musí být číslo. Nejsou povolená písmena a speciální znaky.</h4> 
   `
-  container.innerHTML += html;
+  searchErrorContainer.innerHTML += html;
+  searchErrorContainer.classList.remove("d-none");
 }
 
 const getToolDataFromUser = (formElement, toolNameElement, toolPriceElement) => {
