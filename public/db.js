@@ -1,5 +1,7 @@
 "use strict";
 
+// SECTION: Manipulation with snapshot
+
 const getCategoriesAndSubcategories = (snapshot) => {
   const categoriesAndSubcategories = new Array();
 
@@ -9,32 +11,28 @@ const getCategoriesAndSubcategories = (snapshot) => {
   return categoriesAndSubcategories;
 }
 
-const getCategories = (snapshot) => {
-  const categoriesAndSubcategories = getCategoriesAndSubcategories(snapshot);
-  const categories = categoriesAndSubcategories.map((category) => {
-    return category.title;
-  })
-  return categories;
+// SECTION: Database queries and data modeling - generic functions
+
+const downloadDatabaseCollection = async (collection) => {
+  const snapshot = await db.collection(collection.toString()).get()
+  collection = getCategoriesAndSubcategories(snapshot);
+  return collection;
 }
 
-const getDatabaseCategoriesAndSubcategories = async (collection) => {
-  const databaseCategoriesAndSubcategoriesSnapshot = await db.collection(collection.toString())
-    .get()
-  return databaseCategoriesAndSubcategoriesSnapshot;
-}
-
-const getDatabaseDocument = async (reference) => {
+const downloadDatabaseDocument = async (reference) => {
   const snapshot = await reference.get()
-  return snapshot;
+  return snapshot.data();
 }
 
-const getDatabaseTool = async (id) => {
+// SECTION: Database queries and data modeling - aplication functions
+
+const downloadDatabaseTool = async (id) => {
   const reference = db.collection("tools").doc(`${id}`);
-  const snapshot = await getDatabaseDocument(reference);
-  return snapshot;
+  const tool = await downloadDatabaseDocument(reference);
+  return tool;
 }
 
-const downloadToolsFromDatabase = async (ids) => {
+const downloadDatabaseTools = async (ids) => {
   let batches = [];
   let idsCopy = ids.slice();
   while (idsCopy.length) {
@@ -53,18 +51,19 @@ const downloadToolsFromDatabase = async (ids) => {
   return batches.flat().sort((first, second) => first.id - second.id);
 }
 
-const getSelectedTools = async (ids) => {
-  try {
-    if (!ids || !ids.length) {
-      return [];
-    }
+const downloadCategoriesAndSubcategories = async () => {
+  const categoriesAndSubcategories = await downloadDatabaseCollection("categories");
+  return categoriesAndSubcategories;
+}
 
-    const selectedTools = await downloadToolsFromDatabase(ids);
-    return selectedTools;
+// SECTION: Transactions
 
-  } catch (error) {
-    console.log(error);
-  }
+const getDatabaseDocumentTransaction = (transaction, reference) => {
+  return transaction
+    .get(reference)
+    .then((document) => {
+      return document.data();
+    })
 }
 
 const setToolTransaction = (transaction, count, name, price, url, categories, subcategories) => {
@@ -84,19 +83,139 @@ const setToolTransaction = (transaction, count, name, price, url, categories, su
   console.log(`Tool of ID ${count} saved to Firebase Firestore tool collection.`);
 }
 
-const incrementCounter = async (transaction, counterRef) => {
-  const numberOfTools = await getFirebaseTransactionDocument(transaction, counterRef);
+const incrementCounterTransaction = async (transaction, counterRef) => {
+  const numberOfTools = await getDatabaseDocumentTransaction(transaction, counterRef);
   const newCount = numberOfTools.count + 1;
   transaction.update(counterRef, { count: newCount });
   return newCount;
 }
 
-const createNewTool = async (transaction, counterRef, name, price, url, categories, subcategories) => {
-  const newCount = await incrementCounter(transaction, counterRef);
+const createNewToolTransaction = async (transaction, counterRef, name, price, url, categories, subcategories) => {
+  const newCount = await incrementCounterTransaction(transaction, counterRef);
   setToolTransaction(transaction, newCount, name, price, url, categories, subcategories);
   return newCount;
 }
 
+const updateSubcategoriesTransactions = (transaction, selectedCategoryId, newSubcategories, selectedOldCategory) => {
+  const categoryRef = db.collection("categories").doc(`0${selectedCategoryId}`);
+
+  const newCategory = {
+    ...selectedOldCategory,
+    subcategories: newSubcategories
+  }
+  transaction.update(categoryRef, newCategory);
+}
+
+const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesIds, toolName, toolPrice, toolUrl, selectedSubcategoriesIds) => {
+  console.log("createToolAndSaveUrlToCategories()");
+  return db.runTransaction(async (transaction) => {
+    const oldCategories = await downloadDatabaseCollection("categories");
+    const toolId = await createNewToolTransaction(transaction, numberOfToolsRef, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds);
+
+    selectedCategoriesIds.forEach(async (selectedCategoryId) => {
+      const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
+      const newSubcategories = await addToolToSubcategories(selectedOldCategories, toolId, selectedSubcategoriesIds);
+      updateSubcategoriesTransactions(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
+      console.log(`Tool of ID ${toolId} saved in Firebase Firestore categories collection`);
+    })
+  }).then(() => {
+    console.log("Transaction createToolAndSaveUrlToCategories() new tools is successfully commited!");
+  }).catch((error) => {
+    console.error("Transaction failed! ", error);
+  });
+}
+
+const modifyToolAndSaveUrlToCategories = (modifiedToolId, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds) => {
+  console.log("modifyToolAndSaveUrlToCategories()");
+  return db.runTransaction(async (transaction) => {
+    const oldCategories = await downloadDatabaseCollection("categories");
+
+    await deleteToolFromCategoriesTransaction(transaction, modifiedToolId);
+    await setToolTransaction(transaction, modifiedToolId, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds);
+    
+    selectedCategoriesIds.forEach(async (selectedCategoryId) => {
+      const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
+      const newSubcategories = await addToolToSubcategories(selectedOldCategories, modifiedToolId, selectedSubcategoriesIds);
+      updateSubcategoriesTransactions(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
+      console.log(`Tool of ID ${modifiedToolId} updated in Firebase Firestore categories collection`);
+    });
+  }).then(() => {
+    console.log("Transaction modifyToolAndSaveUrlToCategories() is successfully commited!");
+  }).catch((error) => {
+    console.error("Transaction failed! ", error);
+  });
+}
+
+const getDeletedCategoriesDocumentsTransaction = async (transaction, categories) => {
+  let oldCategoriesDocs = categories.map(async (category) => {
+    const categoryRef = db.collection("categories").doc(`0${parseInt(category)}`);
+    const oldCategoryDoc = await getDatabaseDocumentTransaction(transaction, categoryRef);
+    return oldCategoryDoc;
+  });
+  oldCategoriesDocs = await Promise.all(oldCategoriesDocs);
+  return oldCategoriesDocs;
+}
+
+const deleteToolFromCategoriesTransaction = async (transaction, deletedToolId) => {
+  const deletedToolRef = db.collection("tools").doc(`${deletedToolId}`);
+  const deletedTool = await getDatabaseDocumentTransaction(transaction, deletedToolRef);
+  if (!deletedTool) {
+    throw "Document does not exist!";
+  }
+  const categories = deletedTool.categories;
+  const subcategories = deletedTool.subcategories;
+
+  const oldCategoriesDocs = await getDeletedCategoriesDocumentsTransaction(transaction, categories);
+
+  oldCategoriesDocs.forEach((oldCategoryDoc) => {
+    const newCategoryDoc = updateCategory(oldCategoryDoc, subcategories, deletedToolId);
+
+    const categoryRef = db.collection("categories").doc("0" + oldCategoryDoc.id);
+    transaction.update(categoryRef, newCategoryDoc);
+  });
+}
+
+const deleteToolFromToolsTransaction = (transaction, id) => {
+  const deletedTool = db.collection("tools").doc(`${id}`);
+  transaction.delete(deletedTool);
+}
+
+const deleteDatabaseTool = (id) => {
+  return db.runTransaction(async (transaction) => {
+    await deleteToolFromCategoriesTransaction(transaction, id);
+    await deleteToolFromToolsTransaction(transaction, id);
+  }).then(() => {
+    console.log("Transaction delete is successfully commited!");
+  }).catch((error) => {
+    console.log(error)
+  });
+}
+
+// SECTION: Write to database
+
+const saveTool = async (imageUrl, toolName, toolPrice, toolCategories, selectedSubcategories, modifiedToolId) => {
+  console.log("saveTool()");
+  if (modifiedToolId !== -1) {
+    await modifyToolAndSaveUrlToCategories(modifiedToolId, toolName, toolPrice, imageUrl, toolCategories, selectedSubcategories);
+    state.categoriesAndSubcategories = await downloadDatabaseCollection("categories");
+  } else {
+    const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
+    await createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, imageUrl, selectedSubcategories);
+    state.categoriesAndSubcategories = await downloadDatabaseCollection("categories");
+  }
+}
+
+const saveImage = async (tool) => {
+  console.log("saveImage()");
+  const storageRef = storage.ref("images/" + tool.name);
+  await storageRef.putString(tool.image, 'data_url');
+   
+  console.log('Image uploaded to Firebase Storage!');
+  const imageUrl = await storageRef.getDownloadURL();
+  return imageUrl;
+}
+
+// Theoretically better place is in app.js but it is used only from db.js -> here for now ( create/modify/deleteToolAndSaveUrlToCategories contains too much business logic)
 const addToolToSubcategories = (selectedOldCategory, toolId, selectedSubcategories) => {
   console.log("addToolToSubcategories()");
   return selectedOldCategory.subcategories.map((oldSubcategory) => {
@@ -111,249 +230,4 @@ const addToolToSubcategories = (selectedOldCategory, toolId, selectedSubcategori
       return oldSubcategory;
     }
   })
-}
-
-const updateSubcategories = (transaction, selectedCategoryId, newSubcategories, selectedOldCategory) => {
-  const categoryRef = db.collection("categories").doc(`0${selectedCategoryId}`);
-
-  const newCategory = {
-    ...selectedOldCategory,
-    subcategories: newSubcategories
-  }
-  transaction.update(categoryRef, newCategory);
-}
-
-const getFirebaseTransactionDocument = (transaction, reference) => {
-  return transaction
-    .get(reference)
-    .then((document) => {
-      return document.data();
-    })
-}
-
-const findElementsById = (arrayOfObjects, id) => {
-  return arrayOfObjects.find((object) => {
-    return object.id == id;
-  })
-}
-
-const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesIds, toolName, toolPrice, toolUrl, selectedSubcategoriesIds) => {
-  console.log("createToolAndSaveUrlToCategories()");
-  return db.runTransaction(async (transaction) => {
-    const oldCategories = await getFirebaseCollection("categories");
-    const toolId = await createNewTool(transaction, numberOfToolsRef, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds);
-
-    selectedCategoriesIds.forEach(async (selectedCategoryId) => {
-      const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
-      const newSubcategories = await addToolToSubcategories(selectedOldCategories, toolId, selectedSubcategoriesIds);
-      updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
-      console.log(`Tool of ID ${toolId} saved in Firebase Firestore categories collection`);
-    })
-  }).then(() => {
-    console.log("Transaction createToolAndSaveUrlToCategories() new tools is successfully commited!");
-  }).catch((error) => {
-    console.error("Transaction failed! ", error);
-  });
-}
-
-const modifyToolAndSaveUrlToCategories = (modifiedToolId, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds) => {
-  console.log("modifyToolAndSaveUrlToCategories()");
-  return db.runTransaction(async (transaction) => {
-    const oldCategories = await getFirebaseCollection("categories");
-
-    await deleteToolFromCategoriesTransaction(transaction, modifiedToolId);
-    await setToolTransaction(transaction, modifiedToolId, toolName, toolPrice, toolUrl, selectedCategoriesIds, selectedSubcategoriesIds);
-    
-    selectedCategoriesIds.forEach(async (selectedCategoryId) => {
-      const selectedOldCategories = findElementsById(oldCategories, selectedCategoryId);
-      const newSubcategories = await addToolToSubcategories(selectedOldCategories, modifiedToolId, selectedSubcategoriesIds);
-      updateSubcategories(transaction, selectedCategoryId, newSubcategories, selectedOldCategories);
-      console.log(`Tool of ID ${modifiedToolId} updated in Firebase Firestore categories collection`);
-    });
-  }).then(() => {
-    console.log("Transaction modifyToolAndSaveUrlToCategories() is successfully commited!");
-  }).catch((error) => {
-    console.error("Transaction failed! ", error);
-  });
-}
-
-const getFirebaseCollection = async (collection) => {
-  const categories = await getDatabaseCategoriesAndSubcategories(collection);
-  const databaseSnapshot = await getCategoriesAndSubcategories(categories);
-  return databaseSnapshot;
-}
-
-const saveTool = async (imageUrl, toolName, toolPrice, toolCategories, selectedSubcategories, modifiedToolId) => {
-  console.log("saveTool()");
-  if (modifiedToolId !== -1) {
-    await modifyToolAndSaveUrlToCategories(modifiedToolId, toolName, toolPrice, imageUrl, toolCategories, selectedSubcategories);
-  } else {
-    const numberOfToolsRef = db.collection("tools").doc("#numberOfTools");
-    await createToolAndSaveUrlToCategories(numberOfToolsRef, toolCategories, toolName, toolPrice, imageUrl, selectedSubcategories);
-  }
-}
-
-const pickFile = () => {
-  return new Promise((resolve, reject) => {
-    const input = document.createElement("input");
-    input.type = "file";
-    const onFileInputChange = (e) => {
-      console.log("onFileInputChange()");
-      const selectedFile = input.files[0];
-      input.removeEventListener("change", onFileInputChange);
-      if (selectedFile) {
-        resolve(selectedFile);
-      } else {
-        reject("No file selected");
-      }
-    };
-    input.addEventListener("change", onFileInputChange);
-    input.click();
-  });
-}
-
-const getFileTypeFrom64Url = (url) => {
-  const firstPosition = url.indexOf("/");
-  const lastPosition = url.indexOf(";");
-  const type = url.slice(firstPosition + 1, lastPosition);
-  return type;
-}
-
-const saveImage = async (tool) => {
-  console.log("saveImage()");
-  const storageRef = storage.ref("images/" + tool.name);
-  await storageRef.putString(tool.image, 'data_url');
-   
-  console.log('Image uploaded to Firebase Storage!');
-  const imageUrl = await storageRef.getDownloadURL();
-  return imageUrl;
-}
-
-const storeToolToDatabase = async (tool, imageChanged, modifiedToolId) => {
-  console.log("storeToolToDatabase()");
-  
-  let imageUrl = null;
-  if (imageChanged) {
-    imageUrl = await saveImage(tool);
-    await saveTool(imageUrl, tool.name, tool.price, tool.categories, tool.subcategories, modifiedToolId);
-  } else {
-    imageUrl = tool.image;
-    await saveTool(imageUrl, tool.name, tool.price, tool.categories, tool.subcategories, modifiedToolId);
-  }
-}
-
-const getToolValue = (element) => {
-  return element.value;
-}
-
-const getMultiselectValues = () => {
-  const toolMultiselectElements = document.querySelectorAll(".select-pure__option--selected");
-  const toolCategoriesAndSubcategories = Array.from(toolMultiselectElements).map((toolCategory) => {
-    return toolCategory.dataset.value;
-  });
-
-  const categories = new Set();
-  const subCategories = new Set();
-
-  toolCategoriesAndSubcategories.forEach((value) => {
-    if (value.includes(":")) {
-      subCategories.add(value);
-    } else {
-      categories.add(value);
-    }
-  })
-
-  return {
-    categories: categories,
-    subcategories: subCategories
-  }
-}
-
-const getTool = (nameElement, priceElement, toolImage) => {
-  const name = getToolValue(nameElement);
-  const price = getToolValue(priceElement);
-
-  const categoriesAndSubcategories = getMultiselectValues();
-  const categories = categoriesAndSubcategories.categories;
-  const subcategories = categoriesAndSubcategories.subcategories
-
-  return {
-    name: name,
-    price: parseInt(price),
-    categories: [...categories],
-    subcategories: [...subcategories],
-    image: toolImage
-  }
-}
-
-const getNewTools = (oldCategoryDoc, subcategories, deletedToolId) => {
-  return oldCategoryDoc.subcategories.map((subcategory) => {
-    if (subcategories.includes(subcategory.id)) {
-      const tools = subcategory.tools.filter((tool) => {
-        return tool != deletedToolId;
-      })
-
-      const newSubcategoryDoc = {
-        ...subcategory,
-        tools: tools
-      }
-      return newSubcategoryDoc;
-    }
-    return subcategory;
-  })
-}
-
-const getDeletedCategoriesTransactionDocuments = async (transaction, categories) => {
-  let oldCategoriesDocs = categories.map(async (category) => {
-    const categoryRef = db.collection("categories").doc(`0${parseInt(category)}`);
-    const oldCategoryDoc = await getFirebaseTransactionDocument(transaction, categoryRef);
-    return oldCategoryDoc;
-  });
-  oldCategoriesDocs = await Promise.all(oldCategoriesDocs);
-  return oldCategoriesDocs;
-}
-
-const updateCategory = (oldCategoryDoc, subcategories, deletedToolId) => {
-  const newTools = getNewTools(oldCategoryDoc, subcategories, deletedToolId, "0" + oldCategoryDoc.id);
-
-  const newCategoryDoc = {
-    ...oldCategoryDoc,
-    subcategories: newTools
-  }
-  return newCategoryDoc;
-}
-
-const deleteToolFromCategoriesTransaction = async (transaction, deletedToolId) => {
-  const deletedToolRef = db.collection("tools").doc(`${deletedToolId}`);
-  const deletedTool = await getFirebaseTransactionDocument(transaction, deletedToolRef);
-  if (!deletedTool) {
-    throw "Document does not exist!";
-  }
-  const categories = deletedTool.categories;
-  const subcategories = deletedTool.subcategories;
-
-  const oldCategoriesDocs = await getDeletedCategoriesTransactionDocuments(transaction, categories);
-
-  oldCategoriesDocs.forEach((oldCategoryDoc) => {
-    const newCategoryDoc = updateCategory(oldCategoryDoc, subcategories, deletedToolId);
-
-    const categoryRef = db.collection("categories").doc("0" + oldCategoryDoc.id);
-    transaction.update(categoryRef, newCategoryDoc);
-  });
-}
-
-const deleteToolFromTools = (transaction, id) => {
-  const deletedTool = db.collection("tools").doc(`${id}`);
-  transaction.delete(deletedTool);
-}
-
-const deleteToolDatabase = (id) => {
-  return db.runTransaction(async (transaction) => {
-    await deleteToolFromCategoriesTransaction(transaction, id);
-    await deleteToolFromTools(transaction, id);
-  }).then(() => {
-    console.log("Transaction delete is successfully commited!");
-  }).catch((error) => {
-    console.log(error)
-  });
 }

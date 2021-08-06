@@ -40,7 +40,7 @@ const toggleElement = (category, elements) => {
   });
 }
 
-const addCard = (card) => {
+const addToolToDom = (card) => {
   // let cardId = card.id;
   let cardId = card.id.toString();
   if (cardId.length == 1) {
@@ -70,6 +70,9 @@ const addCard = (card) => {
   </div>
   `
   cardContainer.innerHTML += html;
+
+  registerDeleteTool(state.authenticatedUser); 
+  registerModifyTool(state.authenticatedUser); 
 }
 
 const addMultiselect = (parent, _class, options, values, onChange) => {
@@ -118,14 +121,14 @@ const displayAdminOptions = (user) => {
   }
 }
 
-const registerDeleteTools = (user) => {
+const registerDeleteTool = (user) => {
   const deleteTools = document.querySelectorAll(".delete-tool");
   deleteTools.forEach((deleteTool) => {
     registerDeleteToolOnClick(deleteTool, user);
   });
 }
 
-const registerModifyTools = (user) => {
+const registerModifyTool = (user) => {
   const modifyTools = document.querySelectorAll(".modify-tool");
   modifyTools.forEach((modifyTool) => {
     registerModifyToolOnClick(modifyTool, user);
@@ -134,12 +137,10 @@ const registerModifyTools = (user) => {
 
 const showSelectedTools = (tools, user) => {
   tools.forEach((tool) => {
-    addCard(tool);
+    addToolToDom(tool);
   });
 
   displayAdminOptions(user);
-  registerDeleteTools(user);
-  registerModifyTools(user);
 }
 
 const updateToolsVisibility = async (toolIds, user) => {
@@ -210,7 +211,7 @@ const waitForClick = (element) => {
   })
 }
 
-const setupUi = (user, loggedInLinks, loggedOutLinks) => {
+const setupUi = (user, loggedInLinks, loggedOutLinks, searchContainer) => {
   if (user) {
     loggedInLinks.forEach((link) => {
       link.classList.remove("d-none");
@@ -218,6 +219,7 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
     loggedOutLinks.forEach((link) => {
       link.classList.add("d-none");
     });
+    searchContainer.classList.remove("d-none");
   } else {
     loggedInLinks.forEach((link) => {
       link.classList.add("d-none");
@@ -226,6 +228,7 @@ const setupUi = (user, loggedInLinks, loggedOutLinks) => {
       link.classList.remove("d-none");
     });
     admin.classList.add("d-none");
+    searchContainer.classList.add("d-none");
   }
 }
 
@@ -237,10 +240,10 @@ const removeMultiselectInstance = (container) => {
 
 const resetAllFieldsForm = (formElement, selectElement, toolImageElement, modifiedTool) => {
   formElement.reset();
-  if (categoriesSelect) {
+  if (widgets.categoriesSelect) {
     removeMultiselectInstance(categoriesSelectContainer);
   }
-  if (subcategoriesSelect) {
+  if (widgets.subcategoriesSelect) {
     removeMultiselectInstance(subcategoriesSelectContainer);
   }
   changeButtonName(selectElement, "Vyberte obrázek");
@@ -255,10 +258,10 @@ const resetAllFieldsForm = (formElement, selectElement, toolImageElement, modifi
 
 const removeMultiselectIntances = () => {
   console.log("removeMultiselectInstances()");
-  if (categoriesSelect) {
+  if (widgets.categoriesSelect) {
     removeMultiselectInstance(categoriesSelectContainer);
   }
-  if (subcategoriesSelect) {
+  if (widgets.subcategoriesSelect) {
     removeMultiselectInstance(subcategoriesSelectContainer);
   }
 }
@@ -271,16 +274,16 @@ const setDatabaseValues = (toolNameElement, toolPriceElement, toolImageElement, 
 
 const insertMultiselectInstances = async (selectedCategories, selectedSubcategories) => {
   console.log("insertMultiselectInstances()")
-
+  
   await createCategoriesSelect(selectedCategories);
 
   if (selectedSubcategories.length) {
-    rememberedSubcategories = selectedSubcategories;
+    state.subcategories = selectedSubcategories;
   } else {
-    rememberedSubcategories = [];
+    state.subcategories = [];
   }
    
-  await createSubcategoriesSelect(selectedCategories, rememberedSubcategories);
+  await createSubcategoriesSelect(selectedCategories, state.subcategories);
 }
 
 const saveToolReferenceToDomElement = (formElement, tool) => {
@@ -309,5 +312,35 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
     }
   } else {
     adminElement.classList.add("d-none");
+  }
+}
+
+const showErrorToolDoesNotExist = (id) => {
+  let html = `
+  <h4 class="search-error-display-message">Pomůcka s pořadovým číslem ${id} v databázi neexistuje!</h4> 
+  `
+  searchErrorContainer.innerHTML += html;
+  searchErrorContainer.classList.remove("d-none");
+}
+
+const showInputValidationError = () => {
+  let html = `
+  <h4 class="search-error-display-message">Pořadové číslo pomůcky musí být číslo. Nejsou povolená písmena a speciální znaky.</h4> 
+  `
+  searchErrorContainer.innerHTML += html;
+  searchErrorContainer.classList.remove("d-none");
+}
+
+const getToolDataFromUser = (formElement, toolNameElement, toolPriceElement) => {
+  const modifiedToolId = parseInt(formElement.dataset.toolid) || -1;
+  const imageChanged = convertStringToBoolean(selectedImage.value);
+  const name = toolNameElement.value;
+  const price = toolPriceElement.value;
+
+  return {
+    modifiedToolId: modifiedToolId,
+    imageChanged: imageChanged,
+    name: name,
+    price: price 
   }
 }

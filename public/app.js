@@ -1,18 +1,25 @@
 "use strict";
 
+let widgets = {
+  categoriesSelect: null,
+  subcategoriesSelect: null
+};
+
+let state = {
+  categoriesAndSubcategories: [],
+  subcategories: [],
+  tools: [],
+  authenticatedUser: null,
+  categoryIndex: null,
+  subcategoryIndex: null
+};
+
 let onDisplaySubnavigatiOnClick = null;
 let onDisplayToolsInSelectedSubcategoryOnClick = null;
 let onUploadToolToDatabaseOnSubmit = null;
 let onCreateToolButtonClick = null;
 let onDisplayToolsInSelectedCategoryOnClick = null;
-let categoriesSelect = null;
-let subcategoriesSelect = null;
-let rememberedSubcategories = [];
-let rememberedTools = [];
-let categoriesAndSubcategories = [];
-let authenticatedUser = null;
-let categoryIndex = null;
-let subcategoryIndex = null;
+let onFindToolById = null;
 
 const addCategoriesToNavbar = (categories) => {
   categories.forEach((category, index) => {
@@ -32,12 +39,14 @@ const getToolIdsSet = (toolIdsArrays) => {
   return toolIdsSet;
 }
 
-const getToolIds = (snapshot, categoryIndex, subcategoryIndex) => {
+const getToolIds = (categoriesAndSubcategories, categoryIndex, subcategoryIndex) => {
   if (subcategoryIndex) {
-    const toolIds = snapshot.docs[categoryIndex].data().subcategories[subcategoryIndex].tools;
+    const toolIds = categoriesAndSubcategories[categoryIndex].subcategories[subcategoryIndex].tools;
     return toolIds;
-  } else {
-    const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+  }
+
+  if (categoryIndex) {
+    const subcategories = categoriesAndSubcategories[categoryIndex].subcategories;
     const toolIdsArrays = subcategories.map((subcategory) => {
       return subcategory.tools;
     });
@@ -47,44 +56,21 @@ const getToolIds = (snapshot, categoryIndex, subcategoryIndex) => {
   }
 }
 
-const displayToolsInSelectedCategoryOnClick = async (target, snapshot, user) => {
-  console.log("displayToolsInSelectedCategoryOnClick()");
-
-  categoryIndex = target.dataset.index;
-  const toolIds = getToolIds(snapshot, categoryIndex, null);
-
-  rememberedTools = toolIds;
-
-  await updateToolsVisibility(toolIds, user);
-}
-
-const registerToolsInSelectedCategoryOnClick = (snapshot, domElement, user) => {
-  domElement.removeEventListener("click", onDisplayToolsInSelectedCategoryOnClick);
-  onDisplayToolsInSelectedCategoryOnClick = async (e) => {
-    console.log("onDisplayToolsInSelectedCategoryOnClick()");
-
-    // avoid event listener on container
-    if (e.target == domElement) {
-      return false;
-    }
-
-    await displayToolsInSelectedCategoryOnClick(e.target, snapshot, user);
-  }
-  domElement.addEventListener("click", onDisplayToolsInSelectedCategoryOnClick);
-}
-
-const displaySubnavigatiOnClick = (target, snapshot, domElementSibling) => {
+const displaySubnavigatiOnClick = (target, domElementSibling) => {
   console.log("displaySubnavigatiOnClick()");
-  categoryIndex = target.dataset.index;
 
-  const subcategories = snapshot.docs[categoryIndex].data().subcategories;
+  searchErrorContainer.innerHTML = "";
+
+  state.categoryIndex = target.dataset.index;
+
+  const subcategories = state.categoriesAndSubcategories[state.categoryIndex].subcategories;
   const buttonsNavBar = document.querySelectorAll(".btnNavBar");
 
   toggleElement(target, buttonsNavBar);
-  updateSubnavigationVisibility(domElementSibling, target, subcategories, categoryIndex);
+  updateSubnavigationVisibility(domElementSibling, target, subcategories, state.categoryIndex);
 }
 
-const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) => {
+const registerSubnavigationOnClick = (domElement, domElementSibling) => {
   domElement.removeEventListener("click", onDisplaySubnavigatiOnClick);
   onDisplaySubnavigatiOnClick = (e) => {
     console.log("onDisplaySubnavigatiOnClick()")
@@ -94,18 +80,45 @@ const registerSubnavigationOnClick = (snapshot, domElement, domElementSibling) =
       return false;
     }
 
-    displaySubnavigatiOnClick(e.target, snapshot, domElementSibling);
+    displaySubnavigatiOnClick(e.target, domElementSibling);
   };
   domElement.addEventListener("click", onDisplaySubnavigatiOnClick);
-  return snapshot;
 }
 
-const displayToolsInSelectedSubcategoryOnClick = async (target, snapshot, user) => {
-  console.log("displayToolsInSelectedSubcategoryOnClick()");
-  subcategoryIndex = target.dataset.subcategoryIndex;
+const displayToolsInSelectedCategoryOnClick = async (target, user) => {
+  console.log("displayToolsInSelectedCategoryOnClick()");
 
-  const toolIds = getToolIds(snapshot, categoryIndex, subcategoryIndex);
-  rememberedTools = toolIds;
+  searchErrorContainer.classList.add("d-none");
+
+  state.categoryIndex = target.dataset.index;
+
+  const toolIds = getToolIds(state.categoriesAndSubcategories, state.categoryIndex, null);
+  state.tools = toolIds;
+
+  await updateToolsVisibility(toolIds, user);
+}
+
+const registerToolsInSelectedCategoryOnClick = (domElement, user) => {
+  domElement.removeEventListener("click", onDisplayToolsInSelectedCategoryOnClick);
+  onDisplayToolsInSelectedCategoryOnClick = async (e) => {
+    console.log("onDisplayToolsInSelectedCategoryOnClick()");
+
+    // avoid event listener on container
+    if (e.target == domElement) {
+      return false;
+    }
+
+    await displayToolsInSelectedCategoryOnClick(e.target, user);
+  }
+  domElement.addEventListener("click", onDisplayToolsInSelectedCategoryOnClick);
+}
+
+const displayToolsInSelectedSubcategoryOnClick = async (target, user) => {
+  console.log("displayToolsInSelectedSubcategoryOnClick()");
+  state.subcategoryIndex = target.dataset.subcategoryIndex;
+
+  const toolIds = getToolIds(state.categoriesAndSubcategories, state.categoryIndex, state.subcategoryIndex);
+  state.tools = toolIds;
 
   const buttonsSubNavBar = document.querySelectorAll(".btnSubNavBar");
   toggleElement(target, buttonsSubNavBar);
@@ -113,7 +126,7 @@ const displayToolsInSelectedSubcategoryOnClick = async (target, snapshot, user) 
   await updateToolsVisibility(toolIds, user);
 }
 
-const registerToolsInSelectedSubcategoryOnClick = (snapshot, domElement, user) => {
+const registerToolsInSelectedSubcategoryOnClick = (domElement, user) => {
   domElement.removeEventListener("click", onDisplayToolsInSelectedSubcategoryOnClick);
   onDisplayToolsInSelectedSubcategoryOnClick = async (e) => {
     console.log("onDisplayToolsInSelectedSubcategoryOnClick()")
@@ -123,7 +136,7 @@ const registerToolsInSelectedSubcategoryOnClick = (snapshot, domElement, user) =
       return false;
     }
 
-    await displayToolsInSelectedSubcategoryOnClick(e.target, snapshot, user);
+    await displayToolsInSelectedSubcategoryOnClick(e.target, user);
   };
   domElement.addEventListener("click", onDisplayToolsInSelectedSubcategoryOnClick);
 }
@@ -160,17 +173,17 @@ const removeSubcategoriesOfRemovedCategories = (selectedCategories, rememberedSu
 }
 
 const createCategoriesSelect = async (selectedCategories) => {
-  const categories = await getMultiSelectItems(categoriesAndSubcategories);
-  categoriesSelect = addCategoriesMultiselect(categories, selectedCategories);
+  const categories = await getMultiSelectItems(state.categoriesAndSubcategories);
+  widgets.categoriesSelect = addCategoriesMultiselect(categories, selectedCategories);
 }
 
 const createSubcategoriesSelect = async (selectedCategories, selectedSubcategories) => {
-  const allSubcategories = await getAllSubcategories(categoriesAndSubcategories);
+  const allSubcategories = await getAllSubcategories(state.categoriesAndSubcategories);
 
-  rememberedSubcategories = removeSubcategoriesOfRemovedCategories(selectedCategories, rememberedSubcategories);
+  state.subcategories = removeSubcategoriesOfRemovedCategories(selectedCategories, state.subcategories);
 
   const subcategories = await getMultiselectSubItems(selectedCategories, allSubcategories);
-  subcategoriesSelect = addSubcategoriesMultiselect(subcategories, selectedSubcategories);
+  widgets.subcategoriesSelect = addSubcategoriesMultiselect(subcategories, selectedSubcategories);
 }
 
 const addCategoriesMultiselect = (categories, selectedCategories) => {
@@ -182,7 +195,7 @@ const addCategoriesMultiselect = (categories, selectedCategories) => {
     categories,
     selectedCategories,
     (selectedCategories) => {
-      createSubcategoriesSelect(selectedCategories, rememberedSubcategories);
+      createSubcategoriesSelect(selectedCategories, state.subcategories);
     }
   );
   return multiselect;
@@ -197,26 +210,42 @@ const addSubcategoriesMultiselect = (subcategories, selectedSubcategories) => {
     subcategories,
     selectedSubcategories,
     (selectedSubcategories) => {
-      rememberedSubcategories = selectedSubcategories;
+      state.subcategories = selectedSubcategories;
     }
   );
   return multiselect;
 }
 
+const getSelectedTools = async (ids) => {
+  try {
+    if (!ids || !ids.length) {
+      return [];
+    }
+
+    const selectedTools = await downloadDatabaseTools(ids);
+    return selectedTools;
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 const displaySelectedTools = async (ids, user) => {
   const selectedTools = await getSelectedTools(ids);
-  await showSelectedTools(selectedTools, user);
+  if (selectedTools) {
+    await showSelectedTools(selectedTools, user);
+  }
 }
 
 const refreshTools = async () => {
   console.log("refreshTools()");
-  const snapshot = await getDatabaseCategoriesAndSubcategories("categories");
-  getCategoriesAndSubcategories(snapshot);
-  const toolIds = getToolIds(snapshot, categoryIndex, subcategoryIndex);
 
-  rememberedTools = toolIds;
+  state.categoriesAndSubcategories = await downloadCategoriesAndSubcategories();
 
-  await updateToolsVisibility(toolIds, authenticatedUser);
+  const toolIds = getToolIds(state.categoriesAndSubcategories, state.categoryIndex, state.subcategoryIndex);
+  state.tools = toolIds;
+
+  await updateToolsVisibility(toolIds, state.authenticatedUser);
 }
 
 const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
@@ -227,13 +256,11 @@ const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceEl
     console.log("onUploadToolToDatabaseOnSubmit()");
     e.preventDefault();
 
-    const modifiedToolId = parseInt(formElement.dataset.toolid) || -1;
-    const imageChanged = convertStringToBoolean(selectedImage.value);
+    const toolData = getToolDataFromUser(formElement, toolNameElement, toolPriceElement);
+    const tool = setTool(toolData.name, toolData.price, toolImage.src);
+    await storeToolToDatabase(tool, toolData.imageChanged, toolData.modifiedToolId);
 
-    const tool = getTool(toolNameElement, toolPriceElement, toolImage.src);
-    await storeToolToDatabase(tool, imageChanged, modifiedToolId);
-    
-    resetForm(formElement, modifiedToolId);
+    resetForm(formElement, toolData.modifiedToolId);
     await refreshTools();
   };
   formElement.addEventListener("submit", onUploadToolToDatabaseOnSubmit);
@@ -275,14 +302,14 @@ const handleImageSelect = async () => {
 
 const registerDeleteToolOnClick = (domElement, user) => {
   domElement.addEventListener("click", async (e) => {
-    console.log("On delete tool click");
+    console.log("registerDeleteToolOnClick()");
     const toolId = e.target.dataset.id;
 
     if (user) {
-      await deleteToolDatabase(toolId);
+      await deleteDatabaseTool(toolId);
     }
 
-    await refreshTools();    
+    await refreshTools();
   });
 }
 
@@ -293,11 +320,182 @@ const registerModifyToolOnClick = (domElement, user) => {
     const toolIdArray = [];
     toolIdArray.push(parseInt(toolId));
 
-    const modifiedTool = await downloadToolsFromDatabase(toolIdArray);
+    const modifiedTool = await downloadDatabaseTools(toolIdArray);
 
     const categories = modifiedTool[0].categories;
     const subcategories = modifiedTool[0].subcategories;
 
-    showAddToolForm(admin, form, 1, toolName, toolPrice, categories, subcategories, select, toolImage, user, modifiedTool[0]);
+    showAddToolForm(admin, form, 1, toolName, toolPrice, categories, subcategories, toolSelect, toolImage, user, modifiedTool[0]);
   });
+}
+
+const getToolIdFromUser = () => {
+  const search = document.querySelector("#search");
+  const toolId = search.value;
+  return toolId;
+};
+
+const validateUserToolId = (toolId, domElement) => {
+  const toolIdPattern = /^[0-9]+$/;
+  if (toolId.toString().match(toolIdPattern)) {
+    return true;
+  } else {
+    console.log(`The toolId ${toolId} is not a number`);
+    showInputValidationError();
+    domElement.reset();
+    return false;
+  }
+}
+
+const clearResult = (errorContainer, cardContainer) => {
+  errorContainer.innerHTML = "";
+  removeAllElements(cardContainer);
+  errorContainer.classList.add("d-none");
+}
+
+const showTool = (tool, toolId) => {
+  if (!tool) {
+    console.log(`The tool ${toolId} does not exist in database`);
+    showErrorToolDoesNotExist(toolId);
+    return;
+  }
+
+  if (state.authenticatedUser) {
+    addToolToDom(tool);
+    displayAdminOptions(state.authenticatedUser);
+  }
+}
+
+const registerFindToolById = (domElement) => {
+  domElement.removeEventListener("submit", onFindToolById);
+  onFindToolById = async (e) => {
+    console.log("onFindToolById()");
+    e.preventDefault();
+
+    clearResult(searchErrorContainer, cardContainer);
+
+    let toolId = getToolIdFromUser();
+    const validatedId = validateUserToolId(toolId, domElement);
+    toolId = parseInt(toolId);
+
+    if (!validatedId) {
+      return;
+    }
+
+    const tool = await downloadDatabaseTool(toolId);
+    showTool(tool, toolId);
+
+    domElement.reset();
+  }
+  domElement.addEventListener("submit", onFindToolById);
+}
+
+const getCategories = (categoriesAndSubcategories) => {
+  const categories = categoriesAndSubcategories.map((category) => {
+    return category.title;
+  })
+  return categories;
+}
+
+const pickFile = () => {
+  return new Promise((resolve, reject) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    const onFileInputChange = (e) => {
+      console.log("onFileInputChange()");
+      const selectedFile = input.files[0];
+      input.removeEventListener("change", onFileInputChange);
+      if (selectedFile) {
+        resolve(selectedFile);
+      } else {
+        reject("No file selected");
+      }
+    };
+    input.addEventListener("change", onFileInputChange);
+    input.click();
+  });
+}
+
+const getFileTypeFrom64Url = (url) => {
+  const firstPosition = url.indexOf("/");
+  const lastPosition = url.indexOf(";");
+  const type = url.slice(firstPosition + 1, lastPosition);
+  return type;
+}
+
+const storeToolToDatabase = async (tool, imageChanged, modifiedToolId) => {
+  console.log("storeToolToDatabase()");
+
+  let imageUrl = null;
+  if (imageChanged) {
+    imageUrl = await saveImage(tool);
+    await saveTool(imageUrl, tool.name, tool.price, tool.categories, tool.subcategories, modifiedToolId);
+  } else {
+    imageUrl = tool.image;
+    await saveTool(imageUrl, tool.name, tool.price, tool.categories, tool.subcategories, modifiedToolId);
+  }
+}
+
+const getMultiselectValues = () => {
+  const toolMultiselectElements = document.querySelectorAll(".select-pure__option--selected");
+  const toolCategoriesAndSubcategories = Array.from(toolMultiselectElements).map((toolCategory) => {
+    return toolCategory.dataset.value;
+  });
+
+  const categories = new Set();
+  const subCategories = new Set();
+
+  toolCategoriesAndSubcategories.forEach((value) => {
+    if (value.includes(":")) {
+      subCategories.add(value);
+    } else {
+      categories.add(value);
+    }
+  })
+
+  return {
+    categories: categories,
+    subcategories: subCategories
+  }
+}
+
+const setTool = (name, price, image) => {
+  const categoriesAndSubcategories = getMultiselectValues();
+  const categories = categoriesAndSubcategories.categories;
+  const subcategories = categoriesAndSubcategories.subcategories
+
+  return {
+    name: name,
+    price: parseInt(price),
+    categories: [...categories],
+    subcategories: [...subcategories],
+    image: image
+  }
+}
+
+const getNewTools = (oldCategory, subcategories, deletedToolId) => {
+  return oldCategory.subcategories.map((subcategory) => {
+    if (subcategories.includes(subcategory.id)) {
+      const tools = subcategory.tools.filter((tool) => {
+        return tool != deletedToolId;
+      })
+
+      const newSubcategory = {
+        ...subcategory,
+        tools: tools
+      }
+      return newSubcategory;
+    }
+    return subcategory;
+  })
+}
+
+const updateCategory = (oldCategory, subcategories, deletedToolId) => {
+  const newTools = getNewTools(oldCategory, subcategories, deletedToolId, "0" + oldCategory.id);
+
+  const newCategory = {
+    ...oldCategory,
+    subcategories: newTools
+  }
+  return newCategory;
 }
