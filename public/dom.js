@@ -193,7 +193,9 @@ const resetForm = (form) => {
   form.reset();
   removeMultiselectIntances();
   insertMultiselectInstances([], []);
-  document.querySelector(".tool-image").src = "";
+  toolImage.removeAttribute("src");
+  state.categoriesSelected = false;
+  state.subcategoriesSelected = false;
 }
 
 const showImage = (image) => {
@@ -247,7 +249,7 @@ const resetAllFieldsForm = (formElement, selectElement, toolImageElement, modifi
     removeMultiselectInstance(subcategoriesSelectContainer);
   }
   changeButtonName(selectElement, "Vyberte obrázek");
-  toolImageElement.src = "";
+  toolImageElement.removeAttribute("src");
 
   if (!modifiedTool) {
     delete formElement.dataset.toolid;
@@ -269,7 +271,11 @@ const removeMultiselectIntances = () => {
 const setDatabaseValues = (toolNameElement, toolPriceElement, toolImageElement, tool) => {
   toolNameElement.value = `${tool.name}`;
   toolPriceElement.value = `${tool.price}`;
-  toolImageElement.src = `${tool.image}`;
+  if (tool.image) {
+    toolImageElement.src =  `${tool.image}`
+  } else {
+    toolImageElement.removeAttribute("src");
+  }
 };
 
 const insertMultiselectInstances = async (selectedCategories, selectedSubcategories) => {
@@ -317,15 +323,28 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
 
 const showErrorToolDoesNotExist = (id) => {
   let html = `
-  <h4 class="search-error-display-message">Pomůcka s pořadovým číslem ${id} v databázi neexistuje!</h4> 
+  <h4 class="error-display-message">Pomůcka s pořadovým číslem ${id} v databázi neexistuje!</h4> 
   `
   searchErrorContainer.innerHTML += html;
   searchErrorContainer.classList.remove("d-none");
 }
 
+const showErrorMessage = (domElement, message) => {
+  let html = `
+  <h4 class="error-display-message">${message}</h4> 
+  `
+  domElement.innerHTML = "";
+  domElement.innerHTML += html;
+  domElement.classList.remove("d-none");
+}
+
+const hideErrorMessage = (domElement) => {
+  domElement.classList.add("d-none");
+}
+
 const showInputValidationError = () => {
   let html = `
-  <h4 class="search-error-display-message">Pořadové číslo pomůcky musí být číslo. Nejsou povolená písmena a speciální znaky.</h4> 
+  <h4 class="error-display-message">Pořadové číslo pomůcky musí být číslo. Nejsou povolená písmena a speciální znaky.</h4> 
   `
   searchErrorContainer.innerHTML += html;
   searchErrorContainer.classList.remove("d-none");

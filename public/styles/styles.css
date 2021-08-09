@@ -41,27 +41,21 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   border: 1px #ddd;
 }
 
-.search-error-display {
-  margin-top: 15px;
-
-}
-
-.search-error{
-  margin-top: 20px;
-}
-
-.search-error-display-message{
-  margin-top: 20px;
-  margin-bottom: 20px;
-  padding: 10px;
-  color: #721c24;
-}
-
-
-
 .my-image {
   padding: 0px;
   height: 300px;
   display: block;
   object-fit: contain;
+}
+
+.error{
+  margin-top: 10px;
+}
+
+.error-display-message{
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
+  color: #721c24;
+  font-size: 15pt;
 }

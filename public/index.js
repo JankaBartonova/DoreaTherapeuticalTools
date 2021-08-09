@@ -20,6 +20,11 @@ const selectedImage = document.getElementById("selected-image");
 const searchContainer = document.querySelector("#navbar-search");
 const searchForm = document.querySelector(".form-search");
 const searchErrorContainer = document.querySelector("#search-error-display");
+const nameErrorDisplay = document.querySelector("#name-error-display");
+const priceErrorDisplay = document.querySelector("#price-error-display");
+const categoriesErrorDisplay = document.querySelector("#categories-error-display");
+const subcategoriesErrorDisplay = document.querySelector("#subcategories-error-display");
+const imageErrorDisplay = document.querySelector("#image-error-display");
 
 (async () => {
   try {
