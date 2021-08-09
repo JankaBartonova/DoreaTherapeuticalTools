@@ -251,19 +251,29 @@ const refreshTools = async () => {
 const validateUserTool = (tool) => {
   console.log("ValidateUserTool()");
 
+  if (!tool.name.length) {
+    console.log("name is not chosen")
+    showErrorMessage(nameErrorDisplay, "Jméno pomůcky není zadáno");
+    return false;
+  }
+  if (!tool.price) {
+    console.log("price is not chosen")
+    showErrorMessage(priceErrorDisplay, "Orientační cena pomůcky není zadána");
+    return false;
+  }
   if (!tool.categories.length) {
     console.log("categories are not chosen")
-     //TODO showErrorMessage(message);
+    showErrorMessage(categoriesErrorDisplay, "Kategorie pomůcky nejsou zadány");
     return false;
   }
   if (!tool.subcategories.length) {
     console.log("subcategories are not chosen")
-    //TODO showErrorMessage(message);
+    showErrorMessage(subcategoriesErrorDisplay, "Podkategorie pomůcky nejsou zadány nebo podkategorie určité kategorie nejsou zadány");
     return false;
   }
   if (!tool.image) {
     console.log("image was not chosen")
-    //TODO showErrorMessage(message);
+    showErrorMessage(imageErrorDisplay, "Obrázek není vybrán. Pokud není k dispozici obrázek pomůcky, vyberte zástupný obrázek");
     return false;
   }
 

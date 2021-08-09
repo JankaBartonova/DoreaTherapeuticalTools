@@ -321,15 +321,23 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
 
 const showErrorToolDoesNotExist = (id) => {
   let html = `
-  <h4 class="search-error-display-message">Pomůcka s pořadovým číslem ${id} v databázi neexistuje!</h4> 
+  <h4 class="error-display-message">Pomůcka s pořadovým číslem ${id} v databázi neexistuje!</h4> 
   `
   searchErrorContainer.innerHTML += html;
   searchErrorContainer.classList.remove("d-none");
 }
 
+const showErrorMessage = (domElement, message) => {
+  let html = `
+  <h4 class="error-display-message">${message}</h4> 
+  `
+  domElement.innerHTML += html;
+  domElement.classList.remove("d-none");
+}
+
 const showInputValidationError = () => {
   let html = `
-  <h4 class="search-error-display-message">Pořadové číslo pomůcky musí být číslo. Nejsou povolená písmena a speciální znaky.</h4> 
+  <h4 class="error-display-message">Pořadové číslo pomůcky musí být číslo. Nejsou povolená písmena a speciální znaky.</h4> 
   `
   searchErrorContainer.innerHTML += html;
   searchErrorContainer.classList.remove("d-none");
