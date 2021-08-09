@@ -194,6 +194,8 @@ const resetForm = (form) => {
   removeMultiselectIntances();
   insertMultiselectInstances([], []);
   toolImage.removeAttribute("src");
+  state.categoriesSelected = false;
+  state.subcategoriesSelected = false;
 }
 
 const showImage = (image) => {
@@ -331,8 +333,13 @@ const showErrorMessage = (domElement, message) => {
   let html = `
   <h4 class="error-display-message">${message}</h4> 
   `
+  domElement.innerHTML = "";
   domElement.innerHTML += html;
   domElement.classList.remove("d-none");
+}
+
+const hideErrorMessage = (domElement) => {
+  domElement.classList.add("d-none");
 }
 
 const showInputValidationError = () => {

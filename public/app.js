@@ -11,7 +11,9 @@ let state = {
   tools: [],
   authenticatedUser: null,
   categoryIndex: null,
-  subcategoryIndex: null
+  subcategoryIndex: null,
+  categoriesSelected: false,
+  subcategoriesSelected: false
 };
 
 let onDisplaySubnavigatiOnClick = null;
@@ -20,6 +22,8 @@ let onUploadToolToDatabaseOnSubmit = null;
 let onCreateToolButtonClick = null;
 let onDisplayToolsInSelectedCategoryOnClick = null;
 let onFindToolById = null;
+let onHideErrorOnInput = null;
+let onHideErrorOnClick = null;
 
 const addCategoriesToNavbar = (categories) => {
   categories.forEach((category, index) => {
@@ -177,7 +181,27 @@ const createCategoriesSelect = async (selectedCategories) => {
   widgets.categoriesSelect = addCategoriesMultiselect(categories, selectedCategories);
 }
 
+const handleErrorMessageCategories = (selectedCategories) => {
+  if (state.categoriesSelected && !selectedCategories.length) {
+    showErrorMessage(categoriesErrorDisplay, "Kategorie pomůcky nejsou zadány");
+  } else {
+    hideErrorMessage(categoriesErrorDisplay);
+  }
+  state.categoriesSelected = true;
+}
+
+const handleErrorMessageSubcategories = (selectedSubcategories) => {
+  if (state.subcategoriesSelected && !selectedSubcategories.length) {
+    showErrorMessage(subcategoriesErrorDisplay, "Podkategorie pomůcky nejsou zadány nebo podkategorie určité kategorie nejsou zadány");
+  } else {
+    hideErrorMessage(subcategoriesErrorDisplay);
+  }
+  state.subcategoriesSelected = true;
+}
+
 const createSubcategoriesSelect = async (selectedCategories, selectedSubcategories) => {
+  handleErrorMessageCategories(selectedCategories)
+
   const allSubcategories = await getAllSubcategories(state.categoriesAndSubcategories);
 
   state.subcategories = removeSubcategoriesOfRemovedCategories(selectedCategories, state.subcategories);
@@ -210,6 +234,7 @@ const addSubcategoriesMultiselect = (subcategories, selectedSubcategories) => {
     subcategories,
     selectedSubcategories,
     (selectedSubcategories) => {
+      handleErrorMessageSubcategories(selectedSubcategories);
       state.subcategories = selectedSubcategories;
     }
   );
@@ -254,11 +279,13 @@ const validateUserTool = (tool) => {
   if (!tool.name.length) {
     console.log("name is not chosen")
     showErrorMessage(nameErrorDisplay, "Jméno pomůcky není zadáno");
+    registerHideErrorOnInput(toolName, nameErrorDisplay);
     return false;
   }
   if (!tool.price) {
     console.log("price is not chosen")
     showErrorMessage(priceErrorDisplay, "Orientační cena pomůcky není zadána");
+    registerHideErrorOnInput(toolPrice, priceErrorDisplay);
     return false;
   }
   if (!tool.categories.length) {
@@ -274,10 +301,35 @@ const validateUserTool = (tool) => {
   if (!tool.image) {
     console.log("image was not chosen")
     showErrorMessage(imageErrorDisplay, "Obrázek není vybrán. Pokud není k dispozici obrázek pomůcky, vyberte zástupný obrázek");
+    registerHideErrorOnClick(toolImage, imageErrorDisplay);
     return false;
   }
 
   return true;
+}
+
+const registerHideErrorOnInput = (domElement, domErrorElement) => {
+  console.log("registerHideErrorOnInput()")
+
+  domElement.removeEventListener("input", onHideErrorOnInput);
+  onHideErrorOnInput = (e) => {
+    console.log("onHideErrorOnInput()");
+
+    domErrorElement.classList.add("d-none");
+  }
+  addEventListener("input", onHideErrorOnInput);
+}
+
+const registerHideErrorOnClick = (domElement, domErrorElement) => {
+  console.log("registerHideErrorOnClick()");
+
+  domElement.removeEventListener("click", onHideErrorOnClick);
+  onHideErrorOnClick = (e) => {
+    console.log("onHideErrorOnClick()");
+
+    domErrorElement.classList.add("d-none");
+  }
+  addEventListener("click", onHideErrorOnClick);
 }
 
 const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
@@ -290,11 +342,12 @@ const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceEl
 
     const toolData = getToolDataFromUser(formElement, toolNameElement, toolPriceElement);
     const tool = setTool(toolData.name, toolData.price, toolImage.src);
+    console.log(tool);
 
     if (!validateUserTool(tool)) {
       return;
     };
-
+    
     await storeToolToDatabase(tool, toolData.imageChanged, toolData.modifiedToolId);
 
     resetForm(formElement, toolData.modifiedToolId);
