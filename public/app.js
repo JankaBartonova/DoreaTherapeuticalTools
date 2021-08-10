@@ -271,6 +271,10 @@ const refreshTools = async () => {
   state.tools = toolIds;
 
   await updateToolsVisibility(toolIds, state.authenticatedUser);
+  window.scroll(0, 0);
+  admin.classList.add("d-none");
+  state.categoriesSelected = false;
+  state.subcategoriesSelected = false;
 }
 
 const validateUserTool = (tool) => {
@@ -282,7 +286,7 @@ const validateUserTool = (tool) => {
     registerHideErrorOnInput(toolName, nameErrorDisplay);
     return false;
   }
-  if (!tool.price) {
+  if (Number.isNaN(tool.price)) {
     console.log("price is not chosen")
     showErrorMessage(priceErrorDisplay, "Orientační cena pomůcky není zadána");
     registerHideErrorOnInput(toolPrice, priceErrorDisplay);
@@ -343,6 +347,7 @@ const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceEl
     const toolData = getToolDataFromUser(formElement, toolNameElement, toolPriceElement);
     const tool = setTool(toolData.name, toolData.price, toolImage.src);
     console.log(tool);
+    console.log(tool.price, typeof(parseInt(tool.price)))
 
     if (!validateUserTool(tool)) {
       return;

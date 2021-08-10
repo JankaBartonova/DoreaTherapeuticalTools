@@ -308,6 +308,7 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
       resetAllFieldsForm(formElement, selectElement, toolImageElement, edit);
       insertMultiselectInstances([], []);
       showAdminInterface(adminElement);
+      admin.scrollIntoView();
     } else {
       showAdminInterface(adminElement);
       setDatabaseValues(toolNameElement, toolPriceElement, toolImageElement, tool);
@@ -315,6 +316,7 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
       removeMultiselectIntances();
       insertMultiselectInstances(selectedCategories, selectedSubcategories);
       saveToolReferenceToDomElement(formElement, tool);
+      admin.scrollIntoView();
     }
   } else {
     adminElement.classList.add("d-none");
