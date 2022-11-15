@@ -185,7 +185,7 @@ const handleErrorMessageCategories = (selectedCategories) => {
   if (state.categoriesSelected && !selectedCategories.length) {
     showErrorMessage(categoriesErrorDisplay, "Kategorie pomůcky nejsou zadány");
   } else {
-    hideErrorMessage(categoriesErrorDisplay);
+    hideMessage(categoriesErrorDisplay);
   }
   state.categoriesSelected = true;
 }
@@ -194,7 +194,7 @@ const handleErrorMessageSubcategories = (selectedSubcategories) => {
   if (state.subcategoriesSelected && !selectedSubcategories.length) {
     showErrorMessage(subcategoriesErrorDisplay, "Podkategorie pomůcky nejsou zadány nebo podkategorie určité kategorie nejsou zadány");
   } else {
-    hideErrorMessage(subcategoriesErrorDisplay);
+    hideMessage(subcategoriesErrorDisplay);
   }
   state.subcategoriesSelected = true;
 }
@@ -336,6 +336,11 @@ const registerHideErrorOnClick = (domElement, domErrorElement) => {
   addEventListener("click", onHideErrorOnClick);
 }
 
+const reloadApplicationOnSubmitForm = async (element, toolId) => {
+  resetForm(element, toolId);
+  await refreshTools();
+}
+
 const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
   console.log("registerUploadToolToDatabaseOnSubmit()");
 
@@ -346,8 +351,6 @@ const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceEl
 
     const toolData = getToolDataFromUser(formElement, toolNameElement, toolPriceElement);
     const tool = setTool(toolData.name, toolData.price, toolImage.src);
-    console.log(tool);
-    console.log(tool.price, typeof(parseInt(tool.price)))
 
     if (!validateUserTool(tool)) {
       return;
@@ -355,8 +358,7 @@ const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceEl
     
     await storeToolToDatabase(tool, toolData.imageChanged, toolData.modifiedToolId);
 
-    resetForm(formElement, toolData.modifiedToolId);
-    await refreshTools();
+    await reloadApplicationOnSubmitForm(formElement, toolData.modifiedToolId);
   };
   formElement.addEventListener("submit", onUploadToolToDatabaseOnSubmit);
 

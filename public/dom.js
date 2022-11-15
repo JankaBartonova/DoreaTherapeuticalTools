@@ -340,7 +340,7 @@ const showErrorMessage = (domElement, message) => {
   domElement.classList.remove("d-none");
 }
 
-const hideErrorMessage = (domElement) => {
+const hideMessage = (domElement) => {
   domElement.classList.add("d-none");
 }
 
@@ -350,6 +350,19 @@ const showInputValidationError = () => {
   `
   searchErrorContainer.innerHTML += html;
   searchErrorContainer.classList.remove("d-none");
+}
+
+const showSuccessMessage = (domElement, message) => {
+    let html = `
+    <h4 class="success-display-message">${message}</h4>
+    `
+    domElement.innerHTML += html;
+    domElement.classList.remove("d-none")
+    setTimeout(() => {
+        domElement.classList.add("d-none");
+        removeAllElements(domElement);
+    }, 2000);
+
 }
 
 const getToolDataFromUser = (formElement, toolNameElement, toolPriceElement) => {

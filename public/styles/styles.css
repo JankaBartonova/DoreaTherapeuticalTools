@@ -60,6 +60,14 @@ label.btn-outline-info:not(:disabled):not(.disabled).active:hover {
   font-size: 15pt;
 }
 
+.success-display-message{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 5px;
+    color: green;
+    font-size: 15pt;
+  }
+
 .popup-admin-wrapper{
   min-height: 100vh;
 }

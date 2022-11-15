@@ -120,6 +120,7 @@ const createToolAndSaveUrlToCategories = (numberOfToolsRef, selectedCategoriesId
     })
   }).then(() => {
     console.log("Transaction createToolAndSaveUrlToCategories() new tools is successfully commited!");
+    showSuccessMessage(successMessageDisplay, "Pomůcka byla přídána!");
   }).catch((error) => {
     console.error("Transaction failed! ", error);
   });
@@ -141,6 +142,7 @@ const modifyToolAndSaveUrlToCategories = (modifiedToolId, toolName, toolPrice, t
     });
   }).then(() => {
     console.log("Transaction modifyToolAndSaveUrlToCategories() is successfully commited!");
+    showSuccessMessage(successMessageDisplay, "Pomůcka byla změněna!");
   }).catch((error) => {
     console.error("Transaction failed! ", error);
   });
@@ -186,6 +188,7 @@ const deleteDatabaseTool = (id) => {
     await deleteToolFromToolsTransaction(transaction, id);
   }).then(() => {
     console.log("Transaction delete is successfully commited!");
+    showSuccessMessage(successMessageDisplay, "Pomůcka byla smazána!");
   }).catch((error) => {
     console.log(error)
   });
