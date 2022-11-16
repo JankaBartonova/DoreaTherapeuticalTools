@@ -25,6 +25,7 @@ const priceErrorDisplay = document.querySelector("#price-error-display");
 const categoriesErrorDisplay = document.querySelector("#categories-error-display");
 const subcategoriesErrorDisplay = document.querySelector("#subcategories-error-display");
 const imageErrorDisplay = document.querySelector("#image-error-display");
+const successMessageDisplay = document.querySelector("#success-message-display");
 
 (async () => {
   try {
@@ -53,7 +54,7 @@ const imageErrorDisplay = document.querySelector("#image-error-display");
         };
         createTool.addEventListener("click", onCreateToolButtonClick);
 
-        // show admin options when tools listed
+        // Show admin options when tools listed
         removeAllElements(cardContainer);
         registerToolsInSelectedCategoryOnClick(navBarCategories, user);
         await updateToolsVisibility(state.tools, user);

@@ -25,6 +25,8 @@ let onFindToolById = null;
 let onHideErrorOnInput = null;
 let onHideErrorOnClick = null;
 
+// Navbar & tools listing
+
 const addCategoriesToNavbar = (categories) => {
   categories.forEach((category, index) => {
     addNavBar(navBarCategories, category, index);
@@ -145,6 +147,8 @@ const registerToolsInSelectedSubcategoryOnClick = (domElement, user) => {
   domElement.addEventListener("click", onDisplayToolsInSelectedSubcategoryOnClick);
 }
 
+// Form add or modify tool
+
 const getMultiSelectItems = (categoriesAndSubcategories) => {
   const items = categoriesAndSubcategories.map((category) => {
     const label = category.title;
@@ -179,24 +183,6 @@ const removeSubcategoriesOfRemovedCategories = (selectedCategories, rememberedSu
 const createCategoriesSelect = async (selectedCategories) => {
   const categories = await getMultiSelectItems(state.categoriesAndSubcategories);
   widgets.categoriesSelect = addCategoriesMultiselect(categories, selectedCategories);
-}
-
-const handleErrorMessageCategories = (selectedCategories) => {
-  if (state.categoriesSelected && !selectedCategories.length) {
-    showErrorMessage(categoriesErrorDisplay, "Kategorie pomůcky nejsou zadány");
-  } else {
-    hideErrorMessage(categoriesErrorDisplay);
-  }
-  state.categoriesSelected = true;
-}
-
-const handleErrorMessageSubcategories = (selectedSubcategories) => {
-  if (state.subcategoriesSelected && !selectedSubcategories.length) {
-    showErrorMessage(subcategoriesErrorDisplay, "Podkategorie pomůcky nejsou zadány nebo podkategorie určité kategorie nejsou zadány");
-  } else {
-    hideErrorMessage(subcategoriesErrorDisplay);
-  }
-  state.subcategoriesSelected = true;
 }
 
 const createSubcategoriesSelect = async (selectedCategories, selectedSubcategories) => {
@@ -312,28 +298,9 @@ const validateUserTool = (tool) => {
   return true;
 }
 
-const registerHideErrorOnInput = (domElement, domErrorElement) => {
-  console.log("registerHideErrorOnInput()")
-
-  domElement.removeEventListener("input", onHideErrorOnInput);
-  onHideErrorOnInput = (e) => {
-    console.log("onHideErrorOnInput()");
-
-    domErrorElement.classList.add("d-none");
-  }
-  addEventListener("input", onHideErrorOnInput);
-}
-
-const registerHideErrorOnClick = (domElement, domErrorElement) => {
-  console.log("registerHideErrorOnClick()");
-
-  domElement.removeEventListener("click", onHideErrorOnClick);
-  onHideErrorOnClick = (e) => {
-    console.log("onHideErrorOnClick()");
-
-    domErrorElement.classList.add("d-none");
-  }
-  addEventListener("click", onHideErrorOnClick);
+const reloadApplicationOnSubmitForm = async (element, toolId) => {
+  resetForm(element, toolId);
+  await refreshTools();
 }
 
 const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
@@ -346,8 +313,6 @@ const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceEl
 
     const toolData = getToolDataFromUser(formElement, toolNameElement, toolPriceElement);
     const tool = setTool(toolData.name, toolData.price, toolImage.src);
-    console.log(tool);
-    console.log(tool.price, typeof(parseInt(tool.price)))
 
     if (!validateUserTool(tool)) {
       return;
@@ -355,8 +320,7 @@ const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceEl
     
     await storeToolToDatabase(tool, toolData.imageChanged, toolData.modifiedToolId);
 
-    resetForm(formElement, toolData.modifiedToolId);
-    await refreshTools();
+    await reloadApplicationOnSubmitForm(formElement, toolData.modifiedToolId);
   };
   formElement.addEventListener("submit", onUploadToolToDatabaseOnSubmit);
 
@@ -402,7 +366,7 @@ const registerDeleteToolOnClick = (domElement, user) => {
     const toolId = e.target.dataset.id;
 
     if (user) {
-      await deleteDatabaseTool(toolId);
+      await deleteDatabaseToolTransaction(toolId);
     }
 
     await refreshTools();
@@ -443,6 +407,7 @@ const validateUserToolId = (toolId, domElement) => {
   }
 }
 
+// TODO - refactor clearResult() to existing dom function
 const clearResult = (errorContainer, cardContainer) => {
   errorContainer.innerHTML = "";
   removeAllElements(cardContainer);
@@ -596,4 +561,48 @@ const updateCategory = (oldCategory, subcategories, deletedToolId) => {
     subcategories: newTools
   }
   return newCategory;
+}
+
+// Errors & messages
+
+const handleErrorMessageCategories = (selectedCategories) => {
+  if (state.categoriesSelected && !selectedCategories.length) {
+    showErrorMessage(categoriesErrorDisplay, "Kategorie pomůcky nejsou zadány");
+  } else {
+    hideMessage(categoriesErrorDisplay);
+  }
+  state.categoriesSelected = true;
+}
+
+const handleErrorMessageSubcategories = (selectedSubcategories) => {
+  if (state.subcategoriesSelected && !selectedSubcategories.length) {
+    showErrorMessage(subcategoriesErrorDisplay, "Podkategorie pomůcky nejsou zadány nebo podkategorie určité kategorie nejsou zadány");
+  } else {
+    hideMessage(subcategoriesErrorDisplay);
+  }
+  state.subcategoriesSelected = true;
+}
+
+const registerHideErrorOnInput = (domElement, domErrorElement) => {
+  console.log("registerHideErrorOnInput()")
+
+  domElement.removeEventListener("input", onHideErrorOnInput);
+  onHideErrorOnInput = (e) => {
+    console.log("onHideErrorOnInput()");
+
+    domErrorElement.classList.add("d-none");
+  }
+  addEventListener("input", onHideErrorOnInput);
+}
+
+const registerHideErrorOnClick = (domElement, domErrorElement) => {
+  console.log("registerHideErrorOnClick()");
+
+  domElement.removeEventListener("click", onHideErrorOnClick);
+  onHideErrorOnClick = (e) => {
+    console.log("onHideErrorOnClick()");
+
+    domErrorElement.classList.add("d-none");
+  }
+  addEventListener("click", onHideErrorOnClick);
 }
