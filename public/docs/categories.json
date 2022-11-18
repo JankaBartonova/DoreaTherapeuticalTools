@@ -1,198 +1,176 @@
 {
   "01": {
-    "id": 1,
+    "id": "1",
     "title": "Miminka",
     "subcategories": [
       {
-        "id": 11,
+        "id": "1:1",
         "title": "Hračky pro miminka, podložky, hrazdy"
       },
       {
-        "id": 12,
+        "id": "1:2",
         "title": "Zraková stimulace pro nejmenší"
       }
-    ]
+    ],
+    "tools": []
   },
   "02": {
-    "id": 2,
+    "id": "2",
     "title" : "Batolata",
     "subcategories" : [
       {
-        "id": 21,
+        "id": "2:1",
         "title" : "Zvukové pultíky, cílený dotek"
       }
-    ]
+    ],
+    "tools": []
   },
   "03": {
-    "id": 3,
+    "id": "3",
     "title" : "Jemná motorika",
     "subcategories" : [
       {  
-        "id": 31,
+        "id": "3:1",
         "title" : "Stavebnice"
       },
       {
-        "id": 32,
+        "id": "3:2",
         "title" : "Manipulační hračky"
       },
       {
-        "id": 33,
+        "id": "3:3",
         "title" : "Provlékání"
       },
       {
-        "id": 34,
+        "id": "3:4",
         "title" : "Labyrinty"
       },
       {
-        "id": 35,
+        "id": "3:5",
         "title" : "Sebeobsluha"
       },
       {
-        "id": 36,
+        "id": "3:6",
         "title" : "Grafomotorika"
       }
-    ]
+    ],
+    "tools": []
   },
   "04" : {
-    "id": 4,
+    "id": "4",
     "title" : "Myšlení",
     "subcategories" : [
       {
-        "id": 41,
+        "id": "4:1",
         "title" : "Vkládačky"
       },
       {
-        "id": 42,
+        "id": "4:2",
         "title" : "Strukturované úkoly"
       },
       {
-        "id": 43,
+        "id": "4:3",
         "title" : "Puzzle"
       },
       {
-        "id": 44,
+        "id": "4:4",
         "title" : "Barvy"
       },
       {
-        "id": 45,
+        "id": "4:5",
         "title" : "Počítání"       
       },
       {
-        "id": 46,
+        "id": "4:6",
         "title" : "Obrázkové hry"
       },
       {
-        "id": 47,
+        "id": "4:7",
         "title" : "Pracovní listy"
       }
-    ]
+    ],
+    "tools": []
   },
   "05" : {
-    "id": 5,
+    "id": "5",
     "title" : "Zrakové vnímání",
     "subcategories" : [
       {
-        "id": 51,
+        "id": "5:1",
         "title" : "Zrakové vnímání"
       }
-    ]
+    ],
+    "tools": []
   },
   "06" : {
-    "id": 6,
+    "id": "6",
     "title" : "Sluchové vnímání a hudební nástroje",
     "subcategories" : [
       {
-        "id": 61,
+        "id": "6:1",
         "title" : "Sluchové vnímání a hudební nástroje"
       }
-    ]
+    ],
+    "tools": []
   },
   "07" : {
-    "id": 7,
+    "id": "7",
     "title" : "Komunikace",
     "subcategories" : [
       {
-        "id": 71,
+        "id": "7:1",
         "title" : "Logopedie úkoly"
       },
       {
-        "id": 72,
+        "id": "7:2",
         "title" : "Logopedické pomůcky"
       },
       {
-        "id": 73,
+        "id": "7:3",
         "title" : "Pomůcky pro komunikaci"
       } 
-    ]
+    ],
+    "tools": []
   },
   "08" : {
-    "id": 8,
+    "id": "8",
     "title" : "Hrubá motorika",
     "subcategories" : [
       {
-        "id": 81,
+        "id": "8:1",
         "title" : "Rehabilitační pomůcky"
       },
       {
-        "id": 82,
+        "id": "8:2",
         "title" : "Polohovací pomůcky"
       },
       {
-        "id": 83,
+        "id": "8:3",
         "title" : "Hry na koordinaci a podporu hrubé motoriky"
       }
-    ]
+    ],
+    "tools": []
   },
   "09" : {
-    "id": 9,
+    "id": "9",
     "title" : "Vibrační pomůcky",
     "subcategories" : [
       {
-        "id": 91,
+        "id": "9:1",
         "title": "Vibrační pomůcky"
       }
-    ]
+    ],
+    "tools": []
   }, 
   "10" : {
-    "id": 10,
-    "title" : "Literatura",
+    "id": "10",
+    "title" : "Dětská literatura",
     "subcategories" : [
       {
-        "id": 101,
-        "title" : "Tvoření s dětmi"
-      },
-      {
-        "id": 102,
-        "title" : "Hry a cvičení"
-      },
-      {
-        "id": 103,
-        "title" : "Dětská literatura"
-      },
-      {
-        "id": 104,
-        "title" : "Odborná literatura"
-      },
-      {
-        "id": 105,
-        "title" : "Pro rodiče"
-      },
-      {
-        "id": 106,
-        "title" : "Sociální tématika, jiné"
-      },
-      {
-        "id": 107,
-        "title" : "Pro nejmenší"
-      },
-      {
-        "id": 108,
-        "title" : "Pracovní listy"
-      },
-      {
-        "id": 109,
-        "title" : "Duchovní"
+        "id": "10:1",
+        "title" : "Dětské knížky"
       }
-    ]
+    ],
+    "tools": []
   } 
 }

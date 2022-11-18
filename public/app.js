@@ -303,6 +303,11 @@ const reloadApplicationOnSubmitForm = async (element, toolId) => {
   await refreshTools();
 }
 
+const reloadApplicationOnSubmitForm = async (element, toolId) => {
+  resetForm(element, toolId);
+  await refreshTools();
+}
+
 const registerUploadToolToDatabaseOnSubmit = async (toolNameElement, toolPriceElement, selectElement, formElement) => {
   console.log("registerUploadToolToDatabaseOnSubmit()");
 
