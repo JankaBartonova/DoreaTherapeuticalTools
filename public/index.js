@@ -54,7 +54,7 @@ const successMessageDisplay = document.querySelector("#success-message-display")
         };
         createTool.addEventListener("click", onCreateToolButtonClick);
 
-        // show admin options when tools listed
+        // Show admin options when tools listed
         removeAllElements(cardContainer);
         registerToolsInSelectedCategoryOnClick(navBarCategories, user);
         await updateToolsVisibility(state.tools, user);

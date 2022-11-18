@@ -1,6 +1,6 @@
 "use strict";
 
-// SECTION: Manipulation with snapshot
+// Manipulation with snapshot
 
 const getCategoriesAndSubcategories = (snapshot) => {
   const categoriesAndSubcategories = new Array();
@@ -11,7 +11,7 @@ const getCategoriesAndSubcategories = (snapshot) => {
   return categoriesAndSubcategories;
 }
 
-// SECTION: Database queries and data modeling - generic functions
+// Database queries and data modeling - generic functions
 
 const downloadDatabaseCollection = async (collection) => {
   const snapshot = await db.collection(collection.toString()).get()
@@ -24,7 +24,7 @@ const downloadDatabaseDocument = async (reference) => {
   return snapshot.data();
 }
 
-// SECTION: Database queries and data modeling - aplication functions
+// Database queries and data modeling - aplication functions
 
 const downloadDatabaseTool = async (id) => {
   const reference = db.collection("tools").doc(`${id}`);
@@ -56,7 +56,7 @@ const downloadCategoriesAndSubcategories = async () => {
   return categoriesAndSubcategories;
 }
 
-// SECTION: Transactions
+// Transactions
 
 const getDatabaseDocumentTransaction = (transaction, reference) => {
   return transaction
@@ -182,7 +182,7 @@ const deleteToolFromToolsTransaction = (transaction, id) => {
   transaction.delete(deletedTool);
 }
 
-const deleteDatabaseTool = (id) => {
+const deleteDatabaseToolTransaction = (id) => {
   return db.runTransaction(async (transaction) => {
     await deleteToolFromCategoriesTransaction(transaction, id);
     await deleteToolFromToolsTransaction(transaction, id);
@@ -194,7 +194,7 @@ const deleteDatabaseTool = (id) => {
   });
 }
 
-// SECTION: Write to database
+// Write to database
 
 const saveTool = async (imageUrl, toolName, toolPrice, toolCategories, selectedSubcategories, modifiedToolId) => {
   console.log("saveTool()");
@@ -218,7 +218,6 @@ const saveImage = async (tool) => {
   return imageUrl;
 }
 
-// Theoretically better place is in app.js but it is used only from db.js -> here for now ( create/modify/deleteToolAndSaveUrlToCategories contains too much business logic)
 const addToolToSubcategories = (selectedOldCategory, toolId, selectedSubcategories) => {
   console.log("addToolToSubcategories()");
   return selectedOldCategory.subcategories.map((oldSubcategory) => {

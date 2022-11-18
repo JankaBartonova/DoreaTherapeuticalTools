@@ -1,5 +1,25 @@
 "use strict";
 
+// Basic dom operations
+
+const removeAllElements = (container) => {
+  container.querySelectorAll(":scope > *").forEach((element) => {
+    container.removeChild(element);
+  });
+}
+
+const toggleElement = (category, elements) => {
+  elements.forEach((element) => {
+    if (category != element) {
+      element.classList.remove("active");
+    } else {
+      element.classList.toggle("active");
+    }
+  });
+}
+
+// Navbar & tools listing
+
 const addNavBar = (domElement, category, index) => {
   let html = `
     <label class="btn btnNavBar btn-outline-primary" data-index="${index}">${category}</label>
@@ -24,24 +44,7 @@ const updateSubnavigationVisibility = (domElement, category, subcategories, cate
   }
 }
 
-const removeAllElements = (container) => {
-  container.querySelectorAll(":scope > *").forEach((element) => {
-    container.removeChild(element);
-  });
-}
-
-const toggleElement = (category, elements) => {
-  elements.forEach((element) => {
-    if (category != element) {
-      element.classList.remove("active");
-    } else {
-      element.classList.toggle("active");
-    }
-  });
-}
-
 const addToolToDom = (card) => {
-  // let cardId = card.id;
   let cardId = card.id.toString();
   if (cardId.length == 1) {
     cardId = `00${cardId}`
@@ -75,38 +78,7 @@ const addToolToDom = (card) => {
   registerModifyTool(state.authenticatedUser); 
 }
 
-const addMultiselect = (parent, _class, options, values, onChange) => {
-  values = values.filter((value) => {
-    return options.find((option) => {
-      return option.value == value;
-    });
-  })
-
-  return new SelectPure(parent, {
-    options: options,
-    value: values,
-    multiple: true,
-    autocomplete: true,
-    icon: "fa fa-times",
-    inlineIcon: false,
-    autocomplete: true,
-    onChange: onChange,
-    classNames: {
-      select: _class + " select-pure__select",
-      dropdownShown: "select-pure__select--opened",
-      multiselect: "select-pure__select--multiple",
-      label: "select-pure__label",
-      placeholder: "select-pure__placeholder",
-      dropdown: "select-pure__options",
-      option: "select-pure__option",
-      autocompleteInput: "select-pure__autocomplete",
-      selectedLabel: "select-pure__selected-label",
-      selectedOption: "select-pure__option--selected",
-      placeholderHidden: "select-pure__placeholder--hidden",
-      optionHidden: "select-pure__option--hidden"
-    }
-  });
-}
+// Admin
 
 const displayAdminOptions = (user) => {
   const adminOptions = document.querySelectorAll(".admin-options");
@@ -118,6 +90,27 @@ const displayAdminOptions = (user) => {
     adminOptions.forEach((option) => {
       option.classList.add("d-none");
     });
+  }
+}
+
+const setupUi = (user, loggedInLinks, loggedOutLinks, searchContainer) => {
+  if (user) {
+    loggedInLinks.forEach((link) => {
+      link.classList.remove("d-none");
+    });
+    loggedOutLinks.forEach((link) => {
+      link.classList.add("d-none");
+    });
+    searchContainer.classList.remove("d-none");
+  } else {
+    loggedInLinks.forEach((link) => {
+      link.classList.add("d-none");
+    });
+    loggedOutLinks.forEach((link) => {
+      link.classList.remove("d-none");
+    });
+    admin.classList.add("d-none");
+    searchContainer.classList.add("d-none");
   }
 }
 
@@ -152,6 +145,45 @@ const updateToolsVisibility = async (toolIds, user) => {
   }
 }
 
+const showAdminInterface = (adminElement) => {
+  adminElement.classList.remove("d-none");
+}
+
+// Form add or modify tool
+
+const addMultiselect = (parent, _class, options, values, onChange) => {
+  values = values.filter((value) => {
+    return options.find((option) => {
+      return option.value == value;
+    });
+  })
+
+  return new SelectPure(parent, {
+    options: options,
+    value: values,
+    multiple: true,
+    autocomplete: true,
+    icon: "fa fa-times",
+    inlineIcon: false,
+    autocomplete: true,
+    onChange: onChange,
+    classNames: {
+      select: _class + " select-pure__select",
+      dropdownShown: "select-pure__select--opened",
+      multiselect: "select-pure__select--multiple",
+      label: "select-pure__label",
+      placeholder: "select-pure__placeholder",
+      dropdown: "select-pure__options",
+      option: "select-pure__option",
+      autocompleteInput: "select-pure__autocomplete",
+      selectedLabel: "select-pure__selected-label",
+      selectedOption: "select-pure__option--selected",
+      placeholderHidden: "select-pure__placeholder--hidden",
+      optionHidden: "select-pure__option--hidden"
+    }
+  });
+}
+
 const extractCategories = (values) => {
   let categoryValues = new Set();
 
@@ -165,7 +197,6 @@ const extractCategories = (values) => {
     })
   }
 
-  // QUESTION: is it confusing to assing to existing variable of type Set function that converts it info Array? Or is ot better to have another variable?
   categoryValues = convertSetToArray(categoryValues);
   return categoryValues;
 }
@@ -213,27 +244,6 @@ const waitForClick = (element) => {
   })
 }
 
-const setupUi = (user, loggedInLinks, loggedOutLinks, searchContainer) => {
-  if (user) {
-    loggedInLinks.forEach((link) => {
-      link.classList.remove("d-none");
-    });
-    loggedOutLinks.forEach((link) => {
-      link.classList.add("d-none");
-    });
-    searchContainer.classList.remove("d-none");
-  } else {
-    loggedInLinks.forEach((link) => {
-      link.classList.add("d-none");
-    });
-    loggedOutLinks.forEach((link) => {
-      link.classList.remove("d-none");
-    });
-    admin.classList.add("d-none");
-    searchContainer.classList.add("d-none");
-  }
-}
-
 const removeMultiselectInstance = (container) => {
   while (container.firstChild) {
     container.firstChild.remove();
@@ -268,16 +278,6 @@ const removeMultiselectIntances = () => {
   }
 }
 
-const setDatabaseValues = (toolNameElement, toolPriceElement, toolImageElement, tool) => {
-  toolNameElement.value = `${tool.name}`;
-  toolPriceElement.value = `${tool.price}`;
-  if (tool.image) {
-    toolImageElement.src =  `${tool.image}`
-  } else {
-    toolImageElement.removeAttribute("src");
-  }
-};
-
 const insertMultiselectInstances = async (selectedCategories, selectedSubcategories) => {
   console.log("insertMultiselectInstances()")
   
@@ -292,12 +292,18 @@ const insertMultiselectInstances = async (selectedCategories, selectedSubcategor
   await createSubcategoriesSelect(selectedCategories, state.subcategories);
 }
 
+const setDatabaseValues = (toolNameElement, toolPriceElement, toolImageElement, tool) => {
+  toolNameElement.value = `${tool.name}`;
+  toolPriceElement.value = `${tool.price}`;
+  if (tool.image) {
+    toolImageElement.src =  `${tool.image}`
+  } else {
+    toolImageElement.removeAttribute("src");
+  }
+};
+
 const saveToolReferenceToDomElement = (formElement, tool) => {
   formElement.dataset.toolid = `${tool.id}`;
-}
-
-const showAdminInterface = (adminElement) => {
-  adminElement.classList.remove("d-none");
 }
 
 const showAddToolForm = async (adminElement, formElement, edit, toolNameElement, toolPriceElement, selectedCategories, selectedSubcategories, selectElement, toolImageElement, user, tool) => {  
@@ -322,6 +328,8 @@ const showAddToolForm = async (adminElement, formElement, edit, toolNameElement,
     adminElement.classList.add("d-none");
   }
 }
+
+// Errors & messages
 
 const showErrorToolDoesNotExist = (id) => {
   let html = `
@@ -364,6 +372,8 @@ const showSuccessMessage = (domElement, message) => {
     }, 2000);
 
 }
+
+// Search form
 
 const getToolDataFromUser = (formElement, toolNameElement, toolPriceElement) => {
   const modifiedToolId = parseInt(formElement.dataset.toolid) || -1;
