@@ -4,7 +4,8 @@
   "description": "Application managing therapeutical tools for children with disabilities",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy": "firebase deploy --only hosting",
+    "serve" : "firebase emulators:start"
   },
   "keywords": [
     "disabilities",
